@@ -3,7 +3,18 @@ import { describe, it, expect, vi } from 'vitest'
 // chatService imports ../firebase (real Firebase init) — stub it for unit tests.
 vi.mock('../firebase', () => ({ auth: { currentUser: null } }))
 
-import { buildSystemPrompt } from './chatService'
+import { buildSystemPrompt, sendChat } from './chatService'
+import { CRISIS_MESSAGE } from './aiSafety'
+
+describe('sendChat safety layer', () => {
+  it('answers a crisis message with fixed resources and never calls the network', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+    const reply = await sendChat([{ role: 'user', content: 'She fainted at dinner' }], {})
+    expect(reply).toBe(CRISIS_MESSAGE)
+    expect(fetchSpy).not.toHaveBeenCalled()
+    fetchSpy.mockRestore()
+  })
+})
 
 describe('buildSystemPrompt', () => {
   const facts = { thisWeek: { total: 3, okay: 2 }, lastWeek: { total: 0 } }

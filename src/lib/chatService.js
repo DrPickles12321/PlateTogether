@@ -1,4 +1,5 @@
 import { auth } from '../firebase'
+import { safetyReplyFor, enforceReplyPolicy } from './aiSafety'
 
 const PROXY_URL = import.meta.env.VITE_AI_PROXY_URL
 
@@ -18,6 +19,11 @@ Rules:
 }
 
 export async function sendChat(messages, weekFacts) {
+  // Crisis handling runs in code, before the model and before any config check, so it always works.
+  const lastUser = [...messages].reverse().find(m => m.role === 'user')
+  const safetyReply = safetyReplyFor(lastUser?.content)
+  if (safetyReply) return safetyReply
+
   if (!PROXY_URL) throw new Error('Assistant is not configured')
   const user = auth.currentUser
   if (!user) throw new Error('Sign in required')
@@ -29,5 +35,5 @@ export async function sendChat(messages, weekFacts) {
   })
   if (!res.ok) throw new Error(`Assistant error ${res.status}`)
   const data = await res.json()
-  return (data?.text || '').trim()
+  return enforceReplyPolicy((data?.text || '').trim())
 }
