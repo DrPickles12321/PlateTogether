@@ -5,14 +5,23 @@ import { FLAG_CONFIG } from './nutrition/FlagChip'
 const ENERGY_COLOR = { low: 'bg-blue-100 text-blue-700', moderate: 'bg-green-100 text-green-700', high: 'bg-orange-100 text-orange-700' }
 const ENERGY_LABEL = { low: 'Light', moderate: 'Balanced', high: 'Energy-rich' }
 
-export default function NutritionBadge({ foodName, category, mode = 'parent' }) {
+export default function NutritionBadge({ foodName, food, mode = 'parent' }) {
   const [open, setOpen] = useState(false)
 
   if (!foodName) return null
 
-  const info = lookupNutrition(foodName, category)
+  const info = lookupNutrition(food || foodName)
   const flags = info.an_relevant_flags
   const level = info.energy_density
+
+  // No USDA or manual values: say so instead of showing a made-up number.
+  if (!info.hasData) {
+    return (
+      <div className="flex flex-wrap gap-1 mt-1">
+        <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-gray-100 text-gray-500">No data</span>
+      </div>
+    )
+  }
 
   if (mode === 'parent') {
     return (

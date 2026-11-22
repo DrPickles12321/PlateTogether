@@ -48,8 +48,10 @@ export async function generateWeeklyInsights({ parentMealItemsByDate, mealLogs =
       .filter(([, items]) => items.length > 0)
       .map(([meal, items]) => {
         const names = items.map(f => f.name).join(', ')
-        const cals = items.reduce((s, f) => s + (lookupNutrition(f.name, f.category).calories || 0), 0)
-        return `  ${meal}: ${names} (~${Math.round(cals)} kcal)`
+        const known = items.map(f => lookupNutrition(f)).filter(n => n.hasData)
+        // Only real values go to the model; a meal with none gets no number at all.
+        const kcal = known.length ? ` (~${Math.round(known.reduce((s, n) => s + n.calories, 0))} kcal, ${known.length} of ${items.length} foods with data)` : ''
+        return `  ${meal}: ${names}${kcal}`
       }).join('\n')
     return `${date}:\n${meals}`
   }).join('\n\n')

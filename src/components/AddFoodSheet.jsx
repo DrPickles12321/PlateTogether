@@ -5,7 +5,6 @@ import Modal from './Modal'
 import NutritionFacts from './NutritionFacts'
 import { SuggestedFoods } from './FoodSidebar'
 import { useFirebaseData } from '../contexts/FirebaseDataContext'
-import { lookupNutrition } from '../lib/nutritionService'
 
 const CAT_DOT = { familiar: 'var(--mint)', working_on: 'var(--peach)', challenge: 'var(--pink)' }
 
@@ -29,9 +28,8 @@ function buildSections(foods, sortMode) {
     return [{ label: null, foods: [...foods].sort(byName) }]
   }
   if (sortMode === 'group') {
-    // Prefer the USDA-enriched group persisted on the food; fall back to the
-    // local nutrition DB's plate_zone for foods added before enrichment.
-    const withZone = foods.map(f => ({ ...f, _zone: f.group || lookupNutrition(f.name, f.category).plate_zone || 'mixed' }))
+    // The USDA-enriched group persisted on the food; foods without one go under Other.
+    const withZone = foods.map(f => ({ ...f, _zone: f.group || 'mixed' }))
     return GROUP_ORDER
       .map(z => ({ label: GROUP_LABEL[z], foods: withZone.filter(f => f._zone === z).sort(byName) }))
       .filter(s => s.foods.length > 0)

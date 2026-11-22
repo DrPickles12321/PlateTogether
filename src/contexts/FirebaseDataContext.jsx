@@ -4,6 +4,7 @@ import { deleteUser } from 'firebase/auth'
 import { db, auth } from '../firebase'
 import { useAuth } from './AuthContext'
 import { fetchFoodInfo } from '../lib/foodData'
+import { quickLogPatch } from '../lib/quickLog'
 
 const FirebaseDataContext = createContext(null)
 
@@ -357,6 +358,26 @@ export function FirebaseDataProvider({ children }) {
         [mealType]: { ...(prev[date]?.[mealType] || {}), status },
       },
     }))
+  }
+
+  // One tap of the quick log: writes status and/or the post-meal difficulty in a
+  // single update. Works with no foods added (a refused meal has none).
+  function quickLogMeal(date, mealType, { outcome, difficulty }) {
+    if (!uid) return
+    const patch = quickLogPatch({ outcome, difficulty })
+    const updates = {}
+    for (const [key, value] of Object.entries(patch)) {
+      updates[`users/${uid}/mealLogs/${date}/${mealType}/${key}`] = value
+    }
+    if (!Object.keys(updates).length) return
+    update(ref(db), updates)
+    setFbMealData(prev => {
+      const meal = prev[date]?.[mealType] || {}
+      const next = { ...meal }
+      if (patch.status) next.status = patch.status
+      if (patch['distress/post'] != null) next.distress = { ...(meal.distress || {}), post: patch['distress/post'] }
+      return { ...prev, [date]: { ...(prev[date] || {}), [mealType]: next } }
+    })
   }
 
   // Clinician assigns challenge foods to the viewed patient (writes to the
@@ -746,6 +767,7 @@ export function FirebaseDataProvider({ children }) {
       deleteClinicianNote,
       setMealItems,
       setMealStatus,
+      quickLogMeal,
       mealDistress,
       setMealDistress,
       familyCode,

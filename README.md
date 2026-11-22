@@ -74,6 +74,19 @@ npm run test:rules  # security-rules tests in the Firebase emulator (see below)
 
 Revoking a clinician writes two things in one update: `careTeam/{clinician}/active = false` and a parent-only flag `revokedClinicians/{clinician} = true`. Every clinician access rule checks the flag, and a clinician can create their own `careTeam` entry once but never overwrite or delete it. This is why a revoked clinician cannot get back in by deleting their record.
 
+### Running the app against local emulators (fake data)
+
+To try the app without touching the real Firebase project, start the Auth and Database emulators and the dev server with these variables set (use made-up accounts and foods only):
+
+```bash
+VITE_USE_EMULATOR=true \
+VITE_FIREBASE_API_KEY=demo-key VITE_FIREBASE_AUTH_DOMAIN=demo-plate.firebaseapp.com \
+VITE_FIREBASE_DATABASE_URL=https://demo-plate-default-rtdb.firebaseio.com \
+VITE_FIREBASE_PROJECT_ID=demo-plate VITE_FIREBASE_APP_ID=demo-app npm run dev
+```
+
+The emulators need a config with `emulators.auth` (port 9099) and `emulators.database` (port 9000), for example `firebase emulators:start --only auth,database --project demo-plate --config <your-emulator-config>.json`. The switch lives in `src/firebase.js` and is ignored in production builds. The AI worker is not started, so food lookups return "No data" locally.
+
 ## Deploying
 
 The app deploys to Firebase Hosting on every push to `main` via GitHub Actions (`.github/workflows/`).

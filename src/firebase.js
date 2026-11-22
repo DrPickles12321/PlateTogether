@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase/app'
 import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check'
-import { getAuth } from 'firebase/auth'
-import { getDatabase } from 'firebase/database'
+import { getAuth, connectAuthEmulator } from 'firebase/auth'
+import { getDatabase, connectDatabaseEmulator } from 'firebase/database'
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -36,3 +36,10 @@ if (recaptchaSiteKey) {
 
 export const auth = getAuth(app)
 export const db = getDatabase(app)
+
+// Local development against the Firebase emulators (fake data only). Set
+// VITE_USE_EMULATOR=true when running `npm run dev`; it is ignored in production builds.
+if (import.meta.env.DEV && import.meta.env.VITE_USE_EMULATOR === 'true') {
+  connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true })
+  connectDatabaseEmulator(db, '127.0.0.1', 9000)
+}

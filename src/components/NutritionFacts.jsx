@@ -15,21 +15,20 @@ const GROUP_LABEL = { grain: 'Grains', produce: 'Fruits & veggies', protein: 'Pr
 // Shows estimated values (from the local DB / USDA group) or the family's
 // manually-entered override, with edit + reset.
 export default function NutritionFacts({ food, onSave, onReset }) {
-  const estimated = lookupNutrition(food.name, food.category)
+  const values = lookupNutrition(food)        // manual entry, else USDA, else no data
   const manual = food.nutrition || null      // hand-entered override
   const usda = food.usdaNutrition || null     // auto-fetched from USDA
-  const values = manual || usda || estimated
-  const source = manual ? 'manual' : usda ? 'usda' : 'estimated'
-  const group = food.group || estimated.plate_zone || 'mixed'
+  const source = values.source || 'none'
+  const group = food.group || 'mixed'
 
+  // With no data the fields start empty so nothing looks pre-filled with a guess.
+  const startValues = () => Object.fromEntries(FIELDS.map(f => [f.key, values.hasData && (source !== 'manual' || manual?.[f.key] != null) ? String(values[f.key] ?? 0) : '']))
   const [editing, setEditing] = useState(false)
-  const [draft, setDraft] = useState(() =>
-    Object.fromEntries(FIELDS.map(f => [f.key, String(values[f.key] ?? 0)]))
-  )
+  const [draft, setDraft] = useState(startValues)
   const [saving, setSaving] = useState(false)
 
   function startEdit() {
-    setDraft(Object.fromEntries(FIELDS.map(f => [f.key, String(values[f.key] ?? 0)])))
+    setDraft(startValues())
     setEditing(true)
   }
 
@@ -38,7 +37,8 @@ export default function NutritionFacts({ food, onSave, onReset }) {
     const nutrition = {}
     for (const f of FIELDS) {
       const n = parseFloat(draft[f.key])
-      nutrition[f.key] = Number.isFinite(n) && n >= 0 ? Math.round(n * 10) / 10 : 0
+      // Only what the parent typed is saved; blanks stay blank instead of becoming 0.
+      if (Number.isFinite(n) && n >= 0) nutrition[f.key] = Math.round(n * 10) / 10
     }
     try {
       await onSave(nutrition)
@@ -68,11 +68,8 @@ export default function NutritionFacts({ food, onSave, onReset }) {
           color: source === 'manual' ? 'var(--mint)' : source === 'usda' ? 'var(--coral)' : 'var(--text-light)',
           border: `1px solid ${source === 'manual' ? 'var(--mint-mid)' : source === 'usda' ? 'var(--coral-mid)' : 'var(--border)'}`,
         }}>
-          {source === 'manual' ? 'Manually entered' : source === 'usda' ? 'From USDA' : 'Estimated'}
+          {source === 'manual' ? 'Manually entered' : source === 'usda' ? 'From USDA' : 'No data'}
         </span>
-        {source === 'estimated' && estimated.matchedName && estimated.confidence !== 'not_found' && (
-          <span style={{ fontSize: 12, color: 'var(--text-light)' }}>matched “{estimated.matchedName}”</span>
-        )}
         <span style={{
           fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20,
           marginLeft: 'auto', background: 'var(--peach-light)', color: 'var(--peach)',
@@ -82,7 +79,9 @@ export default function NutritionFacts({ food, onSave, onReset }) {
 
       {!editing && (
         <p style={{ fontSize: 12, color: 'var(--text-light)', marginBottom: 14 }}>
-          Per {source === 'estimated' ? (estimated.serving_description || 'serving') : 'serving'}
+          {source === 'none'
+            ? 'We have no nutrition numbers for this food yet. Tap “Add values” to type them in from the package.'
+            : source === 'usda' ? 'Per 100 g (USDA FoodData Central)' : 'Per serving, as you entered'}
         </p>
       )}
 
@@ -114,7 +113,7 @@ export default function NutritionFacts({ food, onSave, onReset }) {
               </span>
             ) : (
               <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-dark)' }}>
-                {Math.round((values[f.key] ?? 0) * 10) / 10}<span style={{ fontSize: 12, fontWeight: 400, color: 'var(--text-light)', marginLeft: 3 }}>{f.unit}</span>
+                {values.hasData && (source !== 'manual' || manual?.[f.key] != null) ? Math.round((values[f.key] ?? 0) * 10) / 10 : '—'}<span style={{ fontSize: 12, fontWeight: 400, color: 'var(--text-light)', marginLeft: 3 }}>{f.unit}</span>
               </span>
             )}
           </div>
@@ -132,8 +131,8 @@ export default function NutritionFacts({ food, onSave, onReset }) {
             >Cancel</button>
             <button
               onClick={handleSave}
-              disabled={saving}
-              style={btnStyle(true)}
+              disabled={saving || draft.calories.trim() === ''}
+              style={{ ...btnStyle(true), opacity: draft.calories.trim() === '' ? 0.45 : 1 }}
             >{saving ? 'Saving…' : 'Save'}</button>
           </>
         ) : (
@@ -143,18 +142,18 @@ export default function NutritionFacts({ food, onSave, onReset }) {
                 onClick={handleReset}
                 disabled={saving}
                 style={btnStyle(false)}
-              >Reset{usda ? ' to USDA' : ' to estimate'}</button>
+              >{usda ? 'Reset to USDA' : 'Clear my values'}</button>
             )}
             <button
               onClick={startEdit}
               style={btnStyle(true)}
-            >Edit values</button>
+            >{values.hasData ? 'Edit values' : 'Add values'}</button>
           </>
         )}
       </div>
 
       <p style={{ fontSize: 11, color: 'var(--text-light)', lineHeight: 1.5, marginTop: 16 }}>
-        Estimates are approximate and for planning only — not a substitute for medical advice.
+        Numbers are for planning only — not a substitute for medical advice.
       </p>
     </div>
   )

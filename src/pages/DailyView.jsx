@@ -11,6 +11,8 @@ import { useNutritionalTargets } from '../contexts/NutritionalTargetsContext'
 import { useFirebaseData } from '../contexts/FirebaseDataContext'
 import { getWeekDates, localIsoDate } from '../lib/constants'
 import DistressScale from '../components/DistressScale'
+import QuickLogSheet from '../components/QuickLogSheet'
+import { OUTCOMES, STATUS_TO_OUTCOME, sameAsYesterday, recentFoods } from '../lib/quickLog'
 
 const DAYS = [
   { key: 'mon', label: 'Mon' },
@@ -416,6 +418,7 @@ function MobileMealCard({
   expanded, onToggleExpand, onOpenAddFood, onRemove,
   selectedFoodIndex, onFoodClick, onFoodStatusSet, onFoodPortionSet,
   distress, onDistressSet,
+  onOpenLog, yesterdayItems = [], recentList = [], onAddItems,
 }) {
   const loggedStatus = latestLog?.status || null
   const hasItems = items.length > 0
@@ -424,6 +427,9 @@ function MobileMealCard({
   const { hour, minute, period } = parseTimeValue(time)
   const timeLabel = `${hour}:${minute} ${period}`
   const foodSummary = items.map(f => f.name).join(', ')
+  const logLabel = isSkipped
+    ? 'Skipped'
+    : OUTCOMES.find(o => o.key === STATUS_TO_OUTCOME[loggedStatus])?.label || statusMeta?.label || ''
 
   function handleSkipTap(e) {
     e.stopPropagation()
@@ -465,28 +471,43 @@ function MobileMealCard({
           ) : isSkipped ? (
             <div style={{ fontSize: 12, color: 'var(--text-light)', marginTop: 1 }}>⊘ Skipped</div>
           ) : (
-            <div style={{ fontSize: 12, color: '#b08a8e', marginTop: 1 }}>Tap to add foods</div>
+            <div style={{ fontSize: 12, color: '#b08a8e', marginTop: 1 }}>{loggedStatus ? timeLabel : `${timeLabel} · not logged`}</div>
           )}
         </div>
 
-        <span style={{ fontSize: 11, color: 'var(--text-light)', flexShrink: 0 }}>{timeLabel}</span>
-
-        {!hasItems && !isSkipped ? (
+        {loggedStatus ? (
           <button
-            onClick={handleSkipTap}
+            onClick={e => { e.stopPropagation(); onOpenLog() }}
+            aria-label={`${meal.label} logged as ${logLabel}. Change`}
             style={{
-              fontSize: 11, fontWeight: 600, color: '#8a7568',
-              border: '1.5px solid #ddd0bd', borderRadius: 20, background: 'white',
-              padding: '6px 10px', flexShrink: 0, minHeight: 30, cursor: 'pointer',
+              fontSize: 12, fontWeight: 600, color: statusMeta?.color, background: statusMeta?.bg,
+              border: `1.5px solid ${statusMeta?.border}`, borderRadius: 20,
+              padding: '6px 12px', flexShrink: 0, minHeight: 36, cursor: 'pointer',
               fontFamily: "'Outfit', sans-serif",
             }}
-          >Skip</button>
+          >{logLabel}</button>
         ) : (
-          <span style={{
-            width: 9, height: 9, borderRadius: '50%', flexShrink: 0,
-            background: statusMeta ? statusMeta.color : 'transparent',
-            border: statusMeta ? 'none' : '1.5px solid var(--border-mid)',
-          }} />
+          <>
+            <button
+              onClick={e => { e.stopPropagation(); onOpenLog() }}
+              style={{
+                fontSize: 13, fontWeight: 700, color: 'white', background: meal.color,
+                border: 'none', borderRadius: 20, padding: '8px 16px', flexShrink: 0,
+                minHeight: 40, cursor: 'pointer', fontFamily: "'Outfit', sans-serif",
+              }}
+            >Log</button>
+            {!hasItems && (
+              <button
+                onClick={handleSkipTap}
+                style={{
+                  fontSize: 11, fontWeight: 600, color: '#8a7568',
+                  border: '1.5px solid #ddd0bd', borderRadius: 20, background: 'white',
+                  padding: '6px 10px', flexShrink: 0, minHeight: 40, cursor: 'pointer',
+                  fontFamily: "'Outfit', sans-serif",
+                }}
+              >Skip</button>
+            )}
+          </>
         )}
 
         <span style={{
@@ -494,6 +515,22 @@ function MobileMealCard({
           transform: expanded ? 'rotate(90deg)' : 'none', transition: 'transform 0.15s',
         }}>›</span>
       </div>
+
+      {/* One-tap repeat of yesterday's meal, shown without expanding the card */}
+      {!hasItems && !isSkipped && yesterdayItems.length > 0 && (
+        <div style={{ padding: '0 14px 12px' }}>
+          <button
+            onClick={() => onAddItems(yesterdayItems)}
+            style={{
+              width: '100%', minHeight: 44, borderRadius: 12, textAlign: 'left',
+              border: `1.5px dashed ${meal.color}`, background: meal.bg, color: meal.color,
+              padding: '8px 12px', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+              fontFamily: "'Outfit', sans-serif", overflow: 'hidden',
+              textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+            }}
+          >Same as yesterday:{yesterdayItems.map(f => f.name).join(', ')}</button>
+        </div>
+      )}
 
       {/* Expanded body */}
       {expanded && (
@@ -605,6 +642,25 @@ function MobileMealCard({
                   >{p.label}</button>
                 )
               })}
+            </div>
+          )}
+
+          {recentList.length > 0 && (
+            <div style={{ marginBottom: 10 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-light)', letterSpacing: '0.7px', textTransform: 'uppercase', marginBottom: 6 }}>Recent</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                {recentList.map(food => (
+                  <button
+                    key={food.id || food.name}
+                    onClick={() => onAddItems([food])}
+                    style={{
+                      minHeight: 40, padding: '8px 12px', borderRadius: 20, fontSize: 13, fontWeight: 500,
+                      border: '1px solid var(--border-mid)', background: 'white', color: 'var(--text-dark)',
+                      cursor: 'pointer', fontFamily: "'Outfit', sans-serif",
+                    }}
+                  >+ {food.name}</button>
+                ))}
+              </div>
             </div>
           )}
 
@@ -913,7 +969,7 @@ function DailyProgressPanel({ mealItems }) {
     const all = Object.values(mealItems).flat()
     const sums = { protein: 0, carbs: 0, fruitsVeggies: 0 }
     for (const food of all) {
-      const info = lookupNutrition(food.name, food.category)
+      const info = lookupNutrition(food)
       for (const n of RING_NUTRIENTS) sums[n.key] += n.getVal(info)
     }
     return {
@@ -1300,9 +1356,11 @@ export default function DailyView() {
   const [selectedFood, setSelectedFood] = useState(null)
   const [expandedMeal, setExpandedMeal] = useState(null)
   const [addFoodSheetMeal, setAddFoodSheetMeal] = useState(null)
+  const [quickLogMealKey, setQuickLogMealKey] = useState(null)
   const isMobile = useIsMobile()
 
   const {
+    quickLogMeal,
     supplementLog, toggleSupplement,
     allMealItems, setMealItems,
     mealTimesByDate, updateMealTime,
@@ -1377,6 +1435,19 @@ export default function DailyView() {
 
   function addFoodToMeal(mealType, food) {
     setMealItemsForDay(prev => ({ ...prev, [mealType]: [...prev[mealType], food] }))
+    if (mealStatuses[selectedDate]?.[mealType] === 'skipped') {
+      setMealStatus(selectedDate, mealType, null)
+    }
+  }
+
+  // Add several foods in one write (each addFoodToMeal call would start from the
+  // same snapshot and overwrite the one before it). Skips foods already in the meal.
+  function addFoodsToMeal(mealType, foods) {
+    setMealItemsForDay(prev => {
+      const have = new Set(prev[mealType].map(f => f.id || f.name))
+      const fresh = foods.filter(f => !have.has(f.id || f.name))
+      return fresh.length ? { ...prev, [mealType]: [...prev[mealType], ...fresh] } : prev
+    })
     if (mealStatuses[selectedDate]?.[mealType] === 'skipped') {
       setMealStatus(selectedDate, mealType, null)
     }
@@ -1491,6 +1562,10 @@ export default function DailyView() {
                   )}
                   onFoodStatusSet={setFoodStatus}
                   onFoodPortionSet={setFoodPortion}
+                  onOpenLog={() => setQuickLogMealKey(meal.key)}
+                  yesterdayItems={sameAsYesterday(allMealItems, selectedDate, meal.key)}
+                  recentList={recentFoods(allMealItems, { date: selectedDate, mealType: meal.key, exclude: mealItems[meal.key] })}
+                  onAddItems={foods => addFoodsToMeal(meal.key, foods)}
                 />
               )
             })}
@@ -1548,6 +1623,19 @@ export default function DailyView() {
           mealItems={mealItems[addFoodSheetMeal] || []}
           onAddToMeal={food => addFoodToMeal(addFoodSheetMeal, food)}
           onRemoveFromMeal={food => removeFoodFromMeal(addFoodSheetMeal, food)}
+        />
+
+        <QuickLogSheet
+          open={quickLogMealKey != null}
+          meal={MEALS.find(m => m.key === quickLogMealKey) || null}
+          status={quickLogMealKey ? mealStatuses[selectedDate]?.[quickLogMealKey] ?? null : null}
+          difficulty={quickLogMealKey ? mealDistress?.[selectedDate]?.[quickLogMealKey]?.post ?? null : null}
+          onOutcome={outcome => quickLogMeal(selectedDate, quickLogMealKey, { outcome })}
+          onDifficulty={difficulty => {
+            quickLogMeal(selectedDate, quickLogMealKey, { difficulty })
+            setQuickLogMealKey(null)
+          }}
+          onClose={() => setQuickLogMealKey(null)}
         />
       </>
     )

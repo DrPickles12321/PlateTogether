@@ -13,7 +13,7 @@ export default function DailyNutritionSummary({ day, loggedMealItems = {}, onClo
     return MEAL_ORDER.flatMap(mealType => {
       const items = loggedMealItems[mealType] || []
       return items.map(item => {
-        const info = lookupNutrition(item.name, item.category || 'working_on')
+        const info = lookupNutrition(item)
         return { mealType, food: item, info }
       })
     })
@@ -21,8 +21,10 @@ export default function DailyNutritionSummary({ day, loggedMealItems = {}, onClo
 
   const dayTotal = useMemo(() => {
     if (mealData.length === 0) return null
-    return aggregateMealNutrition(mealData.map(m => m.info))
+    const total = aggregateMealNutrition(mealData.map(m => m.info))
+    return total.unknownCount === mealData.length ? null : total   // nothing real to total
   }, [mealData])
+  const unknownCount = mealData.filter(m => !m.info.hasData).length
 
   return (
     <div className="fixed inset-y-0 right-0 w-full sm:w-96 max-w-full bg-white shadow-2xl z-40 flex flex-col overflow-hidden border-l border-gray-200">
@@ -75,13 +77,19 @@ export default function DailyNutritionSummary({ day, loggedMealItems = {}, onClo
               </div>
             )}
 
+            {unknownCount > 0 && (
+              <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-3">
+                {unknownCount} of {mealData.length} foods have no nutrition data and are left out of the totals.
+              </p>
+            )}
+
             <div className="space-y-3">
               <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Per Meal</div>
               {mealData.map(({ mealType, food, info }) => (
                 <div key={mealType} className="bg-gray-50 rounded-lg p-3">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-xs font-semibold text-gray-700">{MEAL_LABEL[mealType]}</span>
-                    <span className="text-xs text-gray-500">{info.calories} kcal</span>
+                    <span className="text-xs text-gray-500">{info.hasData ? `${info.calories} kcal` : 'No data'}</span>
                   </div>
                   <div className="text-sm text-gray-800 mb-2">{food.name}</div>
                   {info.an_relevant_flags.length > 0 && (
@@ -97,7 +105,7 @@ export default function DailyNutritionSummary({ day, loggedMealItems = {}, onClo
       </div>
 
       <div className="p-3 border-t border-gray-100">
-        <p className="text-[10px] text-gray-400 text-center">Estimated values based on typical serving sizes</p>
+        <p className="text-[10px] text-gray-400 text-center">Values come from USDA or the family; foods with no data are not counted</p>
       </div>
     </div>
   )
