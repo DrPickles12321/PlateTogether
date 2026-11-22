@@ -2,7 +2,7 @@
 
 Shared meal support for families navigating eating-disorder recovery. Parents log meals day-to-day, and a linked clinician reviews progress, leaves session notes, and adjusts a care plan — all from one shared record.
 
-Built at HackPrinceton.
+Started at HackPrinceton.
 
 ## What it does
 
