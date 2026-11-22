@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useDraggable } from '@dnd-kit/core'
 import { useFirebaseData } from '../contexts/FirebaseDataContext'
+import { useAppMode } from '../hooks/useAppMode'
 import AddFoodInput from './AddFoodInput'
 import Modal from './Modal'
 import NutritionFacts from './NutritionFacts'
@@ -20,6 +21,7 @@ function FoodCard({ food, onDelete, onChangeCategory }) {
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [showNutrition, setShowNutrition] = useState(false)
   const { setFoodNutrition, resetFoodNutrition } = useFirebaseData()
+  const { hideNutritionNumbers } = useAppMode()
   const menuRef = useRef(null)
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: food.id, data: { food } })
   const cat = CATEGORIES.find(c => c.key === food.category) || CATEGORIES[0]
@@ -88,17 +90,21 @@ function FoodCard({ food, onDelete, onChangeCategory }) {
               background: 'white', border: '1.5px solid var(--border)', borderRadius: 14,
               boxShadow: '0 8px 28px rgba(39,23,6,0.12)', overflow: 'hidden', minWidth: 168,
             }}>
-              <button
-                onClick={() => { setShowNutrition(true); setMenuOpen(false) }}
-                style={{
-                  width: '100%', textAlign: 'left', padding: '10px 14px', fontSize: 13,
-                  background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-dark)',
-                  display: 'block', fontFamily: "'Outfit', sans-serif",
-                }}
-                onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-warm)'}
-                onMouseLeave={e => e.currentTarget.style.background = 'none'}
-              >Nutrition facts</button>
-              <div style={{ height: 1, background: 'var(--border)', margin: '2px 12px' }} />
+              {!hideNutritionNumbers && (
+                <>
+                  <button
+                    onClick={() => { setShowNutrition(true); setMenuOpen(false) }}
+                    style={{
+                      width: '100%', textAlign: 'left', padding: '10px 14px', fontSize: 13,
+                      background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-dark)',
+                      display: 'block', fontFamily: "'Outfit', sans-serif",
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-warm)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                  >Nutrition facts</button>
+                  <div style={{ height: 1, background: 'var(--border)', margin: '2px 12px' }} />
+                </>
+              )}
               {Object.entries(MOVE_LABELS).filter(([k]) => k !== food.category).map(([key, label]) => (
                 <button
                   key={key}

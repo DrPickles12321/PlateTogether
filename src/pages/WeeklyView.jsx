@@ -3,6 +3,7 @@ import { useOutletContext } from 'react-router-dom'
 import { lookupNutrition } from '../lib/nutritionService'
 import { getWeekDates, localIsoDate } from '../lib/constants'
 import { useIsMobile } from '../hooks/useIsMobile'
+import { useAppMode } from '../hooks/useAppMode'
 import BottomSheet from '../components/BottomSheet'
 import ChevronButton from '../components/ChevronButton'
 import WeekSummaryStrip from '../components/WeekSummaryStrip'
@@ -166,6 +167,7 @@ function DayPopover({ day, macros, style, popoverRef }) {
 export default function WeeklyView() {
   const { mealStatuses = {}, allMealItems = {}, weekOffset = 0, setWeekOffset } = useOutletContext()
   const isMobile = useIsMobile()
+  const { hideNutritionNumbers } = useAppMode()
   const [openDay, setOpenDay]         = useState(null)
   const [sheetDay, setSheetDay]       = useState(null)
   const [popoverPos, setPopoverPos]   = useState({ top: 0, left: 0 })
@@ -216,16 +218,21 @@ export default function WeeklyView() {
     const produce = Math.round(
       Object.values(macrosByDay).reduce((a, m) => a + (m.fruitsVeggies || 0), 0) / PRODUCE_G_PER_SERVING
     )
-    return [
+    const chips = [
       { icon: '🍽️', label: 'Meals logged', value: `${roll.logged}/${roll.totalSlots}`, color: 'var(--text-dark)', bg: 'white', border: 'var(--border)' },
       { icon: '🌿', label: 'Went okay',     value: `${roll.okayPct}%`,                 color: 'var(--mint)',  bg: 'var(--mint-light)',  border: 'var(--mint-mid)' },
       { icon: '🔥', label: 'Day streak', value: streak, color: 'var(--coral)', bg: 'var(--coral-light)', border: 'var(--coral-mid)' },
-      { icon: '🥕', label: 'Produce servings', value: produce, color: 'var(--peach)', bg: 'var(--peach-light)', border: 'var(--peach-mid)' },
     ]
-  }, [mealStatuses, weekDates, macrosByDay])
+    // Servings of one food group is a nutrition target in disguise, so it stays out of the focused mode.
+    if (!hideNutritionNumbers) {
+      chips.push({ icon: '🥕', label: 'Produce servings', value: produce, color: 'var(--peach)', bg: 'var(--peach-light)', border: 'var(--peach-mid)' })
+    }
+    return chips
+  }, [mealStatuses, weekDates, macrosByDay, hideNutritionNumbers])
 
   // ── day header click → compute viewport-safe position ──
   const handleDayClick = useCallback((dayKey) => {
+    if (hideNutritionNumbers) return
     if (openDay === dayKey) { setOpenDay(null); return }
     const el = headerRefs.current[dayKey]
     if (!el) return
@@ -234,7 +241,7 @@ export default function WeeklyView() {
     const clampedLeft = Math.max(16, Math.min(idealLeft, window.innerWidth - POPOVER_WIDTH - 16))
     setPopoverPos({ top: rect.bottom + 8, left: clampedLeft })
     setOpenDay(dayKey)
-  }, [openDay])
+  }, [openDay, hideNutritionNumbers])
 
   const openDayObj = DAYS.find(d => d.key === openDay)
 
@@ -248,7 +255,9 @@ export default function WeeklyView() {
         <h2 className="font-lora" style={{ fontSize: 23, fontWeight: 600, color: 'var(--text-dark)', margin: '6px 0 2px', lineHeight: 1.1 }}>
           Week at a Glance
         </h2>
-        <p style={{ fontSize: 13, color: 'var(--text-light)', margin: '0 0 14px' }}>Tap a day for its nutrition summary</p>
+        <p style={{ fontSize: 13, color: 'var(--text-light)', margin: '0 0 14px' }}>
+          {hideNutritionNumbers ? 'How each meal went this week' : 'Tap a day for its nutrition summary'}
+        </p>
 
         {/* Week navigator */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
@@ -277,7 +286,7 @@ export default function WeeklyView() {
               const isToday = dateIso === TODAY_ISO
               const dayNum = new Date(dateIso + 'T12:00:00').getDate()
               return (
-                <button key={day.key} onClick={() => setSheetDay(day.key)} style={{
+                <button key={day.key} onClick={hideNutritionNumbers ? undefined : () => setSheetDay(day.key)} style={{
                   padding: '8px 1px', border: 'none', background: 'none', cursor: 'pointer',
                   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, fontFamily: "'Lato', sans-serif",
                 }}>
@@ -317,7 +326,7 @@ export default function WeeklyView() {
           </div>
         </div>
 
-        <BottomSheet open={!!sheetDay} onClose={() => setSheetDay(null)} title={sheetDayObj?.full || ''}>
+        <BottomSheet open={!hideNutritionNumbers && !!sheetDay} onClose={() => setSheetDay(null)} title={sheetDayObj?.full || ''}>
           <div style={{ textAlign: 'center', fontSize: 9, fontWeight: 700, color: 'var(--text-light)', letterSpacing: '0.6px', textTransform: 'uppercase', marginBottom: 12 }}>
             Daily nutrition summary
           </div>
@@ -339,7 +348,9 @@ export default function WeeklyView() {
           <h2 className="font-lora" style={{ fontSize: 26, fontWeight: 400, color: 'var(--text-dark)', marginBottom: 5, lineHeight: 1.15 }}>
             Week at a Glance
           </h2>
-          <p style={{ fontSize: 14, color: 'var(--text-mid)' }}>Click a day header for the daily nutrition summary</p>
+          <p style={{ fontSize: 14, color: 'var(--text-mid)' }}>
+            {hideNutritionNumbers ? 'How each meal went this week' : 'Click a day header for the daily nutrition summary'}
+          </p>
         </div>
 
         {/* Week navigator */}

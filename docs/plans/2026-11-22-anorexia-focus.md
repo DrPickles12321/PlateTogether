@@ -64,13 +64,16 @@ can pick **General meal support** (today's app) or **Anorexia (family-based)**. 
 on that device only. It is a testing aid so you can try the focused version without changing real
 data.
 
-In Anorexia mode, **wired so far:** the daily progress rings (grams of protein and carbs, fruit and
-vegetable goals) are hidden on the Today screen, and the nutrition "i" button is hidden in the
-Add food sheet.
+In Anorexia mode, **parent-facing screens wired:** the daily progress rings on Today, the
+nutrition "i" button in the Add food sheet, the "Nutrition facts" item in the desktop food menu,
+and on the Week tab the daily nutrition summary and the "Produce servings" chip (day headers no
+longer open anything).
 
-**Not wired yet:** the Week and Insights tabs, the food sidebar on desktop, and the clinician
-screens still show nutrition numbers. Wiring them is the next small step, together with the
-warning-signs card and the weekly summary.
+**Left alone on purpose:** the clinician screens (Insights, Care plan, week grid badges) still
+show nutrition numbers, because the clinician may need them. Whether they should is question 2
+below. **Not verified in a browser:** the Week tab and desktop food menu changes pass tests and the
+build but I have not clicked through them. The warning-signs card and weekly summary are still the
+next build steps.
 
 ## Questions for a clinician (please get these answered before building more)
 
