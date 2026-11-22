@@ -7,6 +7,7 @@ import { ref, set } from 'firebase/database'
 import { auth, db } from '../firebase'
 import { useAuth } from '../contexts/AuthContext'
 import { useIsMobile } from '../hooks/useIsMobile'
+import ModeChooser from './ModeChooser'
 
 const INPUT_STYLE = {
   width: '100%', padding: '12px 14px', borderRadius: 12,
@@ -89,6 +90,7 @@ export default function LoginScreen() {
 
   const formBlock = (
     <>
+      <ModeChooser />
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         {/* Role toggle */}
         <div>

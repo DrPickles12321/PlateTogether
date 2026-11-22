@@ -5,6 +5,7 @@ import Modal from './Modal'
 import NutritionFacts from './NutritionFacts'
 import { SuggestedFoods } from './FoodSidebar'
 import { useFirebaseData } from '../contexts/FirebaseDataContext'
+import { useAppMode } from '../hooks/useAppMode'
 
 const CAT_DOT = { familiar: 'var(--mint)', working_on: 'var(--peach)', challenge: 'var(--pink)' }
 
@@ -103,6 +104,7 @@ function MyFoodsPicker({ foods, sortMode, inMealIds, onTap, onInfo }) {
 
 export default function AddFoodSheet({ open, onClose, mealLabel, mealItems = [], onAddToMeal, onRemoveFromMeal }) {
   const { foodItems, addFoodItem, setFoodNutrition, resetFoodNutrition, assignedChallenges } = useFirebaseData()
+  const { hideNutritionNumbers } = useAppMode()
   const [tab, setTab] = useState('mine')
   const [sortMode, setSortMode] = useState('category')
   const [factsFood, setFactsFood] = useState(null)
@@ -199,7 +201,7 @@ export default function AddFoodSheet({ open, onClose, mealLabel, mealItems = [],
             </div>
           )}
 
-          <MyFoodsPicker foods={foodItems} sortMode={sortMode} inMealIds={inMealIds} onTap={toggle} onInfo={setFactsFood} />
+          <MyFoodsPicker foods={foodItems} sortMode={sortMode} inMealIds={inMealIds} onTap={toggle} onInfo={hideNutritionNumbers ? null : setFactsFood} />
         </>
       ) : (
         <SuggestedFoods onAdd={handleAddNewOrSuggested} existingNames={existingNames} buttonSize={40} assignedChallenges={assignedChallenges} />

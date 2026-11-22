@@ -12,6 +12,7 @@ import { useFirebaseData } from '../contexts/FirebaseDataContext'
 import { getWeekDates, localIsoDate } from '../lib/constants'
 import DistressScale from '../components/DistressScale'
 import QuickLogSheet from '../components/QuickLogSheet'
+import { useAppMode } from '../hooks/useAppMode'
 import { OUTCOMES, STATUS_TO_OUTCOME, sameAsYesterday, recentFoods } from '../lib/quickLog'
 
 const DAYS = [
@@ -1358,6 +1359,7 @@ export default function DailyView() {
   const [addFoodSheetMeal, setAddFoodSheetMeal] = useState(null)
   const [quickLogMealKey, setQuickLogMealKey] = useState(null)
   const isMobile = useIsMobile()
+  const { hideNutritionNumbers } = useAppMode()
 
   const {
     quickLogMeal,
@@ -1578,7 +1580,7 @@ export default function DailyView() {
           />
 
           {/* Daily progress rings */}
-          <DailyProgressPanel mealItems={mealItems} />
+          {!hideNutritionNumbers && <DailyProgressPanel mealItems={mealItems} />}
 
           {/* Notes live in their own tab on mobile — see NotesView */}
 
@@ -1761,7 +1763,7 @@ export default function DailyView() {
           </div>
 
           {/* Daily progress rings */}
-          <DailyProgressPanel mealItems={mealItems} />
+          {!hideNutritionNumbers && <DailyProgressPanel mealItems={mealItems} />}
 
           {/* Parent note for this day */}
           <ParentNoteSection
