@@ -240,8 +240,12 @@ export function FirebaseDataProvider({ children }) {
     if (!viewingPatientUid || !uid) return
     const myPatientRecord = patients.find(p => p.uid === viewingPatientUid)
     if (!myPatientRecord) return
-    get(ref(db, `users/${viewingPatientUid}/careTeam/${uid}`)).then(snap => {
-      if (snap.exists()) return
+    // A parent-only revoked flag outranks everything: never recreate a revoked link.
+    Promise.all([
+      get(ref(db, `users/${viewingPatientUid}/careTeam/${uid}`)),
+      get(ref(db, `users/${viewingPatientUid}/revokedClinicians/${uid}`)),
+    ]).then(([snap, revoked]) => {
+      if (snap.exists() || revoked.exists()) return
       const payload = { addedAt: new Date().toISOString(), active: true, clinicianEmail: user?.email || uid }
       if (myPatientRecord.code) payload.code = myPatientRecord.code
       set(ref(db, `users/${viewingPatientUid}/careTeam/${uid}`), payload).catch(() => {})
@@ -646,9 +650,9 @@ export function FirebaseDataProvider({ children }) {
     const email = emailSnap.val() || patientUid
     await set(ref(db, `users/${uid}/patients/${patientUid}`), { addedAt, code: upper, email })
     // Reverse-index entry on the patient's own tree so they can see and revoke
-    // this link. Rules only allow this on first link (no prior record) — if the
-    // family already revoked this clinician before, this write is silently
-    // denied and the revoke sticks, even though the `patients` link above re-added.
+    // this link. Rules only allow this on first link (no prior record) and never
+    // when the family revoked this clinician — the write is silently denied and
+    // the revoke sticks, even though the `patients` link above re-added.
     set(ref(db, `users/${patientUid}/careTeam/${uid}`), {
       addedAt, code: upper, active: true, clinicianEmail: user?.email || uid,
     }).catch(() => {})
@@ -663,13 +667,17 @@ export function FirebaseDataProvider({ children }) {
     if (viewingPatientUid === patientUid) setViewingPatientUid(null)
   }
 
-  // Parent revokes a clinician's access. Kept as a record (not deleted) so the
-  // clinician can't silently re-activate themselves by re-adding the family
-  // code — security rules only let a clinician WRITE this entry when it doesn't
-  // exist yet, so once revoked it stays revoked until the parent acts again.
+  // Parent revokes a clinician's access. Two writes in one atomic update: the
+  // careTeam record (so the UI can list them) and a parent-only revokedClinicians
+  // flag that every access rule checks. The flag is what makes the revoke stick:
+  // a clinician can create a careTeam entry only once and can never delete one,
+  // and none of their writes can touch the flag.
   function revokeCareTeamAccess(clinicianUid) {
     if (!uid || !clinicianUid) return
-    update(ref(db, `users/${uid}/careTeam/${clinicianUid}`), { active: false })
+    update(ref(db), {
+      [`users/${uid}/careTeam/${clinicianUid}/active`]: false,
+      [`users/${uid}/revokedClinicians/${clinicianUid}`]: true,
+    })
   }
 
   // Parent restores a previously-revoked clinician's access. Only the parent can
@@ -679,7 +687,10 @@ export function FirebaseDataProvider({ children }) {
   // clinician may need to reselect the patient to re-establish their listeners).
   function reEnableCareTeamAccess(clinicianUid) {
     if (!uid || !clinicianUid) return
-    update(ref(db, `users/${uid}/careTeam/${clinicianUid}`), { active: true })
+    update(ref(db), {
+      [`users/${uid}/careTeam/${clinicianUid}/active`]: true,
+      [`users/${uid}/revokedClinicians/${clinicianUid}`]: null,
+    })
   }
 
   // Permanently delete the signed-in account: the family-code mapping, the whole

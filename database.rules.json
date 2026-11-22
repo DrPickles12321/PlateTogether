@@ -8,10 +8,10 @@
     },
     "users": {
       "$uid": {
-        ".read": "auth != null && (auth.uid === $uid || (root.child('users/' + auth.uid + '/patients/' + $uid).exists() && root.child('users/' + $uid + '/careTeam/' + auth.uid + '/active').val() !== false))",
+        ".read": "auth != null && (auth.uid === $uid || (root.child('users/' + auth.uid + '/patients/' + $uid).exists() && !root.child('users/' + $uid + '/revokedClinicians/' + auth.uid).exists() && root.child('users/' + $uid + '/careTeam/' + auth.uid + '/active').val() !== false))",
         ".write": "auth.uid === $uid && !newData.exists()",
 
-        "email":               { ".read": "auth != null && (auth.uid === $uid || (root.child('users/' + auth.uid + '/patients/' + $uid).exists() && root.child('users/' + $uid + '/careTeam/' + auth.uid + '/active').val() !== false))", ".write": "auth.uid === $uid" },
+        "email":               { ".read": "auth != null && (auth.uid === $uid || (root.child('users/' + auth.uid + '/patients/' + $uid).exists() && !root.child('users/' + $uid + '/revokedClinicians/' + auth.uid).exists() && root.child('users/' + $uid + '/careTeam/' + auth.uid + '/active').val() !== false))", ".write": "auth.uid === $uid" },
         "role":                { ".write": "auth.uid === $uid && !data.exists()" },
         "familyCode":          { ".write": "auth.uid === $uid" },
         "patients": {
@@ -22,10 +22,11 @@
         },
         "careTeam": {
           "$clinicianUid": {
-            ".write": "auth.uid === $uid || auth.uid === $clinicianUid",
-            ".validate": "auth.uid === $uid || (!data.exists() && ((newData.hasChild('code') && root.child('familyCodes').child(newData.child('code').val()).val() === $uid) || root.child('users/' + $clinicianUid + '/patients/' + $uid).exists()))"
+            ".write": "auth.uid === $uid || (auth.uid === $clinicianUid && !data.exists() && newData.exists() && !root.child('users/' + $uid + '/revokedClinicians/' + $clinicianUid).exists())",
+            ".validate": "auth.uid === $uid || (!data.exists() && newData.child('active').val() === true && !root.child('users/' + $uid + '/revokedClinicians/' + $clinicianUid).exists() && ((newData.hasChild('code') && root.child('familyCodes').child(newData.child('code').val()).val() === $uid) || root.child('users/' + $clinicianUid + '/patients/' + $uid).exists()))"
           }
         },
+        "revokedClinicians": { ".write": "auth.uid === $uid" },
         "insights":            { ".write": "auth.uid === $uid" },
         "lastResetWeek":       { ".write": "auth.uid === $uid" },
         "mealLogs":            { ".write": "auth.uid === $uid" },
@@ -38,17 +39,23 @@
         "hiddenParentNoteIds":    { ".write": "auth.uid === $uid" },
         "consent":             { ".write": "auth.uid === $uid" },
 
-        "nutritionalTargets":    { ".write": "auth.uid === $uid || (root.child('users/' + auth.uid + '/patients/' + $uid).exists() && root.child('users/' + $uid + '/careTeam/' + auth.uid + '/active').val() !== false)" },
-        "prescribedSupplements": { ".write": "auth.uid === $uid || (root.child('users/' + auth.uid + '/patients/' + $uid).exists() && root.child('users/' + $uid + '/careTeam/' + auth.uid + '/active').val() !== false)" },
+        "nutritionalTargets":    { ".write": "auth.uid === $uid || (root.child('users/' + auth.uid + '/patients/' + $uid).exists() && !root.child('users/' + $uid + '/revokedClinicians/' + auth.uid).exists() && root.child('users/' + $uid + '/careTeam/' + auth.uid + '/active').val() !== false)" },
+        "prescribedSupplements": { ".write": "auth.uid === $uid || (root.child('users/' + auth.uid + '/patients/' + $uid).exists() && !root.child('users/' + $uid + '/revokedClinicians/' + auth.uid).exists() && root.child('users/' + $uid + '/careTeam/' + auth.uid + '/active').val() !== false)" },
         "parentNotes": {
           ".write": "auth.uid === $uid",
           "$date": {
-            ".write": "auth.uid === $uid || (data.exists() && newData.exists() && newData.child('body').val() === data.child('body').val() && newData.child('id').val() === data.child('id').val() && newData.child('date').val() === data.child('date').val() && newData.child('created_at').val() === data.child('created_at').val() && root.child('users/' + auth.uid + '/patients/' + $uid).exists() && root.child('users/' + $uid + '/careTeam/' + auth.uid + '/active').val() !== false)"
+            "id":         { ".validate": "newData.isString()" },
+            "date":       { ".validate": "newData.isString()" },
+            "body":       { ".validate": "newData.isString()" },
+            "created_at": { ".validate": "newData.isString()" },
+            "read_at":    { ".validate": "newData.isString()" },
+            "$other":     { ".validate": false },
+            ".write": "auth.uid === $uid || (data.exists() && newData.exists() && newData.child('body').val() === data.child('body').val() && newData.child('id').val() === data.child('id').val() && newData.child('date').val() === data.child('date').val() && newData.child('created_at').val() === data.child('created_at').val() && root.child('users/' + auth.uid + '/patients/' + $uid).exists() && !root.child('users/' + $uid + '/revokedClinicians/' + auth.uid).exists() && root.child('users/' + $uid + '/careTeam/' + auth.uid + '/active').val() !== false)"
           }
         },
-        "clinicianNotes":        { ".write": "root.child('users/' + auth.uid + '/patients/' + $uid).exists() && root.child('users/' + $uid + '/careTeam/' + auth.uid + '/active').val() !== false" },
-        "sos":                   { ".write": "auth.uid === $uid || (root.child('users/' + auth.uid + '/patients/' + $uid).exists() && root.child('users/' + $uid + '/careTeam/' + auth.uid + '/active').val() !== false)" },
-        "assignedChallenges":    { ".write": "auth.uid === $uid || (root.child('users/' + auth.uid + '/patients/' + $uid).exists() && root.child('users/' + $uid + '/careTeam/' + auth.uid + '/active').val() !== false)" }
+        "clinicianNotes":        { ".write": "root.child('users/' + auth.uid + '/patients/' + $uid).exists() && !root.child('users/' + $uid + '/revokedClinicians/' + auth.uid).exists() && root.child('users/' + $uid + '/careTeam/' + auth.uid + '/active').val() !== false" },
+        "sos":                   { ".write": "auth.uid === $uid || (root.child('users/' + auth.uid + '/patients/' + $uid).exists() && !root.child('users/' + $uid + '/revokedClinicians/' + auth.uid).exists() && root.child('users/' + $uid + '/careTeam/' + auth.uid + '/active').val() !== false)" },
+        "assignedChallenges":    { ".write": "auth.uid === $uid || (root.child('users/' + auth.uid + '/patients/' + $uid).exists() && !root.child('users/' + $uid + '/revokedClinicians/' + auth.uid).exists() && root.child('users/' + $uid + '/careTeam/' + auth.uid + '/active').val() !== false)" }
       }
     }
   }
