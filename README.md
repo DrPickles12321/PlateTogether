@@ -37,6 +37,8 @@ src/            React app (pages/, components/, contexts/, hooks/, lib/)
 worker/         Cloudflare Worker — AI proxy + food-lookup (Wrangler)
 agent/          Optional iMessage companion agent (Node, Supabase)
 database.rules.json   Firebase Realtime Database security rules
+tests/rules/    Security-rules tests (run in the Firebase emulator)
+scripts/        One-time admin scripts (e.g. revocation-flag migration)
 ```
 
 ## Getting started
@@ -63,7 +65,14 @@ npm run build     # production build
 npm run preview   # preview the production build
 npm test          # run the Vitest suite
 npm run lint      # ESLint
+npm run test:rules  # security-rules tests in the Firebase emulator (see below)
 ```
+
+### Testing the security rules
+
+`npm run test:rules` starts the Realtime Database emulator and runs `tests/rules/`. It needs the Firebase CLI and Java 21 or newer. On a Mac where the default Java is older, point `JAVA_HOME` at a newer one first (for example `JAVA_HOME=/opt/homebrew/opt/openjdk`). The first run downloads the emulator jar. Run it whenever `database.rules.json` changes.
+
+Revoking a clinician writes two things in one update: `careTeam/{clinician}/active = false` and a parent-only flag `revokedClinicians/{clinician} = true`. Every clinician access rule checks the flag, and a clinician can create their own `careTeam` entry once but never overwrite or delete it. This is why a revoked clinician cannot get back in by deleting their record.
 
 ## Deploying
 
@@ -74,6 +83,12 @@ npm run build
 firebase deploy --only hosting   # deploy the web app
 firebase deploy --only database  # deploy database.rules.json (after reviewing changes)
 ```
+
+Rollout order for the revocation change, because the new app writes the `revokedClinicians` flag and the old rules reject it:
+
+1. Dry run `node scripts/migrate-revoked-flags.mjs --project <id>`, read the output, then re-run with `--apply` to flag existing revoked clinicians.
+2. Deploy the database rules.
+3. Deploy the web app.
 
 The AI proxy worker deploys separately from `worker/`:
 
