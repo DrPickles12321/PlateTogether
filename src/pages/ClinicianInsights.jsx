@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { useFirebaseData } from '../contexts/FirebaseDataContext'
 import { RevealSection, SectionCard, ClinicianDigestSection } from './ClinicianView'
 import WeeklyInsights from '../components/WeeklyInsights'
+import SessionPrepCard from '../components/SessionPrepCard'
 import TrendChart from '../components/TrendChart'
 import { computeWeeklyTrend } from '../lib/trends'
 import { computeDistressSummary } from '../lib/weekSummary'
@@ -32,6 +33,10 @@ export default function ClinicianInsights() {
 
   return (
     <>
+      <RevealSection eyebrow="This week">
+        <SessionPrepCard mealStatuses={parentMealStatuses} mealDistress={parentMealDistress} allMealItems={parentMealItems} />
+      </RevealSection>
+
       <RevealSection eyebrow="Progress">
         <WeeklyInsights allMealItems={parentMealItems} mealStatuses={parentMealStatuses} />
       </RevealSection>

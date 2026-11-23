@@ -12,6 +12,7 @@ import { useFirebaseData } from '../contexts/FirebaseDataContext'
 import { getWeekDates, localIsoDate } from '../lib/constants'
 import DistressScale from '../components/DistressScale'
 import QuickLogSheet from '../components/QuickLogSheet'
+import WarningSignsCard from '../components/WarningSignsCard'
 import { useAppMode } from '../hooks/useAppMode'
 import { OUTCOMES, STATUS_TO_OUTCOME, sameAsYesterday, recentFoods } from '../lib/quickLog'
 
@@ -1581,6 +1582,7 @@ export default function DailyView() {
 
           {/* Daily progress rings */}
           {!hideNutritionNumbers && <DailyProgressPanel mealItems={mealItems} />}
+          {hideNutritionNumbers && <WarningSignsCard />}
 
           {/* Notes live in their own tab on mobile — see NotesView */}
 
@@ -1764,6 +1766,7 @@ export default function DailyView() {
 
           {/* Daily progress rings */}
           {!hideNutritionNumbers && <DailyProgressPanel mealItems={mealItems} />}
+          {hideNutritionNumbers && <WarningSignsCard />}
 
           {/* Parent note for this day */}
           <ParentNoteSection

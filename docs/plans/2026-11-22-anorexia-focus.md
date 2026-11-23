@@ -71,9 +71,22 @@ longer open anything).
 
 **Left alone on purpose:** the clinician screens (Insights, Care plan, week grid badges) still
 show nutrition numbers, because the clinician may need them. Whether they should is question 2
-below. **Not verified in a browser:** the Week tab and desktop food menu changes pass tests and the
-build but I have not clicked through them. The warning-signs card and weekly summary are still the
-next build steps.
+below.
+
+**Added in this mode:**
+- **"When to get help" card** on Today (Anorexia mode only). Fixed text: 911 for fainting, chest
+  pain, trouble breathing, seizure or suicide talk (988); call the care team today for a full day of
+  refusing food and drink, purging or laxatives, new dizziness, feeling very cold or a racing
+  heartbeat. It is the same wording the chat's safety layer uses. It is **not** yet clinician-written:
+  letting a clinician edit it needs new stored data, so it waits for the storage decision.
+- **"Week in review" card** at the top of the clinician Insights tab, built by `src/lib/sessionPrep.js`.
+  It shows meals logged, days with nothing logged, hard meals (with each date), challenge foods tried,
+  and post-meal distress against last week. Every line lists the entries behind it. It states facts
+  and does not interpret them.
+
+**Not verified in a browser:** the Week tab, food menu, warning card and week-in-review card pass
+tests and the build, but I have not clicked through them. The challenge-foods line assumes logged
+meal items carry their `category`; if they do not, that line simply stays empty.
 
 ## Questions for a clinician (please get these answered before building more)
 
