@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 
 // Deliberately simple + robust. No JS viewport math (it proved fragile on iOS
@@ -14,7 +15,9 @@ export default function BottomSheet({ open, onClose, title, children, footer }) 
     return () => document.removeEventListener('keydown', onKeyDown)
   }, [open, onClose])
 
-  return (
+  // Portal to <body> so the sheet is not trapped under the tab bar and chat
+  // button by a parent's stacking context.
+  return createPortal(
     <AnimatePresence>
       {open && (
         <>
@@ -82,6 +85,7 @@ export default function BottomSheet({ open, onClose, title, children, footer }) 
           </motion.div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   )
 }

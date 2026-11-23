@@ -1,10 +1,4 @@
-import nutritionDb from '../data/nutritionDb.json'
-
-const FALLBACKS = {
-  familiar:   { calories: 200, protein_g: 6,  carbs_g: 30, fat_g: 5,  fiber_g: 2, calcium_mg: 50,  iron_mg: 1.0, vitamin_d_mcg: 0 },
-  working_on: { calories: 320, protein_g: 14, carbs_g: 35, fat_g: 12, fiber_g: 3, calcium_mg: 100, iron_mg: 1.5, vitamin_d_mcg: 0.2 },
-  challenge:  { calories: 450, protein_g: 12, carbs_g: 48, fat_g: 22, fiber_g: 2, calcium_mg: 80,  iron_mg: 1.5, vitamin_d_mcg: 0.1 },
-}
+import { resolveFoodNutrition } from './foodNutrition'
 
 export function energyDensityLabel(calories) {
   if (calories < 200) return 'low'
@@ -24,75 +18,43 @@ export function computeAN_Flags(info) {
   return flags
 }
 
-// Returns a flat object — no nested macros/micros
-function buildResult(raw, inputName, confidence) {
+// Nutrition for one logged food (the stored item: name, group, usdaNutrition,
+// nutrition). Values come only from a manual entry or USDA. With neither, hasData
+// is false and the numbers are 0 placeholders that callers must not display.
+export function lookupNutrition(food) {
+  const item = typeof food === 'string' ? { name: food } : (food || {})
+  const r = resolveFoodNutrition(item)
   const result = {
-    name: inputName,
-    matchedName: raw.name,
-    confidence,
-    serving_description: raw.serving_description || '1 serving',
-    calories: raw.calories,
-    protein_g: raw.protein_g,
-    carbs_g: raw.carbs_g,
-    fat_g: raw.fat_g,
-    fiber_g: raw.fiber_g,
-    calcium_mg: raw.calcium_mg,
-    iron_mg: raw.iron_mg,
-    vitamin_d_mcg: raw.vitamin_d_mcg,
-    energy_density: energyDensityLabel(raw.calories),
-    plate_zone: raw.plate_zone || 'mixed',
+    name: item.name || '',
+    hasData: r.hasData,
+    source: r.source,
+    confidence: r.hasData ? r.source : 'not_found',
+    calories: r.calories,
+    protein_g: r.protein_g,
+    carbs_g: r.carbs_g,
+    fat_g: r.fat_g,
+    fiber_g: r.fiber_g,
+    calcium_mg: r.calcium_mg,
+    iron_mg: r.iron_mg,
+    vitamin_d_mcg: r.vitamin_d_mcg,
+    energy_density: r.hasData ? energyDensityLabel(r.calories) : null,
+    plate_zone: r.plate_zone,
   }
-  result.an_relevant_flags = computeAN_Flags(result)
+  result.an_relevant_flags = r.hasData ? computeAN_Flags(result) : []
   return result
 }
 
-export function lookupNutrition(foodName, category = 'working_on') {
-  if (!foodName || (typeof foodName === 'string' && !foodName.trim())) {
-    const fb = FALLBACKS[category] || FALLBACKS.working_on
-    return buildResult({ ...fb, name: foodName || '', serving_description: '1 serving', plate_zone: 'mixed' }, foodName || '', 'not_found')
-  }
-
-  const lower = (typeof foodName === 'string' ? foodName : String(foodName)).toLowerCase().trim()
-
-  // 1. Exact match
-  const exact = nutritionDb.find(f => f.name.toLowerCase() === lower)
-  if (exact) return buildResult(exact, foodName, 'exact')
-
-  // 2. Fuzzy word match
-  const inputWords = lower.split(/\s+/).filter(w => w.length > 2)
-  let bestScore = 0
-  let bestMatch = null
-  for (const entry of nutritionDb) {
-    const entryLower = entry.name.toLowerCase()
-    const matchCount = inputWords.filter(w => entryLower.includes(w)).length
-    const score = inputWords.length > 0 ? matchCount / inputWords.length : 0
-    if (score > bestScore) { bestScore = score; bestMatch = entry }
-  }
-  if (bestMatch && bestScore >= 0.5) return buildResult(bestMatch, foodName, 'fuzzy')
-
-  // 3. Single word fallback
-  const firstWord = inputWords[0]
-  if (firstWord) {
-    const partial = nutritionDb.find(f => f.name.toLowerCase().includes(firstWord))
-    if (partial) return buildResult(partial, foodName, 'fuzzy')
-  }
-
-  // 4. Estimated fallback
-  const fb = FALLBACKS[category] || FALLBACKS.working_on
-  return buildResult({ ...fb, name: foodName, serving_description: '1 serving (estimated)', plate_zone: 'mixed' }, foodName, 'not_found')
-}
-
-// Accepts array of strings OR {name, category} objects
+// Accepts an array of food items (or plain names)
 export function lookupMealNutrition(foods) {
-  return foods.map(f => {
-    if (typeof f === 'string') return lookupNutrition(f)
-    return lookupNutrition(f.name, f.category)
-  })
+  return foods.map(f => lookupNutrition(f))
 }
 
 // Accepts array of flat lookupNutrition results; returns flat aggregate
-export function aggregateMealNutrition(nutritionInfos) {
-  if (!nutritionInfos || !nutritionInfos.length) return {
+export function aggregateMealNutrition(allInfos) {
+  const nutritionInfos = (allInfos || []).filter(n => n.hasData !== false)
+  const unknownCount = (allInfos || []).length - nutritionInfos.length
+  if (!nutritionInfos.length) return {
+    unknownCount,
     calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0, fiber_g: 0,
     calcium_mg: 0, iron_mg: 0, vitamin_d_mcg: 0,
     plateBalance: { grain_pct: 0, protein_pct: 0, produce_pct: 0, fat_pct: 0, dairy_pct: 0 },
@@ -134,6 +96,7 @@ export function aggregateMealNutrition(nutritionInfos) {
   const an_relevant_flags = [...new Set(nutritionInfos.flatMap(n => n.an_relevant_flags || []))]
 
   return {
+    unknownCount,
     ...rounded,
     plateBalance: { grain_pct: pct('grain'), protein_pct: pct('protein'), produce_pct: pct('produce'), fat_pct: pct('fat'), dairy_pct: pct('dairy') },
     an_relevant_flags,

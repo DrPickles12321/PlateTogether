@@ -62,7 +62,7 @@ export default function WeeklyGoals({ allMealItems }) {
         for (const mealType of MEAL_TYPES) {
           const items = dayMeals[mealType] || []
           for (const item of items) {
-            const info = lookupNutrition(item.name, item.category || 'working_on')
+            const info = lookupNutrition(item)
             const portion = typeof item.portion === 'number' ? item.portion : 1
             for (const n of NUTRIENTS) sums[n.key] += n.getActual(info) * portion
           }

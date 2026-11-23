@@ -70,7 +70,7 @@ function ClinicianMealSlot({ items = [], latestLog, isWeekend }) {
                   <span className="ml-1 font-semibold" style={{ color: 'var(--peach)' }}>· {PORTION_FRACTION[food.portion]}</span>
                 )}
               </span>
-              <NutritionBadge foodName={food.name} category={food.category} mode="clinician" />
+              <NutritionBadge foodName={food.name} food={food} mode="clinician" />
             </div>
           ))}
           {latestLog && <StatusBadge log={latestLog} />}

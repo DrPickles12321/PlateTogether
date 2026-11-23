@@ -193,7 +193,7 @@ export default function WeeklyView() {
       const localItems = Object.values(allStored[dateIso] || {}).flat()
       let protein = 0, carbs = 0, fruitsVeggies = 0
       for (const food of localItems) {
-        const info = lookupNutrition(food.name, food.category)
+        const info = lookupNutrition(food)
         protein       += info.protein_g || 0
         carbs         += info.carbs_g   || 0
         fruitsVeggies += info.plate_zone === 'produce' ? PRODUCE_G_PER_SERVING : 0

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 
 export default function Modal({ isOpen, onClose, title, children, zIndex = 50 }) {
   const closeBtnRef = useRef(null)
@@ -14,7 +15,9 @@ export default function Modal({ isOpen, onClose, title, children, zIndex = 50 })
 
   if (!isOpen) return null
 
-  return (
+  // Portal to <body> so it stacks against bottom sheets and the tab bar, which are
+  // also rendered there, instead of inside a page's stacking context.
+  return createPortal(
     <div
       style={{
         position: 'fixed', inset: 0, zIndex,
@@ -55,6 +58,7 @@ export default function Modal({ isOpen, onClose, title, children, zIndex = 50 })
         </div>
         {children}
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
