@@ -11,6 +11,7 @@ export const HARD_MEAL = {
   messageAction: 'Message your care team',
   helpAction: 'When to get help',
   dismiss: 'Close',
+  emergency: 'In an emergency, or if anyone talks about suicide or self-harm:',
   notMonitored: 'Messages are not watched around the clock. In an emergency, call 911.',
   sent: 'Sent. Your care team will see it next time they open Plate Together. This is not an emergency line.',
 }

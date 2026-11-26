@@ -1,9 +1,10 @@
 import { useToast, ToastContext, useToastState } from '../hooks/useToast'
+import Icon from './Icon'
 
 const TYPE_STYLE = {
-  success: { bg: 'var(--mint-light)',  border: 'var(--mint-mid)',  text: 'var(--mint)',  icon: '✓' },
-  error:   { bg: 'var(--pink-light)',  border: 'var(--pink-mid)',  text: 'var(--pink)',  icon: '!' },
-  info:    { bg: 'var(--peach-light)', border: 'var(--peach-mid)', text: 'var(--peach)', icon: 'ℹ' },
+  success: { bg: 'var(--mint-light)',  border: 'var(--mint-mid)',  text: 'var(--mint)',  icon: 'tick' },
+  error:   { bg: 'var(--pink-light)',  border: 'var(--pink-mid)',  text: 'var(--pink)',  icon: 'dot' },
+  info:    { bg: 'var(--peach-light)', border: 'var(--peach-mid)', text: 'var(--peach)', icon: 'dot' },
 }
 
 export function ToastProvider({ children }) {
@@ -34,7 +35,7 @@ export function ToastProvider({ children }) {
                   width: 22, height: 22, borderRadius: 7,
                   background: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center',
                   flexShrink: 0,
-                }}>{s.icon}</span>
+                }}><Icon name={s.icon} size={16} /></span>
                 {t.message}
               </div>
             )

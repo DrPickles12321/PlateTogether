@@ -40,8 +40,7 @@ function ScaleRow({ label, value, onSet }) {
 export default function DistressScale({ distress, onSet }) {
   return (
     <div style={{
-      background: 'var(--surface-warm)', border: '1px solid var(--border)',
-      borderRadius: 'var(--radius)', padding: '12px 14px',
+      borderTop: '1px solid var(--rule)', paddingTop: 12,
       display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 420,
     }}>
       <div>

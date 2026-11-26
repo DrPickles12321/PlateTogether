@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import Icon from '../components/Icon'
 import { Outlet, useLocation } from 'react-router-dom'
 import { useFirebaseData } from '../contexts/FirebaseDataContext'
 import WelcomeModal from '../components/WelcomeModal'
@@ -30,7 +31,7 @@ export function RevealSection({ children, eyebrow, delay = 0, style = {} }) {
       className={`clv-reveal${delay ? ` d${delay}` : ''}`}
       style={{ marginTop: 32, ...style }}
     >
-      {eyebrow && <span className="clv-eyebrow">{eyebrow}</span>}
+      {eyebrow && <h2 className="clv-section-title">{eyebrow}</h2>}
       {children}
     </section>
   )
@@ -157,7 +158,7 @@ export function ParentNotesPanel({ notes = [], onMarkRead, hiddenNoteIds = [], o
             }}
           >
             <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-light)' }}>Hidden ({removedNotes.length})</span>
-            <span style={{ fontSize: 12, color: 'var(--text-light)' }}>{showHidden ? '▲' : '▼'}</span>
+            <Icon name={showHidden ? 'up' : 'down'} size={16} style={{ color: 'var(--text-mid)' }} />
           </button>
           {showHidden && (
             <div style={{ borderTop: '1px solid var(--border)' }}>
@@ -350,7 +351,7 @@ export function ClinicianSupplementEditor({ prescribedSupplements, onSave }) {
                   color: 'var(--coral)', fontSize: 15, lineHeight: 1,
                   padding: 0, display: 'flex', alignItems: 'center', opacity: 0.6,
                 }}
-              >×</button>
+              ><Icon name="close" size={18} /></button>
             </span>
           ))}
         </div>
@@ -487,7 +488,7 @@ export default function ClinicianView() {
         </div>
       ) : patientAccessDenied ? (
         <div style={{
-          marginTop: 16, padding: '20px 24px', borderRadius: 16,
+          marginTop: 16, padding: '20px 24px', borderRadius: 'var(--radius)',
           border: '1.5px solid var(--pink-mid)', background: 'var(--pink-light)',
           display: 'flex', alignItems: 'flex-start', gap: 14,
         }}>

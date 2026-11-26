@@ -102,7 +102,7 @@ export default function NutritionFacts({ food, onSave, onReset }) {
                   value={draft[f.key]}
                   onChange={e => setDraft(d => ({ ...d, [f.key]: e.target.value }))}
                   style={{
-                    width: 84, textAlign: 'right', padding: '7px 10px', borderRadius: 9,
+                    width: 84, textAlign: 'right', padding: '7px 10px', borderRadius: 'var(--radius)',
                     border: '1.5px solid var(--border)', fontSize: 14, color: 'var(--text-dark)',
                     fontFamily: "var(--font-ui)", outline: 'none', boxSizing: 'border-box',
                   }}
@@ -161,7 +161,7 @@ export default function NutritionFacts({ food, onSave, onReset }) {
 
 function btnStyle(primary) {
   return {
-    padding: '9px 18px', fontSize: 13, fontWeight: 600, borderRadius: 11,
+    padding: '9px 18px', fontSize: 13, fontWeight: 600, borderRadius: 'var(--radius)',
     cursor: 'pointer', fontFamily: "var(--font-ui)", minHeight: 40,
     border: primary ? 'none' : '1.5px solid var(--border)',
     background: primary ? 'var(--ink)' : 'white',

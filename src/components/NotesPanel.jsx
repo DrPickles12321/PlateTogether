@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import Icon from './Icon'
 import NoteComposer from './NoteComposer'
 import { localIsoDate } from '../lib/constants'
 
@@ -32,9 +33,8 @@ export default function NotesPanel({ notes, mode, onSave, onDelete, notesReadByP
     <section style={{
       background: 'var(--surface-warm)',
       border: '1px solid var(--border)',
-      borderRadius: 14,
+      borderRadius: 'var(--radius)',
       overflow: 'hidden',
-      boxShadow: '0 2px 12px rgba(29,33,43,0.07)',
       fontFamily: "var(--font-ui)",
     }}>
       {/* Notebook tab header */}
@@ -85,8 +85,8 @@ export default function NotesPanel({ notes, mode, onSave, onDelete, notesReadByP
               {todayNote && (
                 <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
                   {notesReadByParent[todayNote.id]
-                    ? <span style={{ fontSize: 13, color: 'var(--mint)', fontWeight: 500 }}>✓ Parent has read this note</span>
-                    : <span style={{ fontSize: 13, color: 'var(--st-some)', fontWeight: 500 }}>○ Parent hasn't read this yet</span>
+                    ? <span style={{ fontSize: 13, color: 'var(--mint)', fontWeight: 500 }}><Icon name="tick" size={15} style={{ display: 'inline-block', verticalAlign: '-3px', marginRight: 4 }} />Parent has read this note</span>
+                    : <span style={{ fontSize: 13, color: 'var(--st-some)', fontWeight: 500 }}><Icon name="dot" size={14} style={{ display: 'inline-block', verticalAlign: '-3px', marginRight: 4 }} />Parent hasn't read this yet</span>
                   }
                   {onDelete && (
                     confirmDelete ? (
@@ -115,7 +115,7 @@ export default function NotesPanel({ notes, mode, onSave, onDelete, notesReadByP
           ) : todayNote ? (
             <div>
               <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-                <span style={{ color: 'var(--coral)', fontSize: 16, lineHeight: 1.6, flexShrink: 0 }}>○</span>
+                <span style={{ color: 'var(--coral)', fontSize: 16, lineHeight: 1.6, flexShrink: 0 }}><Icon name="dot" size={14} style={{ marginTop: 6 }} /></span>
                 <p style={{
                   fontSize: 14, color: 'var(--text-dark)',
                   lineHeight: '28px', whiteSpace: 'pre-wrap', margin: 0,
@@ -128,7 +128,7 @@ export default function NotesPanel({ notes, mode, onSave, onDelete, notesReadByP
             </div>
           ) : (
             <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', paddingTop: 4 }}>
-              <span style={{ color: 'rgba(35,64,142,0.3)', fontSize: 16, lineHeight: 1.6 }}>○</span>
+              <span style={{ color: 'rgba(35,64,142,0.3)', fontSize: 16, lineHeight: 1.6 }}><Icon name="dot" size={14} style={{ marginTop: 6 }} /></span>
               <p style={{ fontSize: 14, color: 'var(--text-light)', fontStyle: 'italic', margin: 0, lineHeight: '28px' }}>
                 No note for today yet.
               </p>

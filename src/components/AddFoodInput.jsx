@@ -97,7 +97,7 @@ export default function AddFoodInput({ onAddFood, existingFoodNames = [] }) {
     <div style={{ position: 'relative' }}>
       {toast && (
         <div style={{
-          marginBottom: 8, borderRadius: 10, padding: '8px 12px',
+          marginBottom: 8, borderRadius: 'var(--radius)', padding: '8px 12px',
           background: 'var(--peach-light)', border: '1px solid var(--peach-mid)',
           fontSize: 12, color: 'var(--peach)',
         }}>{toast}</div>
@@ -116,7 +116,7 @@ export default function AddFoodInput({ onAddFood, existingFoodNames = [] }) {
             placeholder="Add a food…"
             style={{
               width: '100%', border: '1.5px solid var(--border)',
-              borderRadius: 11, padding: '8px 12px', fontSize: 13,
+              borderRadius: 'var(--radius)', padding: '8px 12px', fontSize: 13,
               color: 'var(--text-dark)', outline: 'none', boxSizing: 'border-box',
               fontFamily: "var(--font-ui)", background: 'var(--surface-warm)',
               transition: 'border-color 0.15s, box-shadow 0.15s',
@@ -133,8 +133,7 @@ export default function AddFoodInput({ onAddFood, existingFoodNames = [] }) {
           {open && merged.length > 0 && (
             <ul style={{
               position: 'absolute', zIndex: 50, left: 0, right: 0, top: '100%', marginTop: 5,
-              background: 'white', border: '1.5px solid var(--border)', borderRadius: 13,
-              boxShadow: '0 8px 28px rgba(29,33,43,0.12)', overflow: 'hidden', listStyle: 'none',
+              background: 'white', border: '1.5px solid var(--border)', borderRadius: 'var(--radius)', overflow: 'hidden', listStyle: 'none',
               padding: 4, margin: 0,
             }}>
               {merged.map((food, i) => (
@@ -143,7 +142,7 @@ export default function AddFoodInput({ onAddFood, existingFoodNames = [] }) {
                   onMouseDown={() => selectSuggestion(food)}
                   style={{
                     display: 'flex', alignItems: 'center', gap: 9,
-                    padding: '9px 11px', fontSize: 13, cursor: 'pointer', borderRadius: 9,
+                    padding: '9px 11px', fontSize: 13, cursor: 'pointer', borderRadius: 'var(--radius)',
                     background: i === activeIndex ? 'var(--coral-light)' : 'transparent',
                     color: 'var(--text-dark)',
                   }}
@@ -160,7 +159,7 @@ export default function AddFoodInput({ onAddFood, existingFoodNames = [] }) {
           type="submit"
           style={{
             background: 'var(--ink)',
-            color: 'white', border: 'none', borderRadius: 11,
+            color: 'white', border: 'none', borderRadius: 'var(--radius)',
             padding: '8px 14px', fontSize: 13, fontWeight: 600, cursor: 'pointer',
             flexShrink: 0, fontFamily: "var(--font-ui)",
             boxShadow: '0 2px 8px rgba(35,64,142,0.28)',
@@ -181,7 +180,7 @@ export default function AddFoodInput({ onAddFood, existingFoodNames = [] }) {
               type="button"
               onClick={() => setCategory(cat.key)}
               style={{
-                flex: 1, padding: '5px 4px', borderRadius: 9, fontSize: 13, fontWeight: 600,
+                flex: 1, padding: '5px 4px', borderRadius: 'var(--radius)', fontSize: 13, fontWeight: 600,
                 border: `1.5px solid ${active ? cat.border : 'var(--border)'}`,
                 background: active ? cat.bg : 'white',
                 color: active ? cat.color : 'var(--text-light)',

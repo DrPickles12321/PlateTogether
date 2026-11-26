@@ -14,6 +14,8 @@ const PATHS = {
   right: <path d="M9.5 5.5L16 12l-6.5 6.5" />,
   close: <path d="M6.5 6.5l11 11M17.5 6.5l-11 11" />,
   clock: <><circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3 2" /></>,
+  down: <path d="M6 9.5l6 6 6-6" />,
+  up: <path d="M6 14.5l6-6 6 6" />,
   repeat: <><path d="M5 11V9a3 3 0 0 1 3-3h10.5M15.5 3l3 3-3 3" /><path d="M19 13v2a3 3 0 0 1-3 3H5.5M8.5 21l-3-3 3-3" /></>,
 }
 

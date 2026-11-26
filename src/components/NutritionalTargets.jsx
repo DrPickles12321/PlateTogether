@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import Icon from './Icon'
 import { useNutritionalTargets } from '../contexts/NutritionalTargetsContext'
 
 const NUTRIENTS = [
@@ -33,7 +34,6 @@ export default function NutritionalTargets() {
       background: 'white',
       borderRadius: 20,
       border: '1.5px solid var(--border)',
-      boxShadow: '0 2px 12px rgba(29,33,43,0.06)',
       overflow: 'hidden',
     }}>
       <button
@@ -55,12 +55,7 @@ export default function NutritionalTargets() {
             </div>
           </div>
         </div>
-        <span style={{
-          fontSize: 18, color: 'var(--text-light)',
-          transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
-          transition: 'transform 0.2s',
-          display: 'inline-block',
-        }}>▾</span>
+        <Icon name={open ? 'up' : 'down'} size={18} style={{ color: 'var(--text-mid)' }} />
       </button>
 
       {open && (
@@ -69,7 +64,7 @@ export default function NutritionalTargets() {
             {NUTRIENTS.map(n => (
               <div key={n.key} style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                background: n.bg, borderRadius: 14,
+                background: n.bg, borderRadius: 'var(--radius)',
                 border: `1px solid ${n.border}`,
                 padding: '14px 18px',
               }}>
@@ -89,7 +84,7 @@ export default function NutritionalTargets() {
                       width: '100%', boxSizing: 'border-box',
                       paddingRight: 28, paddingLeft: 12,
                       paddingTop: 9, paddingBottom: 9,
-                      borderRadius: 10,
+                      borderRadius: 'var(--radius)',
                       border: `1.5px solid ${n.border}`,
                       background: 'white',
                       fontSize: 16, fontWeight: 700,
@@ -115,7 +110,7 @@ export default function NutritionalTargets() {
             <button
               onClick={handleSave}
               style={{
-                padding: '10px 28px', borderRadius: 12, border: 'none',
+                padding: '10px 28px', borderRadius: 'var(--radius)', border: 'none',
                 background: 'var(--ink)',
                 color: 'white', fontWeight: 600, fontSize: 14, cursor: 'pointer',
                 boxShadow: '0 2px 8px rgba(35,64,142,0.28)',
@@ -128,7 +123,7 @@ export default function NutritionalTargets() {
             </button>
             {saved && (
               <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--mint)' }}>
-                ✓ Saved!
+                <Icon name="tick" size={15} style={{ display: 'inline-block', verticalAlign: '-3px', marginRight: 4 }} />Saved
               </span>
             )}
           </div>

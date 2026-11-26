@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import Icon from './Icon'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -69,7 +70,7 @@ export default function BottomSheet({ open, onClose, title, children, footer }) 
                     fontSize: 18, cursor: 'pointer', display: 'flex',
                     alignItems: 'center', justifyContent: 'center', flexShrink: 0,
                   }}
-                >×</button>
+                ><Icon name="close" size={18} /></button>
               </div>
             )}
 

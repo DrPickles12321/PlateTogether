@@ -5,24 +5,13 @@ export default function SupplementChecklist({ checkedSupplements, onToggleChecke
 
   return (
     <div style={{ position: 'relative', paddingTop: 14 }}>
-      {/* Tape label */}
-      <div style={{
-        position: 'absolute', top: 0, left: '50%',
-        transform: 'translateX(-50%) rotate(-1deg)',
-        background: 'var(--border)',
-        borderRadius: 4,
-        width: 64, height: 14,
-        zIndex: 1,
-        boxShadow: '0 1px 3px rgba(0,0,0,0.10)',
-      }} />
 
       {/* Notebook card */}
       <div style={{
         background: 'white',
         border: '1px solid var(--border)',
-        borderRadius: 14,
+        borderRadius: 'var(--radius)',
         overflow: 'hidden',
-        boxShadow: '0 2px 8px rgba(29,33,43,0.06)',
       }}>
         {/* Header */}
         <div style={{
@@ -43,7 +32,7 @@ export default function SupplementChecklist({ checkedSupplements, onToggleChecke
           display: 'flex',
         }}>
           {/* Red margin line */}
-          <div style={{ width: 2, background: 'var(--pink-mid)', flexShrink: 0, marginLeft: 12, marginRight: 10 }} />
+          <div style={{ width: 1, background: 'var(--margin)', flexShrink: 0, marginLeft: 12, marginRight: 10 }} />
 
           {/* Items */}
           <div style={{ flex: 1 }}>
@@ -71,7 +60,7 @@ export default function SupplementChecklist({ checkedSupplements, onToggleChecke
                     }}
                     aria-label={`Toggle ${rec.nutrient}`}
                   >
-                    {checked && <span style={{ color: 'white', fontSize: 12, lineHeight: 1, fontWeight: 700 }}>✓</span>}
+                    {checked && <span style={{ color: 'white', fontSize: 12, lineHeight: 1, fontWeight: 700 }}><Icon name="tick" size={14} /></span>}
                   </button>
                   <span style={{
                     fontSize: 12, color: checked ? 'var(--text-light)' : 'var(--text-dark)',

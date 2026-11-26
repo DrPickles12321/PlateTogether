@@ -117,7 +117,7 @@ export default function WeeklyInsights({ allMealItems, mealStatuses }) {
     <div style={{
       background: 'var(--surface)',
       border: '1px solid var(--border)',
-      borderRadius: 16,
+      borderRadius: 'var(--radius)',
       padding: '28px 32px 24px',
     }}>
       {insights.totalLogs === 0 ? (

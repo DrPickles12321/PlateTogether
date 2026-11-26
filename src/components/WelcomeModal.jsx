@@ -67,7 +67,7 @@ export default function WelcomeModal({ role }) {
         </div>
 
         {role === 'parent' && familyCode && (
-          <div style={{ background: 'var(--surface-warm)', border: '1px solid var(--border)', borderRadius: 12, padding: '12px 14px', marginBottom: 18, textAlign: 'center' }}>
+          <div style={{ background: 'var(--surface-warm)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '12px 14px', marginBottom: 18, textAlign: 'center' }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-light)', marginBottom: 4 }}>Your family code</div>
             <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--coral)' }}>{familyCode}</div>
           </div>
@@ -77,7 +77,7 @@ export default function WelcomeModal({ role }) {
           type="button"
           onClick={dismiss}
           style={{
-            width: '100%', border: 'none', borderRadius: 13, padding: '13px 0',
+            width: '100%', border: 'none', borderRadius: 'var(--radius)', padding: '13px 0',
             background: 'var(--ink)',
             color: '#fff', fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
             boxShadow: '0 4px 14px rgba(35,64,142,0.3)',

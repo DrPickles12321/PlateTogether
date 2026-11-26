@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import Icon from './Icon'
 import BottomSheet from './BottomSheet'
 import AddFoodInput from './AddFoodInput'
 import Modal from './Modal'
@@ -50,20 +51,20 @@ function FoodRow({ food, added, onTap, onInfo }) {
           display: 'flex', alignItems: 'center', gap: 9, flex: 1, minWidth: 0,
           background: added ? 'var(--mint-light)' : 'white',
           border: `1.5px solid ${added ? 'var(--mint-mid)' : 'var(--border)'}`,
-          borderRadius: 12, padding: '11px 12px', minHeight: 46,
+          borderRadius: 'var(--radius)', padding: '11px 12px', minHeight: 46,
           textAlign: 'left', cursor: 'pointer', fontFamily: "var(--font-ui)",
           transition: 'background 0.12s, border-color 0.12s',
         }}
       >
         <span style={{ width: 9, height: 9, borderRadius: '50%', flexShrink: 0, background: CAT_DOT[food.category] }} />
         <span style={{ fontSize: 14, color: 'var(--text-dark)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{food.name}</span>
-        {added && <span style={{ fontSize: 15, color: 'var(--mint)', fontWeight: 700, flexShrink: 0 }}>✓</span>}
+        {added && <span style={{ fontSize: 15, color: 'var(--mint)', fontWeight: 700, flexShrink: 0 }}><Icon name="tick" size={14} /></span>}
       </button>
       <button
         onClick={() => onInfo(food)}
         aria-label={`Nutrition facts for ${food.name}`}
         style={{
-          flexShrink: 0, width: 44, minHeight: 46, borderRadius: 12,
+          flexShrink: 0, width: 44, minHeight: 46, borderRadius: 'var(--radius)',
           border: '1.5px solid var(--border)', background: 'white',
           color: 'var(--text-light)', fontSize: 17, cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -136,7 +137,7 @@ export default function AddFoodSheet({ open, onClose, mealLabel, mealItems = [],
         <button
           onClick={onClose}
           style={{
-            width: '100%', padding: '13px', borderRadius: 13, border: 'none',
+            width: '100%', padding: '13px', borderRadius: 'var(--radius)', border: 'none',
             background: 'var(--ink)',
             color: 'white', fontSize: 14, fontWeight: 600, cursor: 'pointer',
             fontFamily: "var(--font-ui)", minHeight: 44,
@@ -148,14 +149,14 @@ export default function AddFoodSheet({ open, onClose, mealLabel, mealItems = [],
     >
       <div style={{
         display: 'flex', gap: 4, background: 'var(--surface-warm)',
-        borderRadius: 12, padding: 3, marginBottom: 14,
+        borderRadius: 'var(--radius)', padding: 3, marginBottom: 14,
       }}>
         {[{ key: 'mine', label: 'My List' }, { key: 'suggested', label: 'Suggested' }].map(t => (
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
             style={{
-              flex: 1, padding: '9px 4px', borderRadius: 9, border: 'none',
+              flex: 1, padding: '9px 4px', borderRadius: 'var(--radius)', border: 'none',
               background: tab === t.key ? 'white' : 'transparent',
               color: tab === t.key ? 'var(--coral)' : 'var(--text-light)',
               fontWeight: 600, fontSize: 13, cursor: 'pointer', minHeight: 40,
@@ -187,7 +188,7 @@ export default function AddFoodSheet({ open, onClose, mealLabel, mealItems = [],
                       key={opt.key}
                       onClick={() => setSortMode(opt.key)}
                       style={{
-                        flex: 1, padding: '7px 4px', borderRadius: 9, minHeight: 36,
+                        flex: 1, padding: '7px 4px', borderRadius: 'var(--radius)', minHeight: 36,
                         fontSize: 12, fontWeight: 600, cursor: 'pointer',
                         border: `1.5px solid ${active ? 'var(--coral)' : 'var(--border)'}`,
                         background: active ? 'var(--coral-light)' : 'white',

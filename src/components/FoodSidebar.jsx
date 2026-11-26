@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import Icon from './Icon'
 import { useDraggable } from '@dnd-kit/core'
 import { useFirebaseData } from '../contexts/FirebaseDataContext'
 import { useAppMode } from '../hooks/useAppMode'
@@ -44,7 +45,6 @@ function FoodCard({ food, onDelete, onChangeCategory }) {
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           background: 'white', border: '1.5px solid var(--border)',
           borderRadius: 'var(--radius)', padding: '8px 10px', marginBottom: 5,
-          boxShadow: '0 1px 5px rgba(29,33,43,0.05)',
           transition: isDragging ? 'none' : 'box-shadow 0.15s',
         }}
         onMouseEnter={e => { if (!isDragging) e.currentTarget.style.boxShadow = '0 3px 10px rgba(29,33,43,0.09)' }}
@@ -70,7 +70,7 @@ function FoodCard({ food, onDelete, onChangeCategory }) {
             }}
             onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-warm)'}
             onMouseLeave={e => e.currentTarget.style.background = 'none'}
-          >⋮</button>
+          ><Icon name="more" size={18} /></button>
           <button
             onClick={() => setConfirmDelete(true)}
             style={{
@@ -80,13 +80,12 @@ function FoodCard({ food, onDelete, onChangeCategory }) {
             }}
             onMouseEnter={e => e.currentTarget.style.color = 'var(--pink)'}
             onMouseLeave={e => e.currentTarget.style.color = 'var(--border-mid)'}
-          >×</button>
+          ><Icon name="close" size={18} /></button>
 
           {menuOpen && (
             <div style={{
               position: 'absolute', right: 0, top: '100%', marginTop: 5, zIndex: 50,
-              background: 'white', border: '1.5px solid var(--border)', borderRadius: 14,
-              boxShadow: '0 8px 28px rgba(29,33,43,0.12)', overflow: 'hidden', minWidth: 168,
+              background: 'white', border: '1.5px solid var(--border)', borderRadius: 'var(--radius)', overflow: 'hidden', minWidth: 168,
             }}>
               {!hideNutritionNumbers && (
                 <>
@@ -151,7 +150,7 @@ function FoodCard({ food, onDelete, onChangeCategory }) {
               <button
                 onClick={() => setConfirmDelete(false)}
                 style={{
-                  padding: '9px 18px', fontSize: 13, borderRadius: 11,
+                  padding: '9px 18px', fontSize: 13, borderRadius: 'var(--radius)',
                   border: '1.5px solid var(--border)', background: 'white',
                   cursor: 'pointer', color: 'var(--text-mid)', fontFamily: "var(--font-ui)",
                 }}
@@ -159,7 +158,7 @@ function FoodCard({ food, onDelete, onChangeCategory }) {
               <button
                 onClick={() => { onDelete(food); setConfirmDelete(false) }}
                 style={{
-                  padding: '9px 18px', fontSize: 13, borderRadius: 11,
+                  padding: '9px 18px', fontSize: 13, borderRadius: 'var(--radius)',
                   border: 'none', background: 'var(--pink)', color: 'white',
                   cursor: 'pointer', fontWeight: 600, fontFamily: "var(--font-ui)",
                 }}
@@ -188,7 +187,7 @@ function Section({ config, foods, onDelete, onChangeCategory }) {
         onClick={() => setCollapsed(c => !c)}
         style={{
           width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '9px 12px', borderRadius: 12,
+          padding: '9px 12px', borderRadius: 'var(--radius)',
           background: config.bg, border: `1.5px solid ${config.border}`,
           cursor: 'pointer', marginBottom: collapsed ? 0 : 8,
           fontFamily: "var(--font-ui)",
@@ -202,7 +201,7 @@ function Section({ config, foods, onDelete, onChangeCategory }) {
             background: 'white', borderRadius: 6, padding: '1px 7px',
           }}>{foods.length}</span>
         </span>
-        <span style={{ color: config.color, fontSize: 13, opacity: 0.6 }}>{collapsed ? '▸' : '▾'}</span>
+        <Icon name={collapsed ? 'right' : 'down'} size={16} style={{ color: 'var(--text-mid)' }} />
       </button>
 
       {!collapsed && (
@@ -236,7 +235,7 @@ function SuggestRow({ name, buttonSize, dotSize, onAdd, extra }) {
     <div style={{
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       background: 'white', border: '1.5px solid var(--border)',
-      borderRadius: 11, padding: '8px 10px', gap: 8,
+      borderRadius: 'var(--radius)', padding: '8px 10px', gap: 8,
     }}>
       <span style={{ fontSize: 13, color: 'var(--text-dark)', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</span>
       <div style={{ display: 'flex', gap: 5, flexShrink: 0 }}>
@@ -306,7 +305,7 @@ export function SuggestedFoods({ onAdd, existingNames, buttonSize = 22, assigned
         onChange={e => setQuery(e.target.value)}
         placeholder="Search foods…"
         style={{
-          width: '100%', border: '1.5px solid var(--border)', borderRadius: 11,
+          width: '100%', border: '1.5px solid var(--border)', borderRadius: 'var(--radius)',
           padding: '9px 12px', fontSize: 13, color: 'var(--text-dark)', outline: 'none',
           boxSizing: 'border-box', fontFamily: "var(--font-ui)",
           background: 'var(--surface-warm)', marginBottom: 12,
@@ -338,7 +337,7 @@ export function SuggestedFoods({ onAdd, existingNames, buttonSize = 22, assigned
                 <div key={c.id} style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                   background: 'var(--pink-light)', border: '1.5px solid var(--pink-mid)',
-                  borderRadius: 11, padding: '8px 10px', gap: 8,
+                  borderRadius: 'var(--radius)', padding: '8px 10px', gap: 8,
                 }}>
                   <span style={{ fontSize: 13, color: 'var(--text-dark)', fontWeight: 600, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {c.name}
@@ -347,7 +346,7 @@ export function SuggestedFoods({ onAdd, existingNames, buttonSize = 22, assigned
                     onClick={() => onAdd({ name: c.name, category: 'challenge' })}
                     aria-label={`Add challenge food ${c.name}`}
                     style={{
-                      border: 'none', borderRadius: 9, padding: '6px 12px',
+                      border: 'none', borderRadius: 'var(--radius)', padding: '6px 12px',
                       background: 'var(--pink)', color: 'white', fontSize: 12, fontWeight: 600,
                       cursor: 'pointer', flexShrink: 0, minHeight: Math.max(buttonSize, 28),
                       fontFamily: "var(--font-ui)",
@@ -416,14 +415,14 @@ export default function FoodSidebar() {
 
       <div style={{
         display: 'flex', gap: 4, background: 'var(--surface-warm)',
-        borderRadius: 12, padding: 3, marginBottom: 14,
+        borderRadius: 'var(--radius)', padding: 3, marginBottom: 14,
       }}>
         {[{ key: 'mine', label: 'My List' }, { key: 'suggested', label: 'Suggested' }].map(t => (
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
             style={{
-              flex: 1, padding: '6px 4px', borderRadius: 9, border: 'none',
+              flex: 1, padding: '6px 4px', borderRadius: 'var(--radius)', border: 'none',
               background: tab === t.key ? 'white' : 'transparent',
               color: tab === t.key ? 'var(--coral)' : 'var(--text-light)',
               fontWeight: 600, fontSize: 12, cursor: 'pointer',

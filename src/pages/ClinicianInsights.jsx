@@ -91,7 +91,7 @@ export default function ClinicianInsights() {
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 14,
               background: 'var(--surface-warm)', border: '1px solid var(--border)',
-              borderRadius: 10, padding: '7px 12px', fontSize: 13, color: 'var(--text-mid)',
+              borderRadius: 'var(--radius)', padding: '7px 12px', fontSize: 13, color: 'var(--text-mid)',
             }}>
               <span style={{ fontWeight: 700, color: 'var(--text-dark)' }}>Distress this week:</span>
               before {distressSummary.avgPre ?? '—'} → after {distressSummary.avgPost ?? '—'}

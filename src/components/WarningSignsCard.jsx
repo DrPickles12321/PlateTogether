@@ -18,7 +18,7 @@ const TODAY = [
   'New dizziness, feeling very cold, or a racing or fluttering heartbeat',
 ]
 
-function CallButton({ href, children, tone }) {
+export function CallButton({ href, children, tone }) {
   return (
     <a
       href={href}

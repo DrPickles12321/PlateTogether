@@ -6,8 +6,6 @@ import FoodCardPreview from '../components/FoodCardPreview'
 import SupplementChecklist from '../components/SupplementChecklist'
 import AddFoodSheet from '../components/AddFoodSheet'
 import { useIsMobile } from '../hooks/useIsMobile'
-import { lookupNutrition } from '../lib/nutritionService'
-import { useNutritionalTargets } from '../contexts/NutritionalTargetsContext'
 import { useFirebaseData } from '../contexts/FirebaseDataContext'
 import { getWeekDates, localIsoDate } from '../lib/constants'
 import DistressScale from '../components/DistressScale'
@@ -15,13 +13,14 @@ import QuickLogSheet from '../components/QuickLogSheet'
 import HelpSheet from '../components/HelpSheet'
 import HardMomentCard from '../components/HardMomentCard'
 import Icon, { OutcomeMark } from '../components/Icon'
-import { useAppMode } from '../hooks/useAppMode'
 import { sameAsYesterday, recentFoods } from '../lib/quickLog'
 import { OUTCOME_META, OUTCOME_ORDER, needsSupport, outcomeLabel } from '../lib/outcomes'
 import { hardMealNote } from '../lib/supportCopy'
 
 // Width of the notebook margin on the Today page: meal times sit here, left of the rose line.
 const MARGIN = 56
+// The desktop page has room for the time picker in its margin.
+const DESK_MARGIN = 96
 
 const weekNavBtn = {
   width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -94,12 +93,6 @@ const PORTION_OPTIONS = [
 ]
 export const PORTION_LABEL = { 0.25: '¼', 0.5: '½', 0.75: '¾', 1: 'all' }
 
-const RING_NUTRIENTS = [
-  { key: 'protein',       label: 'Protein', color: 'var(--ink)', darkColor: 'var(--ink)', getVal: info => info.protein_g || 0 },
-  { key: 'carbs',         label: 'Carbs',   color: 'var(--st-some)', darkColor: 'var(--st-some)', getVal: info => info.carbs_g || 0 },
-  { key: 'fruitsVeggies', label: 'F&V',     color: 'var(--mint)', darkColor: 'var(--mint)', getVal: info => info.plate_zone === 'produce' ? 80 : 0 },
-]
-
 const EMPTY_MEAL_ITEMS = { breakfast: [], lunch: [], snack: [], dinner: [] }
 
 // Keep the drag preview centered on the cursor (instead of dnd-kit's default
@@ -157,11 +150,11 @@ function DropZone({ mealType, items, onRemove, onFoodClick, selectedFoodIndex, i
     <div
       ref={setNodeRef}
       style={{
-        flex: 1, minHeight: 48, borderRadius: 12,
+        flex: 1, minHeight: 48, borderRadius: 'var(--radius)',
         border: items.length === 0
           ? `1.5px dashed ${isOver ? 'var(--coral)' : isSkipped ? 'var(--border)' : 'var(--pink-mid)'}`
-          : '1.5px solid var(--border-mid)',
-        background: isOver ? 'var(--coral-light)' : items.length > 0 ? 'var(--surface-warm)' : isSkipped ? 'var(--surface-warm)' : 'transparent',
+          : '1.5px solid transparent',
+        background: isOver ? 'var(--coral-light)' : isSkipped ? 'var(--surface-warm)' : 'transparent',
         padding: items.length > 0 ? '8px 10px' : '0 14px',
         display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 6,
         transition: 'all 0.15s',
@@ -182,7 +175,6 @@ function DropZone({ mealType, items, onRemove, onFoodClick, selectedFoodIndex, i
                 background: 'white', border: '1px solid var(--border-mid)',
                 borderRadius: 8, padding: '4px 8px 4px 10px',
                 fontSize: 13, fontWeight: 500, color: 'var(--text-dark)',
-                boxShadow: '0 1px 3px rgba(29,33,43,0.06)',
                 cursor: 'pointer',
                 outline: selectedFoodIndex === i ? '2px solid var(--ink)' : 'none',
                 outlineOffset: 1,
@@ -211,7 +203,7 @@ function DropZone({ mealType, items, onRemove, onFoodClick, selectedFoodIndex, i
                   padding: '0 2px', display: 'flex', alignItems: 'center',
                   fontFamily: 'inherit',
                 }}
-              >×</button>
+              ><Icon name="close" size={18} /></button>
             </span>
           ))}
           {isOver && (
@@ -275,18 +267,10 @@ function MealCard({ meal, items, onRemove, latestLog, onQuickLog, time, onTimeCh
   }
 
   return (
-    <div style={{
-      background: 'white', borderRadius: 'var(--radius)',
-      border: '1px solid var(--rule-strong)',
-    }}>
-      {/* Header */}
-      <div style={{
-        padding: '10px 16px',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        borderBottom: '1px solid var(--rule)',
-      }}>
-        <h3 className="font-hand" style={{ fontWeight: 600, fontSize: 19, color: 'var(--text-dark)' }}>{meal.label}</h3>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, border: '1px solid var(--border-mid)', borderRadius: 'var(--radius)', padding: '4px 8px' }}>
+    // One ruled line of the day's page: the time sits in the margin, the meal is written to its right.
+    <div style={{ display: 'grid', gridTemplateColumns: `${DESK_MARGIN}px 1fr`, borderBottom: '1px solid var(--rule)' }}>
+      <div style={{ padding: '14px 8px', display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', alignContent: 'flex-start', gap: 4, maxWidth: 110 }}>
           {(() => {
             const { hour, minute, period } = pendingTime
             const setPeriod = nextPeriod => {
@@ -321,9 +305,9 @@ function MealCard({ meal, items, onRemove, latestLog, onQuickLog, time, onTimeCh
         </div>
       </div>
 
-      {/* Body */}
-      <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+      <div style={{ minWidth: 0, padding: '12px 16px 14px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <h3 className="font-hand" style={{ fontWeight: 600, fontSize: 20, color: 'var(--text-dark)' }}>{meal.label}</h3>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
           <DropZone
             mealType={meal.key}
             items={items}
@@ -332,7 +316,7 @@ function MealCard({ meal, items, onRemove, latestLog, onQuickLog, time, onTimeCh
             selectedFoodIndex={selectedFoodIndex}
             isSkipped={loggedStatus === 'skipped'}
           />
-          <div style={{ display: 'flex', gap: 6, flexShrink: 0, paddingTop: items.length > 1 ? 4 : 0 }}>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             {OUTCOME_ORDER.map(key => {
               const opt = OUTCOME_META[key]
               const isSkip = key === 'skipped'
@@ -347,7 +331,7 @@ function MealCard({ meal, items, onRemove, latestLog, onQuickLog, time, onTimeCh
                   title={!enabled ? (isSkip ? 'Remove the foods to mark this meal skipped' : 'Add what was served first') : undefined}
                   style={{
                     display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
-                    padding: '7px 8px', borderRadius: 'var(--radius)', minWidth: 64, minHeight: 52,
+                    padding: '7px 6px', borderRadius: 'var(--radius)', minWidth: 58, minHeight: 52,
                     border: `1.5px solid ${selected ? opt.color : 'var(--border-mid)'}`,
                     background: selected ? opt.bg : 'white',
                     color: enabled ? opt.color : 'var(--text-light)',
@@ -376,7 +360,7 @@ function MealCard({ meal, items, onRemove, latestLog, onQuickLog, time, onTimeCh
               marginTop: 6,
               background: 'var(--surface-warm)',
               border: '1px solid var(--border-mid)',
-              borderRadius: 10,
+              borderRadius: 'var(--radius)',
               padding: '7px 10px',
               display: 'flex',
               alignItems: 'center',
@@ -433,7 +417,7 @@ function MealCard({ meal, items, onRemove, latestLog, onQuickLog, time, onTimeCh
                 color: 'var(--text-light)', fontSize: 16, alignSelf: 'center',
                 padding: '0 2px', fontFamily: 'inherit',
               }}
-            >×</button>
+            ><Icon name="close" size={18} /></button>
           </div>
         )}
       </div>
@@ -737,7 +721,7 @@ function MobileSupplements({ checkedSupplements, onToggleChecked, prescribedSupp
         onClick={() => setOpen(o => !o)}
         style={{
           width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '12px 14px', minHeight: 48, borderRadius: 14,
+          padding: '12px 14px', minHeight: 48, borderRadius: 'var(--radius)',
           background: 'white', border: '1.5px solid var(--border)',
           cursor: 'pointer', fontFamily: "var(--font-ui)",
         }}
@@ -745,7 +729,7 @@ function MobileSupplements({ checkedSupplements, onToggleChecked, prescribedSupp
         <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--coral)' }}>
           Supplements · {done} of {total}
         </span>
-        <span style={{ fontSize: 13, color: 'var(--text-light)' }}>{open ? '▲' : '▼'}</span>
+        <Icon name={open ? 'up' : 'down'} size={16} style={{ color: 'var(--text-mid)' }} />
       </button>
       {open && (
         <div style={{ marginTop: 8 }}>
@@ -761,51 +745,6 @@ function MobileSupplements({ checkedSupplements, onToggleChecked, prescribedSupp
 }
 
 // ─── Progress ring ────────────────────────────────────────────────────────────
-
-function ProgressRing({ value, target, color, darkColor, label }) {
-  const size = 80
-  const strokeWidth = 7
-  const radius = (size - strokeWidth) / 2
-  const circumference = 2 * Math.PI * radius
-  const pct = Math.min(value / Math.max(target, 1), 1)
-  const offset = circumference * (1 - pct)
-  const met = value >= target
-
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-      <div style={{ position: 'relative', width: size, height: size }}>
-        <svg width={size} height={size}>
-          <circle cx={size / 2} cy={size / 2} r={radius}
-            fill="none" stroke="var(--border)" strokeWidth={strokeWidth} />
-          <circle cx={size / 2} cy={size / 2} r={radius}
-            fill="none"
-            stroke={met ? darkColor : color}
-            strokeWidth={strokeWidth}
-            strokeLinecap="round"
-            strokeDasharray={circumference}
-            strokeDashoffset={offset}
-            transform={`rotate(-90 ${size / 2} ${size / 2})`}
-            style={{ transition: 'stroke-dashoffset 0.4s ease' }}
-          />
-        </svg>
-        <div style={{
-          position: 'absolute', inset: 0,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 13, fontWeight: 700,
-          color: met ? darkColor : 'var(--text-mid)',
-        }}>
-          {value}g
-        </div>
-      </div>
-      <div style={{ textAlign: 'center' }}>
-        <div style={{ fontSize: 12, color: 'var(--text-light)', fontWeight: 500 }}>{label}</div>
-        {met && <div style={{ fontSize: 13, color: darkColor, fontWeight: 700, marginTop: 1 }}>✓</div>}
-      </div>
-    </div>
-  )
-}
-
-// ─── Parent note section ──────────────────────────────────────────────────────
 
 export function ParentNoteSection({ note, selectedDate, onSave, onDelete }) {
   const [body, setBody] = useState(note?.body || '')
@@ -845,20 +784,11 @@ export function ParentNoteSection({ note, selectedDate, onSave, onDelete }) {
 
   return (
     <div style={{ marginTop: 24, position: 'relative', paddingTop: 14 }}>
-      {/* Tape label */}
-      <div style={{
-        position: 'absolute', top: 0, left: '50%',
-        transform: 'translateX(-50%) rotate(-1deg)',
-        background: 'var(--border)', borderRadius: 4,
-        width: 64, height: 14,
-        zIndex: 1, boxShadow: '0 1px 3px rgba(0,0,0,0.10)',
-      }} />
 
       {/* Notebook card */}
       <div style={{
         background: 'white', border: '1px solid var(--border)',
-        borderRadius: 16, overflow: 'hidden',
-        boxShadow: '0 2px 12px rgba(29,33,43,0.06)',
+        borderRadius: 'var(--radius)', overflow: 'hidden',
       }}>
         {/* Header */}
         <div style={{
@@ -871,7 +801,7 @@ export function ParentNoteSection({ note, selectedDate, onSave, onDelete }) {
           </span>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {isRead && (
-              <span style={{ fontSize: 13, color: 'var(--mint)', fontWeight: 500 }}>✓ Clinician read</span>
+              <span style={{ fontSize: 13, color: 'var(--mint)', fontWeight: 500 }}><Icon name="tick" size={15} style={{ display: 'inline-block', verticalAlign: '-3px', marginRight: 4 }} />Clinician read</span>
             )}
             {onDelete && note?.id && (
               confirmDelete ? (
@@ -903,7 +833,7 @@ export function ParentNoteSection({ note, selectedDate, onSave, onDelete }) {
           backgroundSize: '100% 28px', backgroundPositionY: '4px',
           display: 'flex',
         }}>
-          <div style={{ width: 2, background: 'var(--pink-mid)', flexShrink: 0, marginLeft: 20, marginRight: 12 }} />
+          <div style={{ width: 1, background: 'var(--margin)', flexShrink: 0, marginLeft: 20, marginRight: 12 }} />
           <div style={{ flex: 1, padding: '10px 16px 10px 0' }}>
             <textarea
               value={body}
@@ -931,7 +861,7 @@ export function ParentNoteSection({ note, selectedDate, onSave, onDelete }) {
           <span style={{ fontSize: 13, color: 'var(--text-light)' }}>{body.length} / 1000</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {saveStatus === 'saved' && !isDirty && (
-              <span style={{ fontSize: 13, color: 'var(--mint)', fontWeight: 500 }}>✓ Saved</span>
+              <span style={{ fontSize: 13, color: 'var(--mint)', fontWeight: 500 }}><Icon name="tick" size={15} style={{ display: 'inline-block', verticalAlign: '-3px', marginRight: 4 }} />Saved</span>
             )}
             {saveStatus === 'error' && (
               <span style={{ fontSize: 13, color: 'var(--pink)', fontWeight: 500 }}>Failed to save</span>
@@ -946,7 +876,7 @@ export function ParentNoteSection({ note, selectedDate, onSave, onDelete }) {
                 fontSize: 12, fontWeight: 600,
                 cursor: (!isDirty || isSaving) ? 'default' : 'pointer',
                 fontFamily: "'Lato', sans-serif", transition: 'all 0.15s',
-                boxShadow: !isDirty || isSaving ? 'none' : '0 2px 8px rgba(35,64,142,0.28)',
+
               }}
             >
               {isSaving ? 'Saving…' : note?.id ? 'Update note' : 'Save note'}
@@ -959,57 +889,6 @@ export function ParentNoteSection({ note, selectedDate, onSave, onDelete }) {
 }
 
 // ─── Daily progress panel ─────────────────────────────────────────────────────
-
-function DailyProgressPanel({ mealItems }) {
-  const { targets } = useNutritionalTargets()
-
-  const totals = useMemo(() => {
-    const all = Object.values(mealItems).flat()
-    const sums = { protein: 0, carbs: 0, fruitsVeggies: 0 }
-    for (const food of all) {
-      const info = lookupNutrition(food)
-      for (const n of RING_NUTRIENTS) sums[n.key] += n.getVal(info)
-    }
-    return {
-      protein:       Math.round(sums.protein),
-      carbs:         Math.round(sums.carbs),
-      fruitsVeggies: Math.round(sums.fruitsVeggies),
-    }
-  }, [mealItems])
-
-  const metCount = RING_NUTRIENTS.filter(n => totals[n.key] >= targets[n.key]).length
-
-  return (
-    <div style={{
-      marginTop: 24,
-      background: 'white', borderRadius: 16,
-      border: '1.5px solid var(--border)',
-      boxShadow: '0 2px 12px rgba(29,33,43,0.06)',
-      padding: '20px 24px',
-    }}>
-      <div style={{ marginBottom: 18 }}>
-        <div style={{ fontWeight: 700, fontSize: 15, color: 'var(--ink)' }}>Daily Progress</div>
-        <div style={{ fontSize: 12, color: 'var(--text-light)', marginTop: 2 }}>
-          {metCount} of 3 goals met
-        </div>
-      </div>
-      <div style={{ display: 'flex', justifyContent: 'center', gap: 40 }}>
-        {RING_NUTRIENTS.map(n => (
-          <ProgressRing
-            key={n.key}
-            value={totals[n.key]}
-            target={targets[n.key]}
-            color={n.color}
-            darkColor={n.darkColor}
-            label={n.label}
-          />
-        ))}
-      </div>
-    </div>
-  )
-}
-
-// ─── Clinician notes sidebar ──────────────────────────────────────────────────
 
 export function ClinicianNotesSidebar({
   clinicianNotes, clinicianNotesRead, markClinicianNoteRead, savedClinicianNotes, saveClinicianNote, unsaveClinicianNote, clearAllSavedNotes,
@@ -1050,19 +929,10 @@ export function ClinicianNotesSidebar({
 
   return (
     <div style={{ marginBottom: 22, position: 'relative', paddingTop: 14 }}>
-      {/* Tape */}
-      <div style={{
-        position: 'absolute', top: 0, left: '50%',
-        transform: 'translateX(-50%) rotate(-1deg)',
-        background: 'var(--border)', borderRadius: 4,
-        width: 64, height: 14,
-        zIndex: 1, boxShadow: '0 1px 3px rgba(0,0,0,0.10)',
-      }} />
 
       <div style={{
         background: 'white', border: '1px solid var(--border)',
-        borderRadius: 14, overflow: 'hidden',
-        boxShadow: '0 2px 8px rgba(29,33,43,0.06)',
+        borderRadius: 'var(--radius)', overflow: 'hidden',
       }}>
         <div style={{ padding: '10px 12px 6px' }}>
           <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--coral)', fontFamily: "'Lato', sans-serif" }}>
@@ -1076,11 +946,11 @@ export function ClinicianNotesSidebar({
           backgroundSize: '100% 28px', backgroundPositionY: '4px',
           display: 'flex', minHeight: 84,
         }}>
-          <div style={{ width: 2, background: 'var(--pink-mid)', flexShrink: 0, marginLeft: 10, marginRight: 8 }} />
+          <div style={{ width: 1, background: 'var(--margin)', flexShrink: 0, marginLeft: 10, marginRight: 8 }} />
           <div style={{ flex: 1, padding: '8px 10px 8px 0' }}>
             {!latest ? (
               <div style={{ display: 'flex', gap: 5, alignItems: 'flex-start' }}>
-                <span style={{ color: 'rgba(35,64,142,0.3)', fontSize: 14, lineHeight: '28px' }}>○</span>
+                <span style={{ color: 'rgba(35,64,142,0.3)', fontSize: 14, lineHeight: '28px' }}><Icon name="dot" size={14} style={{ marginTop: 6 }} /></span>
                 <p style={{ margin: 0, fontSize: 12, color: 'var(--text-light)', fontStyle: 'italic', lineHeight: '28px' }}>No notes yet.</p>
               </div>
             ) : (
@@ -1098,7 +968,7 @@ export function ClinicianNotesSidebar({
                   </div>
                 )}
                 <div style={{ display: 'flex', gap: 5, alignItems: 'flex-start' }}>
-                  <span style={{ color: 'var(--coral)', fontSize: 14, lineHeight: '28px', flexShrink: 0 }}>○</span>
+                  <span style={{ color: 'var(--coral)', fontSize: 14, lineHeight: '28px', flexShrink: 0 }}><Icon name="dot" size={14} style={{ marginTop: 6 }} /></span>
                   <p style={{ margin: 0, fontSize: 12, color: 'var(--text-mid)', lineHeight: '28px' }}>{latest.body}</p>
                 </div>
                 {latest.created_at && (
@@ -1118,7 +988,7 @@ export function ClinicianNotesSidebar({
             display: 'flex', flexWrap: 'wrap', gap: 5, alignItems: 'center',
           }}>
             {isRead && !isUpdated ? (
-              <span style={{ fontSize: 12, color: 'var(--mint)', fontWeight: 500 }}>✓ Read</span>
+              <span style={{ fontSize: 12, color: 'var(--mint)', fontWeight: 500 }}><Icon name="tick" size={15} style={{ display: 'inline-block', verticalAlign: '-3px', marginRight: 4 }} />Read</span>
             ) : (
               <button
                 onClick={() => markClinicianNoteRead?.(latest)}
@@ -1184,7 +1054,7 @@ export function ClinicianNotesSidebar({
           >
             <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--peach)' }}>{savedClinicianNotes.length} saved</span>
             {savedClinicianNotes.length > 0 && (
-              <span style={{ fontSize: 12, color: 'var(--text-light)' }}>{showSaved ? '▲' : '▼'}</span>
+              <Icon name={showSaved ? 'up' : 'down'} size={16} style={{ color: 'var(--text-mid)' }} />
             )}
           </button>
           {showSaved && savedClinicianNotes.length > 0 && (
@@ -1196,7 +1066,7 @@ export function ClinicianNotesSidebar({
                   display: 'flex', borderBottom: '1px solid var(--border)',
                   position: 'relative',
                 }}>
-                  <div style={{ width: 2, background: 'var(--pink-mid)', flexShrink: 0, marginLeft: 8, marginRight: 6 }} />
+                  <div style={{ width: 1, background: 'var(--margin)', flexShrink: 0, marginLeft: 8, marginRight: 6 }} />
                   <div style={{ flex: 1, padding: '7px 28px 7px 0' }}>
                     <p style={{ margin: '0 0 3px', fontSize: 13, color: 'var(--text-mid)', lineHeight: '28px' }}>{note.body}</p>
                     <span style={{ fontSize: 12, color: 'var(--text-light)' }}>
@@ -1213,7 +1083,7 @@ export function ClinicianNotesSidebar({
                       color: 'var(--text-light)', fontSize: 14, lineHeight: 1, padding: 0,
                       fontFamily: 'inherit', transition: 'color 0.15s',
                     }}
-                  >×</button>
+                  ><Icon name="close" size={18} /></button>
                 </div>
               ))}
               {/* Clear all */}
@@ -1260,7 +1130,7 @@ export function ClinicianNotesSidebar({
               }}
             >
               <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-mid)' }}>History ({olderNotes.filter(n => !hiddenNoteIds.includes(n.id)).length})</span>
-              <span style={{ fontSize: 12, color: 'var(--text-light)' }}>{showAll ? '▲' : '▼'}</span>
+              <Icon name={showAll ? 'up' : 'down'} size={16} style={{ color: 'var(--text-mid)' }} />
             </button>
             {showAll && (
               <div style={{ borderTop: '1px solid var(--border)' }}>
@@ -1287,7 +1157,7 @@ export function ClinicianNotesSidebar({
                           color: 'var(--text-light)', fontSize: 14, lineHeight: 1, padding: 0,
                           fontFamily: 'inherit',
                         }}
-                      >×</button>
+                      ><Icon name="close" size={18} /></button>
                       <div style={{ fontSize: 12, color: 'var(--text-light)', marginBottom: 3 }}>
                         {new Date(note.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                       </div>
@@ -1314,7 +1184,7 @@ export function ClinicianNotesSidebar({
               }}
             >
               <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-light)' }}>Removed ({removedNotes.length})</span>
-              <span style={{ fontSize: 12, color: 'var(--text-light)' }}>{showHidden ? '▲' : '▼'}</span>
+              <Icon name={showHidden ? 'up' : 'down'} size={16} style={{ color: 'var(--text-mid)' }} />
             </button>
             {showHidden && (
               <div style={{ borderTop: '1px solid var(--border)' }}>
@@ -1373,7 +1243,6 @@ export default function DailyView() {
     setWeekOffset(0)
     setSelectedDay(getTodayKey())
   }
-  const { hideNutritionNumbers } = useAppMode()
 
   const {
     quickLogMeal,
@@ -1583,8 +1452,6 @@ export default function DailyView() {
               prescribedSupplements={prescribedSupplements}
             />
 
-            {!hideNutritionNumbers && <DailyProgressPanel mealItems={mealItems} />}
-
             <p style={{ fontSize: 13, color: 'var(--text-mid)', lineHeight: 1.55, marginTop: 28, maxWidth: '60ch' }}>
               Plate Together helps families and their care team plan meals. It is not a substitute for medical advice.
             </p>
@@ -1692,8 +1559,11 @@ export default function DailyView() {
             </div>
           </div>
 
-          {/* Meal cards */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {/* Meal lines */}
+          <section aria-label="Meals" style={{
+            background: 'white', border: '1px solid var(--rule-strong)', borderRadius: 'var(--radius)', overflow: 'hidden',
+            backgroundImage: `linear-gradient(to right, transparent ${DESK_MARGIN - 1}px, var(--margin) ${DESK_MARGIN - 1}px, var(--margin) ${DESK_MARGIN}px, transparent ${DESK_MARGIN}px)`,
+          }}>
             {MEALS.map(meal => {
               const localStatus = (mealStatuses[selectedDate] || {})[meal.key] ?? null
               const latestLog = localStatus ? { status: localStatus } : null
@@ -1722,19 +1592,19 @@ export default function DailyView() {
                     onFoodPortionSet={setFoodPortion}
                   />
                   {showSupport && (
-                    <HardMomentCard
-                      onMessage={() => openHelp(hardMealNote({ mealLabel: meal.label, dateLabel: shortDate(selectedDate), outcomeLabel: outcomeLabel(localStatus) }))}
-                      onHelp={() => openHelp('')}
-                      onDismiss={() => dismissSupport(supportKey)}
-                    />
+                    <div style={{ padding: `10px 16px 14px ${DESK_MARGIN + 16}px`, borderBottom: '1px solid var(--rule)' }}>
+                      <HardMomentCard
+                        onMessage={() => openHelp(hardMealNote({ mealLabel: meal.label, dateLabel: shortDate(selectedDate), outcomeLabel: outcomeLabel(localStatus) }))}
+                        onHelp={() => openHelp('')}
+                        onDismiss={() => dismissSupport(supportKey)}
+                      />
+                    </div>
                   )}
                 </Fragment>
               )
             })}
-          </div>
+          </section>
 
-          {/* Daily progress rings */}
-          {!hideNutritionNumbers && <DailyProgressPanel mealItems={mealItems} />}
           {/* Parent note for this day */}
           <ParentNoteSection
             note={parentNotes.find(n => n.date === selectedDate) || null}

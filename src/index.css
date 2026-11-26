@@ -162,13 +162,12 @@ p { margin: 0; }
 .clv-reveal { opacity: 1; }
 .clv-reveal.clv-visible { opacity: 1; }
 
-.clv-eyebrow {
+.clv-section-title {
   font-family: var(--font-hand);
-  font-size: 15px;
+  font-size: 20px;
   font-weight: 600;
   color: var(--text-dark);
-  display: block;
-  margin-bottom: 10px;
+  margin: 0 0 10px;
 }
 
 .clv-pill-btn {

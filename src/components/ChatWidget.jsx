@@ -76,9 +76,11 @@ export default function ChatWidget() {
           // On phones the button sits in the empty right of the top bar, so it never covers a meal's Log button.
           position: 'fixed', right: isMobile ? 12 : 14, ...(isMobile ? { top: 4 } : { bottom: bubbleBottom }), zIndex: 45,
           display: 'inline-flex', alignItems: 'center', gap: 6, minHeight: 44, padding: '8px 14px',
-          borderRadius: 22, border: '1.5px solid var(--ink)', cursor: 'pointer',
-          background: open ? 'var(--ink)' : 'white', color: open ? 'white' : 'var(--ink)',
-          fontSize: 15, fontWeight: 700, boxShadow: isMobile ? 'none' : '0 4px 14px rgba(29,33,43,0.14)',
+          // A quiet text button on phones, so Need help on Today stays the one ink control up top.
+          borderRadius: isMobile ? 'var(--radius)' : 22, border: isMobile ? 'none' : '1.5px solid var(--ink)', cursor: 'pointer',
+          background: isMobile ? 'transparent' : (open ? 'var(--ink)' : 'white'),
+          color: isMobile ? 'var(--text-mid)' : (open ? 'white' : 'var(--ink)'),
+          fontSize: 15, fontWeight: isMobile ? 600 : 700, boxShadow: isMobile ? 'none' : '0 4px 14px rgba(29,33,43,0.14)',
         }}
       >
         <Icon name={open ? 'close' : 'message'} size={18} />{open ? 'Close' : 'Ask'}

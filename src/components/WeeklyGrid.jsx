@@ -25,6 +25,8 @@ const PORTION_FRACTION = { 0.25: '¼', 0.5: '½', 0.75: '¾', 1: 'all' }
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 const TODAY_ISO = localIsoDate()
 const COLS = '108px repeat(7, minmax(0, 1fr))'
+// Ruled table: every cell draws its right and bottom rule; the table draws the top and left.
+const CELL_RULES = { borderRight: '1px solid var(--rule-strong)', borderBottom: '1px solid var(--rule-strong)' }
 
 function getWeekDates(offset = 0) {
   const today = new Date()
@@ -56,9 +58,8 @@ function ClinicianMealSlot({ items = [], status, distress, isFuture }) {
 
   return (
     <div style={{
-      minHeight: 84, padding: 8, borderRadius: 'var(--radius)', boxSizing: 'border-box',
+      minHeight: 84, height: '100%', padding: 8, boxSizing: 'border-box',
       background: flagged ? 'var(--highlight)' : 'white',
-      border: empty ? '1px dashed var(--border-mid)' : `1px solid ${flagged ? 'var(--highlight-edge)' : 'var(--rule-strong)'}`,
       fontSize: 13, color: 'var(--text-dark)',
     }}>
       {outcome && (
@@ -115,15 +116,15 @@ export default function WeeklyGrid({ onDayClick, parentNotes = [], onMarkNoteRea
           </button>
         )}
         <span style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--text-mid)' }}>
-          <span style={{ width: 14, height: 14, background: 'var(--highlight)', border: '1px solid var(--highlight-edge)', borderRadius: 3 }} />
+          <span style={{ width: 14, height: 14, background: 'var(--highlight)' }} />
           Highlighted: refused, or distress 4 or 5
         </span>
       </div>
 
       <div style={{ overflowX: 'auto' }}>
-        <div role="table" aria-label="Meals this week" style={{ minWidth: 760 }}>
-          <div role="row" style={{ display: 'grid', gridTemplateColumns: COLS, gap: 6, marginBottom: 6, position: 'sticky', top: 0, background: 'var(--surface-warm)', zIndex: 1 }}>
-            <div role="columnheader" />
+        <div role="table" aria-label="Meals this week" style={{ minWidth: 760, borderTop: '1px solid var(--rule-strong)', borderLeft: '1px solid var(--rule-strong)', background: 'white' }}>
+          <div role="row" style={{ display: 'grid', gridTemplateColumns: COLS, position: 'sticky', top: 0, background: 'var(--surface-warm)', zIndex: 1 }}>
+            <div role="columnheader" style={CELL_RULES} />
             {DAYS.map((day, i) => {
               const d = weekDates[i]
               const dateIso = localIsoDate(d)
@@ -135,7 +136,7 @@ export default function WeeklyGrid({ onDayClick, parentNotes = [], onMarkNoteRea
                 </>
               )
               return (
-                <div role="columnheader" key={day.key} style={{ textAlign: 'center' }}>
+                <div role="columnheader" key={day.key} style={{ ...CELL_RULES, textAlign: 'center', padding: 4 }}>
                   {onDayClick ? (
                     <button
                       onClick={() => onDayClick(day.key, dateIso)}
@@ -154,14 +155,14 @@ export default function WeeklyGrid({ onDayClick, parentNotes = [], onMarkNoteRea
           </div>
 
           {MEAL_TYPES.map(meal => (
-            <div role="row" key={meal.key} style={{ display: 'grid', gridTemplateColumns: COLS, gap: 6, marginBottom: 6 }}>
-              <div role="rowheader" className="font-hand" style={{ display: 'flex', alignItems: 'center', fontSize: 17, fontWeight: 600, color: 'var(--text-dark)' }}>
+            <div role="row" key={meal.key} style={{ display: 'grid', gridTemplateColumns: COLS }}>
+              <div role="rowheader" className="font-hand" style={{ ...CELL_RULES, padding: '0 10px', display: 'flex', alignItems: 'center', fontSize: 17, fontWeight: 600, color: 'var(--text-dark)' }}>
                 {meal.label}
               </div>
               {DAYS.map((day, i) => {
                 const dateIso = localIsoDate(weekDates[i])
                 return (
-                  <div role="cell" key={`${day.key}-${meal.key}`}>
+                  <div role="cell" key={`${day.key}-${meal.key}`} style={CELL_RULES}>
                     <ClinicianMealSlot
                       items={(parentMealItems[dateIso] || {})[meal.key] || []}
                       status={(mealStatuses[dateIso] || {})[meal.key] || null}
@@ -174,8 +175,8 @@ export default function WeeklyGrid({ onDayClick, parentNotes = [], onMarkNoteRea
             </div>
           ))}
 
-          <div role="row" style={{ display: 'grid', gridTemplateColumns: COLS, gap: 6, marginTop: 4 }}>
-            <div role="rowheader" className="font-hand" style={{ display: 'flex', alignItems: 'center', fontSize: 17, fontWeight: 600 }}>
+          <div role="row" style={{ display: 'grid', gridTemplateColumns: COLS }}>
+            <div role="rowheader" className="font-hand" style={{ ...CELL_RULES, padding: '0 10px', display: 'flex', alignItems: 'center', fontSize: 17, fontWeight: 600 }}>
               Parent notes
             </div>
             {DAYS.map((day, i) => {
@@ -184,8 +185,7 @@ export default function WeeklyGrid({ onDayClick, parentNotes = [], onMarkNoteRea
               const isUnread = note && !note.read_at
               return (
                 <div role="cell" key={day.key} style={{
-                  minHeight: 68, padding: 8, borderRadius: 'var(--radius)', boxSizing: 'border-box', fontSize: 13,
-                  border: note ? '1px solid var(--rule-strong)' : '1px dashed var(--border-mid)',
+                  ...CELL_RULES, minHeight: 68, padding: 8, boxSizing: 'border-box', fontSize: 13,
                   background: isUnread ? 'var(--ink-light)' : 'white',
                 }}>
                   {note && (

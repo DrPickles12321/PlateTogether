@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import Icon from './Icon'
 import { createPortal } from 'react-dom'
 
 export default function Modal({ isOpen, onClose, title, children, zIndex = 50 }) {
@@ -46,7 +47,7 @@ export default function Modal({ isOpen, onClose, title, children, zIndex = 50 })
             onClick={onClose}
             aria-label="Close"
             style={{
-              width: 32, height: 32, borderRadius: 10, border: '1.5px solid var(--border)',
+              width: 32, height: 32, borderRadius: 'var(--radius)', border: '1.5px solid var(--border)',
               background: 'var(--surface-warm)', cursor: 'pointer', fontSize: 18,
               color: 'var(--text-mid)', display: 'flex', alignItems: 'center', justifyContent: 'center',
               lineHeight: 1, flexShrink: 0,
@@ -54,7 +55,7 @@ export default function Modal({ isOpen, onClose, title, children, zIndex = 50 })
             }}
             onMouseEnter={e => e.currentTarget.style.background = 'var(--border)'}
             onMouseLeave={e => e.currentTarget.style.background = 'var(--surface-warm)'}
-          >×</button>
+          ><Icon name="close" size={18} /></button>
         </div>
         {children}
       </div>

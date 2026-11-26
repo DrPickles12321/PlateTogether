@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import Icon from './Icon'
 import { lookupNutrition } from '../lib/nutritionService'
 import { useNutritionalTargets } from '../contexts/NutritionalTargetsContext'
 
@@ -85,7 +86,6 @@ export default function WeeklyGoals({ allMealItems }) {
       background: 'white',
       borderRadius: 20,
       border: '1.5px solid var(--border)',
-      boxShadow: '0 2px 12px rgba(29,33,43,0.06)',
       padding: '20px 24px',
     }}>
       <header style={{ marginBottom: 18 }}>
@@ -116,7 +116,7 @@ export default function WeeklyGoals({ allMealItems }) {
             return (
               <div key={n.key} style={{
                 background: n.bg,
-                borderRadius: 14,
+                borderRadius: 'var(--radius)',
                 border: `1px solid ${n.border}`,
                 padding: '14px 16px',
               }}>
@@ -133,7 +133,7 @@ export default function WeeklyGoals({ allMealItems }) {
                   <span style={{ fontSize: 13, fontWeight: 700, color: met ? 'var(--mint)' : n.color }}>
                     {actual}g
                     <span style={{ fontWeight: 400, color: 'var(--text-light)', fontSize: 12 }}> / {target}g</span>
-                    {met && <span style={{ marginLeft: 5, fontSize: 12 }}>✓</span>}
+                    {met && <span style={{ marginLeft: 5, fontSize: 12 }}><Icon name="tick" size={14} /></span>}
                   </span>
                 </div>
 
