@@ -4,6 +4,7 @@ import { useIsMobile } from '../hooks/useIsMobile'
 import { signOutOfApp } from '../lib/signOut'
 
 const PARENT_TABS = [
+  { to: '/parent/next',    label: 'Next meal' },
   { to: '/parent/daily',   label: 'Today' },
   { to: '/parent/weekly',  label: 'Week' },
   { to: '/parent/stats',   label: 'Insights' },

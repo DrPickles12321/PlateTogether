@@ -6,6 +6,7 @@ import { useAuth } from './AuthContext'
 import { fetchFoodInfo } from '../lib/foodData'
 import { quickLogPatch } from '../lib/quickLog'
 import { resolveViewingPatient, viewingStorageKey, visibleCareTeam } from '../lib/viewingPatient'
+import { normalizeCarePlan } from '../lib/carePlan'
 
 const FirebaseDataContext = createContext(null)
 
@@ -99,6 +100,8 @@ export function FirebaseDataProvider({ children }) {
   const [patientSos, setPatientSos]                   = useState([])   // viewed patient's SOS
   const [ownAssignedChallenges, setOwnAssignedChallenges]         = useState([]) // clinician-assigned challenge foods (own)
   const [patientAssignedChallenges, setPatientAssignedChallenges] = useState([]) // viewed patient's assigned challenges
+  const [ownCarePlan, setOwnCarePlan]                 = useState(() => normalizeCarePlan(null)) // family's meal plan (parent view)
+  const [patientCarePlan, setPatientCarePlan]         = useState(() => normalizeCarePlan(null)) // viewed patient's meal plan
   const [patientsWithOpenSos, setPatientsWithOpenSos] = useState({})   // { uid: true }
   const [patientFbMealData, setPatientFbMealData]     = useState({})
   const [patientMealTimesByDate, setPatientMealTimesByDate] = useState({})
@@ -205,6 +208,10 @@ export function FirebaseDataProvider({ children }) {
     unsubs.push(onValue(ref(db, `${base}/sos`), snap => {
       const val = snap.val() || {}
       setMySos(Object.entries(val).map(([id, v]) => ({ id, ...v })))
+    }))
+
+    unsubs.push(onValue(ref(db, `${base}/carePlan`), snap => {
+      setOwnCarePlan(normalizeCarePlan(snap.val()))
     }))
 
     unsubs.push(onValue(ref(db, `${base}/assignedChallenges`), snap => {
@@ -314,6 +321,9 @@ export function FirebaseDataProvider({ children }) {
       const val = snap.val() || {}
       setPatientSos(Object.entries(val).map(([id, v]) => ({ id, ...v })))
     }))
+    unsubs.push(onValue(ref(db, `users/${viewingPatientUid}/carePlan`), snap => {
+      setPatientCarePlan(normalizeCarePlan(snap.val()))
+    }))
     unsubs.push(onValue(ref(db, `users/${viewingPatientUid}/assignedChallenges`), snap => {
       const val = snap.val() || {}
       setPatientAssignedChallenges(Object.entries(val).map(([id, v]) => ({ id, ...v })))
@@ -347,6 +357,7 @@ export function FirebaseDataProvider({ children }) {
   const prescribedSupplements  = viewingPatientUid ? patientPrescribedSupplements : ownPrescribedSupplements
   const clinicianNotes         = viewingPatientUid ? patientClinicianNotes : ownClinicianNotes
   const assignedChallenges     = viewingPatientUid ? patientAssignedChallenges : ownAssignedChallenges
+  const carePlan               = viewingPatientUid ? patientCarePlan : ownCarePlan
 
   // ── Write functions ────────────────────────────────────────────────────────
 
@@ -405,6 +416,20 @@ export function FirebaseDataProvider({ children }) {
     set(ref(db, `users/${targetUid}/assignedChallenges/${id}`), {
       name: clean,
       createdAt: new Date().toISOString(),
+    })
+  }
+
+  // The family's meal plan, written by the clinician (or the parent) for the viewed family.
+  // Rules accept only these fields, lines up to 200 characters, and the writer's own uid.
+  function saveCarePlan({ tableReminders = [], refusalSteps = [] }) {
+    const targetUid = viewingPatientUid || uid
+    if (!targetUid || !uid) return Promise.resolve()
+    const next = normalizeCarePlan({ tableReminders, refusalSteps })
+    return set(ref(db, `users/${targetUid}/carePlan`), {
+      tableReminders: next.tableReminders,
+      refusalSteps: next.refusalSteps,
+      updatedAt: new Date().toISOString(),
+      updatedBy: uid,
     })
   }
 
@@ -803,6 +828,8 @@ export function FirebaseDataProvider({ children }) {
       setFoodNutrition,
       resetFoodNutrition,
       assignedChallenges,
+      carePlan,
+      saveCarePlan,
       addAssignedChallenge,
       removeAssignedChallenge,
       careTeam,

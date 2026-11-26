@@ -3,9 +3,9 @@ import Icon from './Icon'
 
 // A strip of notebook index tabs along the bottom edge: the word leads, a small drawn icon follows.
 const TABS = [
+  { to: '/parent/next',    label: 'Next meal', icon: 'clock' },
   { to: '/parent/daily',   label: 'Today',    icon: 'today' },
   { to: '/parent/weekly',  label: 'Week',     icon: 'week' },
-  { to: '/parent/stats',   label: 'Insights', icon: 'insights' },
   { to: '/parent/notes',   label: 'Notes',    icon: 'notes' },
   { to: '/parent/account', label: 'Account',  icon: 'account' },
 ]

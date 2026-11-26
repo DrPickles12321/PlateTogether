@@ -1,6 +1,7 @@
 import { useFirebaseData } from '../contexts/FirebaseDataContext'
 import { RevealSection, SectionCard, ClinicianSupplementEditor } from './ClinicianView'
 import ChallengeAssigner from '../components/ChallengeAssigner'
+import FamilyPlanEditor from '../components/FamilyPlanEditor'
 import WeeklyGoals from '../components/WeeklyGoals'
 import NutritionalTargets from '../components/NutritionalTargets'
 import { useIsMobile } from '../hooks/useIsMobile'
@@ -13,11 +14,20 @@ export default function ClinicianCarePlan() {
     assignedChallenges,
     addAssignedChallenge,
     removeAssignedChallenge,
+    carePlan,
+    saveCarePlan,
+    viewingPatientUid,
   } = useFirebaseData()
   const isMobile = useIsMobile()
 
   return (
     <>
+      <RevealSection eyebrow="Family's meal plan">
+        <SectionCard>
+          <FamilyPlanEditor key={`${viewingPatientUid}-${carePlan?.updatedAt || ''}`} plan={carePlan} onSave={saveCarePlan} />
+        </SectionCard>
+      </RevealSection>
+
       <RevealSection eyebrow="Challenge foods">
         <SectionCard>
           <ChallengeAssigner

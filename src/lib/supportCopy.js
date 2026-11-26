@@ -11,9 +11,26 @@ export const HARD_MEAL = {
   messageAction: 'Message your care team',
   helpAction: 'When to get help',
   dismiss: 'Close',
-  emergency: 'In an emergency, or if anyone talks about suicide or self-harm:',
+  planAction: 'Open your plan',
   notMonitored: 'Messages are not watched around the clock. In an emergency, call 911.',
   sent: 'Sent. Your care team will see it next time they open Plate Together. This is not an emergency line.',
+}
+
+// The screen a parent sees right after marking a meal Refused. The steps themselves come only from
+// the family's clinician (carePlan.refusalSteps); without them the screen says so and points to the
+// care team. Emergency numbers stay behind "When to get help": refusals are expected in recovery,
+// and a teen may be reading over the parent's shoulder.
+export const REFUSAL = {
+  title: mealLabel => `${mealLabel} was refused.`,
+  saved: "That's saved. Here is what your plan says to do now.",
+  planHeading: 'If a meal is refused',
+  planSource: 'Written by your clinician.',
+  noPlan: "Your clinician hasn't written a plan for this yet. Ask about it at your next session, and let them know about this meal below.",
+  tellHeading: 'Tell your clinician',
+  addLine: 'Add a line (optional)',
+  send: 'Send to your clinician',
+  done: 'Done for now',
+  worried: "Worried it's more than a hard meal? When to get help",
 }
 
 // The one line at the top of the parent's week. It reflects what actually happened and never

@@ -7,6 +7,7 @@ import ChatWidget from '../components/ChatWidget'
 import WelcomeModal from '../components/WelcomeModal'
 
 const PAGE_TITLES = {
+  '/parent/next': 'Next meal',
   '/parent/daily': 'Today',
   '/parent/weekly': 'Week',
   '/parent/stats': 'Insights',
