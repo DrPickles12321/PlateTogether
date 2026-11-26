@@ -8,7 +8,6 @@ const NUTRIENTS = [
   {
     key: 'protein',
     label: 'Protein',
-    icon: '🥩',
     color: 'var(--coral)',
     bg: 'var(--coral-light)',
     border: 'var(--coral-mid)',
@@ -18,7 +17,6 @@ const NUTRIENTS = [
   {
     key: 'carbs',
     label: 'Carbs',
-    icon: '🌾',
     color: 'var(--peach)',
     bg: 'var(--peach-light)',
     border: 'var(--peach-mid)',
@@ -28,7 +26,6 @@ const NUTRIENTS = [
   {
     key: 'fruitsVeggies',
     label: 'Fruits & Veggies',
-    icon: '🥦',
     color: 'var(--mint)',
     bg: 'var(--mint-light)',
     border: 'var(--mint-mid)',
@@ -131,7 +128,6 @@ export default function WeeklyGoals({ allMealItems }) {
                     display: 'flex', alignItems: 'center', gap: 7,
                     fontWeight: 600, fontSize: 13, color: n.color,
                   }}>
-                    <span style={{ fontSize: 17 }}>{n.icon}</span>
                     {n.label}
                   </span>
                   <span style={{ fontSize: 13, fontWeight: 700, color: met ? 'var(--mint)' : n.color }}>
@@ -152,13 +148,13 @@ export default function WeeklyGoals({ allMealItems }) {
                     background: met
                       ? 'var(--mint)'
                       : `linear-gradient(90deg, ${n.color} 0%, ${n.barEnd} 100%)`,
-                    transition: 'width 0.5s ease',
+                    
                   }} />
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 5 }}>
-                  <span style={{ fontSize: 10, color: 'var(--text-light)' }}>{pct}% of weekly target</span>
-                  <span style={{ fontSize: 10, color: 'var(--text-light)' }}>
+                  <span style={{ fontSize: 12, color: 'var(--text-light)' }}>{pct}% of weekly target</span>
+                  <span style={{ fontSize: 12, color: 'var(--text-light)' }}>
                     {Math.max(0, target - actual)}g remaining
                   </span>
                 </div>
@@ -169,7 +165,7 @@ export default function WeeklyGoals({ allMealItems }) {
       )}
 
       {totalFilled > 0 && (
-        <p style={{ fontSize: 11, color: 'var(--text-light)', textAlign: 'center', marginTop: 14, fontStyle: 'italic' }}>
+        <p style={{ fontSize: 13, color: 'var(--text-light)', textAlign: 'center', marginTop: 14, fontStyle: 'italic' }}>
           Based on {totalFilled} logged meal{totalFilled !== 1 ? 's' : ''} this week
         </p>
       )}

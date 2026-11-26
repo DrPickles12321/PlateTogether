@@ -105,7 +105,7 @@ export default function DailyNutritionSummary({ day, loggedMealItems = {}, onClo
       </div>
 
       <div className="p-3 border-t border-gray-100">
-        <p className="text-[10px] text-gray-400 text-center">Values come from USDA or the family; foods with no data are not counted</p>
+        <p className="text-xs text-gray-400 text-center">Values come from USDA or the family; foods with no data are not counted</p>
       </div>
     </div>
   )

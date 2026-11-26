@@ -181,7 +181,7 @@ export default function AddFoodInput({ onAddFood, existingFoodNames = [] }) {
               type="button"
               onClick={() => setCategory(cat.key)}
               style={{
-                flex: 1, padding: '5px 4px', borderRadius: 9, fontSize: 11, fontWeight: 600,
+                flex: 1, padding: '5px 4px', borderRadius: 9, fontSize: 13, fontWeight: 600,
                 border: `1.5px solid ${active ? cat.border : 'var(--border)'}`,
                 background: active ? cat.bg : 'white',
                 color: active ? cat.color : 'var(--text-light)',

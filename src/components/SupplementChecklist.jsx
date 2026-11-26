@@ -48,7 +48,7 @@ export default function SupplementChecklist({ checkedSupplements, onToggleChecke
           {/* Items */}
           <div style={{ flex: 1 }}>
             {items.length === 0 ? (
-              <p style={{ fontSize: 11, color: 'var(--text-light)', fontStyle: 'italic', padding: '4px 0', lineHeight: '28px' }}>
+              <p style={{ fontSize: 13, color: 'var(--text-light)', fontStyle: 'italic', padding: '4px 0', lineHeight: '28px' }}>
                 No supplements prescribed yet.
               </p>
             ) : items.map((rec, i) => {
@@ -71,7 +71,7 @@ export default function SupplementChecklist({ checkedSupplements, onToggleChecke
                     }}
                     aria-label={`Toggle ${rec.nutrient}`}
                   >
-                    {checked && <span style={{ color: 'white', fontSize: 10, lineHeight: 1, fontWeight: 700 }}>✓</span>}
+                    {checked && <span style={{ color: 'white', fontSize: 12, lineHeight: 1, fontWeight: 700 }}>✓</span>}
                   </button>
                   <span style={{
                     fontSize: 12, color: checked ? 'var(--text-light)' : 'var(--text-dark)',
@@ -89,7 +89,7 @@ export default function SupplementChecklist({ checkedSupplements, onToggleChecke
         <div style={{
           padding: '6px 12px 8px',
           borderTop: '1px solid var(--border)',
-          fontSize: 9, color: 'var(--text-light)',
+          fontSize: 12, color: 'var(--text-light)',
           fontStyle: 'italic', lineHeight: 1.4,
           fontFamily: "var(--font-ui)",
         }}>

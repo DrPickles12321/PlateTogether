@@ -1,6 +1,19 @@
 import { describe, it, expect } from 'vitest'
 import { needsSupport, outcomeLabel, OUTCOME_META, OUTCOME_ORDER } from './outcomes'
-import { HARD_MEAL, hardMealNote } from './supportCopy'
+import { HARD_MEAL, hardMealNote, weekMessage } from './supportCopy'
+
+describe('weekMessage', () => {
+  it('does not praise a week that had hard meals', () => {
+    expect(weekMessage({ logged: 10, hard: 3 })).not.toMatch(/great|well done|amazing/i)
+    expect(weekMessage({ logged: 10, hard: 3 })).toMatch(/hard meals/)
+  })
+
+  it('never puts a number in front of the parent', () => {
+    for (const args of [{ logged: 0 }, { logged: 5, hard: 0 }, { logged: 5, hard: 2 }]) {
+      expect(weekMessage(args)).not.toMatch(/\d/)
+    }
+  })
+})
 
 describe('needsSupport', () => {
   it('answers a refusal even with no distress rating', () => {

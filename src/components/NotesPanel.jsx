@@ -46,12 +46,11 @@ export default function NotesPanel({ notes, mode, onSave, onDelete, notesReadByP
         justifyContent: 'space-between',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 15 }}>📓</span>
-          <span style={{ fontWeight: 600, fontSize: 13, color: 'white', letterSpacing: '0.2px' }}>
+          <span style={{ fontWeight: 600, fontSize: 13, color: 'white' }}>
             Clinician Notes
           </span>
         </div>
-        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', fontStyle: 'italic' }}>
+        <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', fontStyle: 'italic' }}>
           {formatDate(new Date().toISOString())}
         </span>
       </div>
@@ -86,27 +85,27 @@ export default function NotesPanel({ notes, mode, onSave, onDelete, notesReadByP
               {todayNote && (
                 <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
                   {notesReadByParent[todayNote.id]
-                    ? <span style={{ fontSize: 11, color: 'var(--mint)', fontWeight: 500 }}>✓ Parent has read this note</span>
-                    : <span style={{ fontSize: 11, color: 'var(--st-some)', fontWeight: 500 }}>○ Parent hasn't read this yet</span>
+                    ? <span style={{ fontSize: 13, color: 'var(--mint)', fontWeight: 500 }}>✓ Parent has read this note</span>
+                    : <span style={{ fontSize: 13, color: 'var(--st-some)', fontWeight: 500 }}>○ Parent hasn't read this yet</span>
                   }
                   {onDelete && (
                     confirmDelete ? (
-                      <span style={{ fontSize: 11, color: 'var(--text-mid)', fontFamily: "var(--font-ui)" }}>
+                      <span style={{ fontSize: 13, color: 'var(--text-mid)', fontFamily: "var(--font-ui)" }}>
                         Delete this note?{' '}
                         <button
                           onClick={() => { onDelete(todayNote.id); setConfirmDelete(false) }}
-                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--coral)', fontSize: 11, fontWeight: 700, padding: 0, fontFamily: 'inherit' }}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--coral)', fontSize: 13, fontWeight: 700, padding: 0, fontFamily: 'inherit' }}
                         >Yes</button>
                         {' / '}
                         <button
                           onClick={() => setConfirmDelete(false)}
-                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-light)', fontSize: 11, padding: 0, fontFamily: 'inherit' }}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-light)', fontSize: 13, padding: 0, fontFamily: 'inherit' }}
                         >Cancel</button>
                       </span>
                     ) : (
                       <button
                         onClick={() => setConfirmDelete(true)}
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-light)', fontSize: 11, padding: 0, fontFamily: 'inherit', textDecoration: 'underline', textUnderlineOffset: 2 }}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-light)', fontSize: 13, padding: 0, fontFamily: 'inherit', textDecoration: 'underline', textUnderlineOffset: 2 }}
                       >Delete note</button>
                     )
                   )}
@@ -123,7 +122,7 @@ export default function NotesPanel({ notes, mode, onSave, onDelete, notesReadByP
                   fontFamily: "var(--font-ui)",
                 }}>{todayNote.body}</p>
               </div>
-              <p style={{ fontSize: 11, color: 'var(--text-light)', marginTop: 10 }}>
+              <p style={{ fontSize: 13, color: 'var(--text-light)', marginTop: 10 }}>
                 Last updated {formatDate(todayNote.created_at)}
               </p>
             </div>

@@ -22,9 +22,8 @@ export function ToastProvider({ children }) {
               <div key={t.id} style={{
                 background: 'white',
                 border: `1.5px solid ${s.border}`,
-                borderLeft: `4px solid ${s.text}`,
-                borderRadius: 14, padding: '12px 18px',
-                fontSize: 13, fontWeight: 500, color: s.text,
+                borderRadius: 'var(--radius)', padding: '12px 18px',
+                fontSize: 15, fontWeight: 500, color: s.text,
                 minWidth: 230, display: 'flex', alignItems: 'center', gap: 10,
                 boxShadow: '0 6px 24px rgba(29,33,43,0.12)',
                 fontFamily: "var(--font-ui)",

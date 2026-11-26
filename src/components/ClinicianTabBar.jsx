@@ -1,28 +1,24 @@
 import { NavLink, useLocation } from 'react-router-dom'
+import Icon from './Icon'
 
 const TABS = [
-  { to: '/clinician/overview',  label: 'Overview',  icon: '📋' },
-  { to: '/clinician/insights',  label: 'Insights',  icon: '📊' },
-  { to: '/clinician/care-plan', label: 'Care Plan', icon: '🎯' },
-  { to: '/clinician/notes',     label: 'Notes',     icon: '📓' },
+  { to: '/clinician/overview',  label: 'Overview',  icon: 'today' },
+  { to: '/clinician/insights',  label: 'Insights',  icon: 'insights' },
+  { to: '/clinician/care-plan', label: 'Care plan', icon: 'week' },
+  { to: '/clinician/notes',     label: 'Notes',     icon: 'notes' },
 ]
 
-// Shared clinician sub-navigation. `variant="desktop"` renders an inline pill
-// row above the page content (mirrors Navbar's parent tabs); `variant="mobile"`
-// renders a fixed bottom bar (mirrors MobileTabBar). Both read the same route
-// list so the two never drift apart.
+// The family's file, tabbed like a case folder. `variant="desktop"` sits above the page;
+// `variant="mobile"` is a fixed bottom bar matching the parent's. Both read one route list.
 export default function ClinicianTabBar({ variant }) {
   const { pathname } = useLocation()
 
   if (variant === 'mobile') {
     return (
-      <nav style={{
+      <nav aria-label="Family file" style={{
         position: 'fixed', left: 0, right: 0, bottom: 0, zIndex: 50,
-        background: 'rgba(255,255,255,0.97)',
-        backdropFilter: 'blur(12px)',
-        borderTop: '1px solid var(--border)',
-        display: 'flex',
-        paddingBottom: 'calc(env(safe-area-inset-bottom) + 6px)',
+        background: 'white', borderTop: '1px solid var(--rule-strong)',
+        display: 'flex', paddingBottom: 'env(safe-area-inset-bottom)',
       }}>
         {TABS.map(tab => {
           const isActive = pathname === tab.to || pathname.startsWith(tab.to + '/')
@@ -30,23 +26,17 @@ export default function ClinicianTabBar({ variant }) {
             <NavLink
               key={tab.to}
               to={tab.to}
+              aria-current={isActive ? 'page' : undefined}
               style={{
-                flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
-                justifyContent: 'center', gap: 4, padding: '7px 4px 9px',
-                minHeight: 56, textDecoration: 'none',
-                color: isActive ? 'var(--coral)' : 'var(--text-light)',
-                fontFamily: "var(--font-ui)",
+                flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                gap: 3, minHeight: 58, textDecoration: 'none', marginTop: -1,
+                color: isActive ? 'var(--ink)' : 'var(--text-mid)',
+                borderTop: isActive ? '3px solid var(--ink)' : '3px solid transparent',
+                background: isActive ? 'var(--ink-light)' : 'transparent',
               }}
             >
-              <span style={{
-                width: 44, height: 26, borderRadius: 13,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: isActive ? 'var(--coral-light)' : 'transparent',
-                transition: 'background 0.18s',
-              }}>
-                <span style={{ fontSize: 18, lineHeight: 1, filter: isActive ? 'none' : 'grayscale(0.45) opacity(0.7)' }}>{tab.icon}</span>
-              </span>
-              <span style={{ fontSize: 10, fontWeight: isActive ? 600 : 500 }}>{tab.label}</span>
+              <Icon name={tab.icon} size={22} strokeWidth={isActive ? 2.1 : 1.75} />
+              <span style={{ fontSize: 12, fontWeight: isActive ? 700 : 500 }}>{tab.label}</span>
             </NavLink>
           )
         })}
@@ -55,47 +45,29 @@ export default function ClinicianTabBar({ variant }) {
   }
 
   return (
-    <div style={{
-      display: 'flex', alignItems: 'center', gap: 2, marginBottom: 8,
-      background: 'var(--surface-warm)', padding: '3px',
-      borderRadius: 13, border: '1.5px solid var(--border)',
-      width: 'fit-content',
-    }}>
+    <nav aria-label="Family file" style={{ display: 'flex', alignItems: 'flex-end', gap: 4, borderBottom: '1px solid var(--rule-strong)', marginBottom: 16 }}>
       {TABS.map(tab => {
         const isActive = pathname === tab.to || pathname.startsWith(tab.to + '/')
         return (
           <NavLink
             key={tab.to}
             to={tab.to}
+            aria-current={isActive ? 'page' : undefined}
             style={{
-              display: 'flex', alignItems: 'center', gap: 7,
-              padding: '7px 18px', borderRadius: 10,
-              fontSize: 13, fontWeight: 500,
-              textDecoration: 'none', transition: 'all 0.15s',
-              color: isActive ? 'white' : 'var(--text-mid)',
-              background: isActive
-                ? 'var(--ink)'
-                : 'transparent',
-              boxShadow: isActive ? '0 2px 8px rgba(35,64,142,0.28)' : 'none',
-            }}
-            onMouseEnter={e => {
-              if (!isActive) {
-                e.currentTarget.style.background = 'rgba(35,64,142,0.10)'
-                e.currentTarget.style.color = 'var(--text-dark)'
-              }
-            }}
-            onMouseLeave={e => {
-              if (!isActive) {
-                e.currentTarget.style.background = 'transparent'
-                e.currentTarget.style.color = 'var(--text-mid)'
-              }
+              display: 'flex', alignItems: 'center', gap: 8, minHeight: 44, padding: '8px 16px',
+              fontSize: 15, fontWeight: isActive ? 700 : 500, textDecoration: 'none',
+              color: isActive ? 'var(--ink)' : 'var(--text-mid)',
+              background: isActive ? 'white' : 'transparent',
+              border: isActive ? '1px solid var(--rule-strong)' : '1px solid transparent',
+              borderBottom: isActive ? '1px solid white' : '1px solid transparent',
+              borderRadius: 'var(--radius) var(--radius) 0 0', marginBottom: -1,
             }}
           >
-            <span style={{ fontSize: 14 }}>{tab.icon}</span>
+            <Icon name={tab.icon} size={18} />
             {tab.label}
           </NavLink>
         )
       })}
-    </div>
+    </nav>
   )
 }

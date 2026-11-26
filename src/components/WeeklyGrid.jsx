@@ -58,7 +58,7 @@ function ClinicianMealSlot({ items = [], status, distress, isFuture }) {
     <div style={{
       minHeight: 84, padding: 8, borderRadius: 'var(--radius)', boxSizing: 'border-box',
       background: flagged ? 'var(--highlight)' : 'white',
-      border: empty ? '1px dashed var(--border-mid)' : `1px solid ${flagged ? '#E6CF52' : 'var(--rule-strong)'}`,
+      border: empty ? '1px dashed var(--border-mid)' : `1px solid ${flagged ? 'var(--highlight-edge)' : 'var(--rule-strong)'}`,
       fontSize: 13, color: 'var(--text-dark)',
     }}>
       {outcome && (
@@ -115,7 +115,7 @@ export default function WeeklyGrid({ onDayClick, parentNotes = [], onMarkNoteRea
           </button>
         )}
         <span style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--text-mid)' }}>
-          <span style={{ width: 14, height: 14, background: 'var(--highlight)', border: '1px solid #E6CF52', borderRadius: 3 }} />
+          <span style={{ width: 14, height: 14, background: 'var(--highlight)', border: '1px solid var(--highlight-edge)', borderRadius: 3 }} />
           Highlighted: refused, or distress 4 or 5
         </span>
       </div>

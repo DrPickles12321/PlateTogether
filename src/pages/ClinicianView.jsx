@@ -40,9 +40,9 @@ export function SectionCard({ children, style = {} }) {
   return (
     <div style={{
       background: 'var(--surface)',
-      borderRadius: 16,
-      border: '1px solid var(--border)',
-      padding: '24px 28px',
+      borderRadius: 'var(--radius)',
+      border: '1px solid var(--rule-strong)',
+      padding: '20px 22px',
       ...style,
     }}>
       {children}
@@ -65,8 +65,8 @@ export function ParentNotesPanel({ notes = [], onMarkRead, hiddenNoteIds = [], o
       {unreadCount > 0 && (
         <span style={{
           display: 'inline-block', marginBottom: 12,
-          fontSize: 10, fontWeight: 700, letterSpacing: '1px',
-          textTransform: 'uppercase', color: 'var(--peach)',
+          fontSize: 12, fontWeight: 700,
+         color: 'var(--peach)',
           background: 'var(--peach-light)', borderRadius: 999,
           padding: '3px 10px', border: '1px solid var(--peach-mid)',
         }}>
@@ -92,8 +92,7 @@ export function ParentNotesPanel({ notes = [], onMarkRead, hiddenNoteIds = [], o
                 <div>
                   {isUnread && (
                     <span style={{
-                      display: 'inline-block', fontSize: 9, fontWeight: 700,
-                      letterSpacing: '1px', textTransform: 'uppercase',
+                      display: 'inline-block', fontSize: 12, fontWeight: 700,
                       color: 'var(--peach)', marginBottom: 4,
                     }}>New</span>
                   )}
@@ -109,34 +108,34 @@ export function ParentNotesPanel({ notes = [], onMarkRead, hiddenNoteIds = [], o
                     <button
                       onClick={() => onMarkRead?.(note.id)}
                       className="clv-pill-btn"
-                      style={{ fontSize: 11, padding: '4px 12px' }}
+                      style={{ fontSize: 13, padding: '4px 12px' }}
                     >
                       Mark read
                     </button>
                   ) : (
-                    <span style={{ fontSize: 11, color: 'var(--mint)', fontWeight: 600 }}>
+                    <span style={{ fontSize: 13, color: 'var(--mint)', fontWeight: 600 }}>
                       Read
                     </span>
                   )}
                   {onHideNote && (
                     confirmHideDate === note.date ? (
-                      <span style={{ fontSize: 10, color: 'var(--text-light)', whiteSpace: 'nowrap' }}>
+                      <span style={{ fontSize: 12, color: 'var(--text-light)', whiteSpace: 'nowrap' }}>
                         Hide?{' '}
                         <button
                           onClick={() => { onHideNote(note.date); setConfirmHideDate(null) }}
-                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--coral)', fontWeight: 700, fontSize: 10, padding: 0, fontFamily: 'inherit' }}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--coral)', fontWeight: 700, fontSize: 12, padding: 0, fontFamily: 'inherit' }}
                         >Yes</button>
                         {' / '}
                         <button
                           onClick={() => setConfirmHideDate(null)}
-                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-light)', fontSize: 10, padding: 0, fontFamily: 'inherit' }}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-light)', fontSize: 12, padding: 0, fontFamily: 'inherit' }}
                         >Cancel</button>
                       </span>
                     ) : (
                       <button
                         onClick={() => setConfirmHideDate(note.date)}
                         title="Hide from my view"
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-light)', fontSize: 10, padding: 0, fontFamily: 'inherit' }}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-light)', fontSize: 12, padding: 0, fontFamily: 'inherit' }}
                       >Hide</button>
                     )
                   )}
@@ -157,8 +156,8 @@ export function ParentNotesPanel({ notes = [], onMarkRead, hiddenNoteIds = [], o
               cursor: 'pointer', fontFamily: "'Lato', sans-serif",
             }}
           >
-            <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-light)' }}>Hidden ({removedNotes.length})</span>
-            <span style={{ fontSize: 10, color: 'var(--text-light)' }}>{showHidden ? '▲' : '▼'}</span>
+            <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-light)' }}>Hidden ({removedNotes.length})</span>
+            <span style={{ fontSize: 12, color: 'var(--text-light)' }}>{showHidden ? '▲' : '▼'}</span>
           </button>
           {showHidden && (
             <div style={{ borderTop: '1px solid var(--border)' }}>
@@ -167,14 +166,14 @@ export function ParentNotesPanel({ notes = [], onMarkRead, hiddenNoteIds = [], o
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8,
                   padding: '8px 0', borderBottom: '1px solid var(--border)',
                 }}>
-                  <p style={{ margin: 0, fontSize: 11, color: 'var(--text-light)', lineHeight: 1.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <p style={{ margin: 0, fontSize: 13, color: 'var(--text-light)', lineHeight: 1.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {note.body}
                   </p>
                   <button
                     onClick={() => onUnhideNote(note.date)}
                     style={{
                       flexShrink: 0, background: 'none', border: '1px solid var(--border-mid)',
-                      borderRadius: 20, padding: '3px 9px', fontSize: 10, fontWeight: 600,
+                      borderRadius: 20, padding: '3px 9px', fontSize: 12, fontWeight: 600,
                       color: 'var(--mint)', cursor: 'pointer', fontFamily: "'Lato', sans-serif",
                     }}
                   >Restore</button>
@@ -268,8 +267,7 @@ export function ClinicianDigestSection({ allMealItems, mealStatuses, mealTimesBy
                 <div className="clv-digest-accent" style={{ background: accent }} />
                 <div style={{ flex: 1 }}>
                   <span style={{
-                    display: 'inline-block', fontSize: 9, fontWeight: 700,
-                    letterSpacing: '1.2px', textTransform: 'uppercase',
+                    display: 'inline-block', fontSize: 12, fontWeight: 700,
                     color: accent === 'var(--border-mid)' ? 'var(--text-light)' : accent,
                     marginBottom: 4,
                   }}>
@@ -399,124 +397,92 @@ export default function ClinicianView() {
   const showTabs = viewingPatientUid && !patientAccessDenied
 
   return (
-    <div style={{ maxWidth: 1280, width: '100%', margin: '0 auto', minWidth: 0, boxSizing: 'border-box', padding: isMobile ? '28px 16px 84px' : '52px 48px 80px' }}>
+    <div style={{ maxWidth: 1280, width: '100%', margin: '0 auto', minWidth: 0, boxSizing: 'border-box', padding: isMobile ? '16px 16px 96px' : '28px 40px 80px' }}>
 
-      {/* ── Page header ─────────────────────────────────────────────────── */}
+      {/* ── Page header: which family's file is open, and how to add one ── */}
       <div style={{
-        display: 'flex',
-        alignItems: 'flex-start',
-        justifyContent: 'space-between',
-        gap: isMobile ? 24 : 40,
-        flexWrap: 'wrap',
-        paddingBottom: isMobile ? 28 : 44,
-        borderBottom: '1px solid var(--border)',
-        marginBottom: isMobile ? 24 : 36,
+        display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: isMobile ? 16 : 32,
+        flexWrap: 'wrap', paddingBottom: 18, borderBottom: '1px solid var(--rule-strong)', marginBottom: 20,
       }}>
-        {/* Title column */}
-        <div>
-          <span className="clv-eyebrow">Plate Together</span>
-          <h1 className="font-lora" style={{
-            fontSize: isMobile ? 30 : 42, fontWeight: 400, color: 'var(--text-dark)',
-            letterSpacing: '-0.6px', lineHeight: 1.1, marginBottom: 10,
-          }}>
-            Clinician Dashboard
+        <div style={{ minWidth: 0, flex: isMobile ? '1 1 100%' : '1 1 auto' }}>
+          <h1 className="font-hand" style={{ fontSize: isMobile ? 30 : 36, fontWeight: 600, lineHeight: 1.1, marginBottom: 10 }}>
+            Family files
           </h1>
-          <p style={{ fontSize: 14, color: 'var(--text-light)', lineHeight: 1.5 }}>
-            Weekly meal review and session planning
-          </p>
-        </div>
-
-        {/* Controls column */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, alignItems: isMobile ? 'stretch' : 'flex-end', width: isMobile ? '100%' : 'auto' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: isMobile ? 'stretch' : 'flex-end' }}>
-            <label style={{ fontSize: 10, fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--text-light)' }}>
-              Viewing patient
-            </label>
+          <label htmlFor="clinician-patient" style={{ display: 'block', fontSize: 14, fontWeight: 700, color: 'var(--text-dark)', marginBottom: 6 }}>
+            Viewing
+          </label>
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
             <select
+              id="clinician-patient"
               value={viewingPatientUid || ''}
               onChange={e => { setViewingPatientUid(e.target.value || null); setConfirmUnlink(false) }}
               style={{
-                padding: '9px 36px 9px 16px', borderRadius: 999,
-                border: '1.5px solid var(--border)', fontSize: 13,
-                color: 'var(--text-dark)', background: 'var(--surface)',
-                fontFamily: 'inherit', cursor: 'pointer', outline: 'none',
-                minWidth: isMobile ? 0 : 230, width: isMobile ? '100%' : 'auto', appearance: 'none',
-                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23A88C78' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`,
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'right 14px center',
+                minHeight: 44, padding: '8px 36px 8px 12px', borderRadius: 'var(--radius)',
+                border: '1.5px solid var(--border-mid)', fontSize: 15, color: 'var(--text-dark)', background: 'white',
+                cursor: 'pointer', minWidth: isMobile ? 0 : 280, width: isMobile ? '100%' : 'auto', appearance: 'none',
+                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23464D5B' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`,
+                backgroundRepeat: 'no-repeat', backgroundPosition: 'right 14px center',
               }}
             >
-              <option value="">— Select a patient —</option>
+              <option value="">Choose a family</option>
               {patients.map(p => (
-                <option key={p.uid} value={p.uid}>{patientsWithOpenSos[p.uid] ? '🆘 ' : ''}{p.email}</option>
+                <option key={p.uid} value={p.uid}>{p.email}{patientsWithOpenSos[p.uid] ? ' (asked for support)' : ''}</option>
               ))}
             </select>
-
             {viewingPatientUid && (
               confirmUnlink ? (
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', justifyContent: isMobile ? 'flex-start' : 'flex-end' }}>
-                  <span style={{ fontSize: 12, color: 'var(--text-mid)' }}>Unlink this patient?</span>
-                  <button
-                    type="button"
-                    onClick={() => { removePatient(viewingPatientUid); setConfirmUnlink(false) }}
-                    style={{ border: 'none', borderRadius: 8, padding: '5px 12px', background: 'var(--coral)', color: 'white', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+                <span style={{ display: 'inline-flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: 14, color: 'var(--text-mid)' }}>Unlink this family?</span>
+                  <button type="button" onClick={() => { removePatient(viewingPatientUid); setConfirmUnlink(false) }}
+                    style={{ minHeight: 40, border: 'none', borderRadius: 'var(--radius)', padding: '6px 12px', background: 'var(--st-refused)', color: 'white', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
                   >Yes, unlink</button>
-                  <button
-                    type="button"
-                    onClick={() => setConfirmUnlink(false)}
-                    style={{ border: '1px solid var(--border-mid)', borderRadius: 8, padding: '5px 12px', background: 'none', color: 'var(--text-mid)', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+                  <button type="button" onClick={() => setConfirmUnlink(false)}
+                    style={{ minHeight: 40, border: '1px solid var(--border-mid)', borderRadius: 'var(--radius)', padding: '6px 12px', background: 'white', color: 'var(--text-dark)', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
                   >Cancel</button>
-                </div>
+                </span>
               ) : (
-                <button
-                  type="button"
-                  onClick={() => setConfirmUnlink(true)}
-                  style={{ alignSelf: isMobile ? 'flex-start' : 'flex-end', border: 'none', background: 'none', padding: '2px 4px', color: 'var(--text-light)', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'underline', textUnderlineOffset: 2 }}
-                >Unlink patient</button>
+                <button type="button" onClick={() => setConfirmUnlink(true)}
+                  style={{ minHeight: 40, border: 'none', background: 'none', padding: '4px', color: 'var(--text-mid)', fontSize: 14, cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: 3 }}
+                >Unlink</button>
               )
             )}
           </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: isMobile ? 'stretch' : 'flex-end' }}>
-            <label style={{ fontSize: 10, fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--text-light)' }}>
-              Add by family code
-            </label>
-            <form onSubmit={handleAddPatient} style={{ display: 'flex', gap: 8, alignItems: 'center', width: isMobile ? '100%' : 'auto' }}>
-              <input
-                value={addCodeInput}
-                onChange={e => { setAddCodeInput(e.target.value.toUpperCase()); setAddCodeError('') }}
-                placeholder="ABCD2345"
-                maxLength={8}
-                style={{
-                  padding: '9px 16px', borderRadius: 999,
-                  border: '1.5px solid var(--border)', fontSize: 13,
-                  color: 'var(--text-dark)', fontFamily: 'inherit',
-                  outline: 'none', width: isMobile ? 'auto' : 120, flex: isMobile ? 1 : 'none', letterSpacing: '2px', fontWeight: 600,
-                  background: 'var(--surface)',
-                }}
-                onFocus={e => e.target.style.borderColor = 'var(--coral)'}
-                onBlur={e => e.target.style.borderColor = 'var(--border)'}
-              />
-              <button
-                type="submit"
-                disabled={addCodeLoading || addCodeInput.length < 6}
-                className="clv-pill-btn filled"
-              >
-                {addCodeLoading ? '…' : 'Add'}
-              </button>
-            </form>
-            {addCodeError && (
-              <span style={{ fontSize: 12, color: 'var(--coral)', marginTop: 2 }}>{addCodeError}</span>
-            )}
-          </div>
         </div>
+
+        <form onSubmit={handleAddPatient} style={{ width: isMobile ? '100%' : 'auto' }}>
+          <label htmlFor="clinician-add-code" style={{ display: 'block', fontSize: 14, fontWeight: 700, color: 'var(--text-dark)', marginBottom: 6 }}>
+            Add a family by code
+          </label>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <input
+              id="clinician-add-code"
+              value={addCodeInput}
+              onChange={e => { setAddCodeInput(e.target.value.toUpperCase()); setAddCodeError('') }}
+              placeholder="8 letters or numbers"
+              maxLength={8}
+              autoComplete="off"
+              aria-describedby={addCodeError ? 'clinician-add-error' : undefined}
+              style={{
+                minHeight: 44, padding: '8px 12px', borderRadius: 'var(--radius)', border: '1.5px solid var(--border-mid)',
+                fontSize: 16, color: 'var(--text-dark)', width: isMobile ? 'auto' : 190, flex: isMobile ? 1 : 'none',
+                fontWeight: 600, letterSpacing: '0.08em', background: 'white',
+              }}
+            />
+            <button type="submit" disabled={addCodeLoading || addCodeInput.length < 6} className="clv-pill-btn filled" style={{ minHeight: 44 }}>
+              {addCodeLoading ? 'Adding…' : 'Add'}
+            </button>
+          </div>
+          {addCodeError && (
+            <p id="clinician-add-error" role="alert" style={{ fontSize: 14, color: 'var(--st-refused)', marginTop: 6 }}>{addCodeError}</p>
+          )}
+        </form>
       </div>
 
       {/* ── No patient selected ─────────────────────────────────────────── */}
       {!viewingPatientUid ? (
         <div style={{ padding: '16px 0 40px' }}>
-          <p style={{ fontSize: 13, color: 'var(--text-light)', letterSpacing: '0.2px' }}>
-            Select a patient above to view their weekly data.
+          <p style={{ fontSize: 15, color: 'var(--text-mid)', maxWidth: '60ch' }}>
+            Choose a family above to open their file. Families give you their code from the Account page of their app.
           </p>
         </div>
       ) : patientAccessDenied ? (
@@ -525,7 +491,7 @@ export default function ClinicianView() {
           border: '1.5px solid var(--pink-mid)', background: 'var(--pink-light)',
           display: 'flex', alignItems: 'flex-start', gap: 14,
         }}>
-          <span style={{ fontSize: 24, lineHeight: 1 }}>🔒</span>
+          
           <div>
             <div style={{ fontWeight: 700, fontSize: 15, color: 'var(--text-dark)', marginBottom: 4 }}>
               Access removed

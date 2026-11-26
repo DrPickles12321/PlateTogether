@@ -9,8 +9,8 @@ function Stat({ label, value, subtext, accent }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
       <span style={{
-        fontSize: 10, fontWeight: 600, letterSpacing: '1.8px',
-        textTransform: 'uppercase', color: 'var(--text-light)',
+        fontSize: 12, fontWeight: 600,
+       color: 'var(--text-light)',
         marginBottom: 10,
       }}>
         {label}
@@ -63,7 +63,7 @@ export default function WeeklyInsights({ allMealItems, mealStatuses }) {
       accent: 'var(--border-mid)',
     },
     {
-      label: 'Okay',
+      label: 'Finished',
       value: insights.okay,
       subtext: insights.totalLogs > 0
         ? `${Math.round((insights.okay / insights.totalLogs) * 100)}% of meals`
@@ -71,7 +71,7 @@ export default function WeeklyInsights({ allMealItems, mealStatuses }) {
       accent: 'var(--mint)',
     },
     {
-      label: 'Difficult',
+      label: 'Partly',
       value: insights.difficult,
       subtext: insights.hardestMealType
         ? `Often at ${MEAL_LABELS[insights.hardestMealType.mealType]}`
@@ -132,7 +132,7 @@ export default function WeeklyInsights({ allMealItems, mealStatuses }) {
         </div>
       )}
       <p style={{
-        fontSize: 11, color: 'var(--text-light)', letterSpacing: '0.2px',
+        fontSize: 13, color: 'var(--text-light)',
         marginTop: 24, paddingTop: 16, borderTop: '1px solid var(--border)',
       }}>
         Descriptive summary only · not a clinical recommendation

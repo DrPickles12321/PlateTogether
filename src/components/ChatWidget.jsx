@@ -13,8 +13,8 @@ export default function ChatWidget() {
   const { mealStatuses = {}, allMealItems = {}, mealDistress = {}, sendSos, mySos = [] } = useFirebaseData()
   const isMobile = useIsMobile()
   // On mobile, clear the ~62px bottom tab bar; on desktop there's no tab bar.
-  const bubbleBottom = `calc(${isMobile ? 76 : 18}px + env(safe-area-inset-bottom))`
-  const panelBottom = `calc(${isMobile ? 142 : 84}px + env(safe-area-inset-bottom))`
+  const bubbleBottom = 'calc(18px + env(safe-area-inset-bottom))'
+  const panelBottom = `calc(${isMobile ? 70 : 72}px + env(safe-area-inset-bottom))`
   const panelHeight = `min(520px, calc(100dvh - ${isMobile ? 200 : 130}px))`
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState([GREETING])
@@ -73,11 +73,12 @@ export default function ChatWidget() {
         aria-label={open ? 'Close assistant' : 'Open assistant'}
         aria-expanded={open}
         style={{
-          position: 'fixed', right: 14, bottom: bubbleBottom, zIndex: 45,
+          // On phones the button sits in the empty right of the top bar, so it never covers a meal's Log button.
+          position: 'fixed', right: isMobile ? 12 : 14, ...(isMobile ? { top: 4 } : { bottom: bubbleBottom }), zIndex: 45,
           display: 'inline-flex', alignItems: 'center', gap: 6, minHeight: 44, padding: '8px 14px',
           borderRadius: 22, border: '1.5px solid var(--ink)', cursor: 'pointer',
           background: open ? 'var(--ink)' : 'white', color: open ? 'white' : 'var(--ink)',
-          fontSize: 15, fontWeight: 700, boxShadow: '0 4px 14px rgba(29,33,43,0.14)',
+          fontSize: 15, fontWeight: 700, boxShadow: isMobile ? 'none' : '0 4px 14px rgba(29,33,43,0.14)',
         }}
       >
         <Icon name={open ? 'close' : 'message'} size={18} />{open ? 'Close' : 'Ask'}

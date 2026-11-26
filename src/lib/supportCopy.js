@@ -15,6 +15,14 @@ export const HARD_MEAL = {
   sent: 'Sent. Your care team will see it next time they open Plate Together. This is not an emergency line.',
 }
 
+// The one line at the top of the parent's week. It reflects what actually happened and never
+// praises a number: no counts, no percentages, no "doing great" after a week of hard meals.
+export function weekMessage({ logged = 0, hard = 0 } = {}) {
+  if (logged === 0) return 'Nothing written down yet this week. Log a meal on the Today page and it will show up here.'
+  if (hard > 0) return 'This week had some hard meals. That is part of recovery, and you kept going.'
+  return 'You kept the notebook going this week. Bring anything on your mind to your next session.'
+}
+
 // The note attached to the care-team message, so the clinician knows which meal it was about.
 export function hardMealNote({ mealLabel, dateLabel, outcomeLabel }) {
   const what = outcomeLabel ? ` (${outcomeLabel.toLowerCase()})` : ''

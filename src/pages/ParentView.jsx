@@ -42,8 +42,8 @@ export default function ParentView() {
 
   return (
     <>
-      {/* Bottom padding clears the tab bar and the Ask button so nothing hides behind them. */}
-      <div key={pathname} className="pt-rise" style={{ width: '100%', padding: isMobile ? '4px 0 136px' : '16px 24px 88px' }}>
+      {/* Bottom padding clears the fixed tab bar so nothing hides behind it. */}
+      <div key={pathname} className="pt-rise" style={{ width: '100%', padding: isMobile ? '4px 0 88px' : '16px 24px 88px' }}>
         <Outlet context={{ clinicianNotes, parentNotes, clinicianNotesRead, mealStatuses, savedClinicianNotes, allMealItems, weekOffset, setWeekOffset, saveParentNote, deleteParentNote, markClinicianNoteRead, saveClinicianNote, unsaveClinicianNote, clearAllSavedNotes, setMealStatus }} />
       </div>
       {isMobile && <MobileTabBar />}

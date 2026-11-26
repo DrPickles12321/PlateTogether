@@ -78,10 +78,10 @@ const DEFAULT_MEAL_TIMES = {
 }
 
 const MEALS = [
-  { key: 'breakfast', label: 'Breakfast', icon: '☀️', color: 'var(--coral)', bg: 'var(--coral-light)' },
-  { key: 'lunch',     label: 'Lunch',     icon: '🥗', color: 'var(--peach)', bg: 'var(--peach-light)' },
-  { key: 'snack',     label: 'Snack',     icon: '🍎', color: 'var(--pink)',  bg: 'var(--pink-light)' },
-  { key: 'dinner',    label: 'Dinner',    icon: '🌙', color: 'var(--mint)',  bg: 'var(--mint-light)' },
+  { key: 'breakfast', label: 'Breakfast', color: 'var(--coral)', bg: 'var(--coral-light)' },
+  { key: 'lunch',     label: 'Lunch',     color: 'var(--peach)', bg: 'var(--peach-light)' },
+  { key: 'snack',     label: 'Snack',     color: 'var(--pink)',  bg: 'var(--pink-light)' },
+  { key: 'dinner',    label: 'Dinner',    color: 'var(--mint)',  bg: 'var(--mint-light)' },
 ]
 
 // How much of the food was eaten. Stored as a fraction on the meal item so the
@@ -199,7 +199,7 @@ function DropZone({ mealType, items, onRemove, onFoodClick, selectedFoodIndex, i
               )}
               {food.name}
               {food.portion != null && food.portion < 1 && (
-                <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--peach)', flexShrink: 0 }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--peach)', flexShrink: 0 }}>
                   {PORTION_LABEL[food.portion]}
                 </span>
               )}
@@ -384,7 +384,7 @@ function MealCard({ meal, items, onRemove, latestLog, onQuickLog, time, onTimeCh
               flexWrap: 'wrap',
             }}
           >
-            <span style={{ fontSize: 11, color: 'var(--text-light)', alignSelf: 'center', marginRight: 4 }}>
+            <span style={{ fontSize: 13, color: 'var(--text-light)', alignSelf: 'center', marginRight: 4 }}>
               {items[selectedFoodIndex]?.name}:
             </span>
             {['okay', 'difficult', 'refused'].map(key => {
@@ -409,7 +409,7 @@ function MealCard({ meal, items, onRemove, latestLog, onQuickLog, time, onTimeCh
               )
             })}
             <span style={{ width: 1, height: 22, background: 'var(--border)', margin: '0 3px', alignSelf: 'center' }} />
-            <span style={{ fontSize: 10, color: 'var(--text-light)', alignSelf: 'center', marginRight: 1 }}>ate</span>
+            <span style={{ fontSize: 12, color: 'var(--text-light)', alignSelf: 'center', marginRight: 1 }}>ate</span>
             {PORTION_OPTIONS.map(p => {
               const sel = items[selectedFoodIndex]?.portion === p.value
               return (
@@ -463,7 +463,7 @@ function MobileMealCard({
     <div style={{ borderBottom: '1px solid var(--rule)' }}>
       <div style={{ display: 'grid', gridTemplateColumns: `${MARGIN}px 1fr auto`, alignItems: 'center', minHeight: 64 }}>
         <span style={{ fontSize: 13, color: 'var(--text-mid)', textAlign: 'center', lineHeight: 1.2 }}>
-          {timeLabel}<br /><span style={{ fontSize: 11 }}>{period}</span>
+          {timeLabel}<br /><span style={{ fontSize: 13 }}>{period}</span>
         </span>
 
         <button
@@ -799,7 +799,7 @@ function ProgressRing({ value, target, color, darkColor, label }) {
       </div>
       <div style={{ textAlign: 'center' }}>
         <div style={{ fontSize: 12, color: 'var(--text-light)', fontWeight: 500 }}>{label}</div>
-        {met && <div style={{ fontSize: 11, color: darkColor, fontWeight: 700, marginTop: 1 }}>✓</div>}
+        {met && <div style={{ fontSize: 13, color: darkColor, fontWeight: 700, marginTop: 1 }}>✓</div>}
       </div>
     </div>
   )
@@ -871,26 +871,26 @@ export function ParentNoteSection({ note, selectedDate, onSave, onDelete }) {
           </span>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {isRead && (
-              <span style={{ fontSize: 11, color: 'var(--mint)', fontWeight: 500 }}>✓ Clinician read</span>
+              <span style={{ fontSize: 13, color: 'var(--mint)', fontWeight: 500 }}>✓ Clinician read</span>
             )}
             {onDelete && note?.id && (
               confirmDelete ? (
-                <span style={{ fontSize: 11, color: 'var(--text-light)', whiteSpace: 'nowrap' }}>
+                <span style={{ fontSize: 13, color: 'var(--text-light)', whiteSpace: 'nowrap' }}>
                   Delete this note?{' '}
                   <button
                     onClick={handleDelete}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--pink)', fontWeight: 700, fontSize: 11, padding: 0, fontFamily: 'inherit' }}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--pink)', fontWeight: 700, fontSize: 13, padding: 0, fontFamily: 'inherit' }}
                   >Yes</button>
                   {' / '}
                   <button
                     onClick={() => setConfirmDelete(false)}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-light)', fontSize: 11, padding: 0, fontFamily: 'inherit' }}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-light)', fontSize: 13, padding: 0, fontFamily: 'inherit' }}
                   >Cancel</button>
                 </span>
               ) : (
                 <button
                   onClick={() => setConfirmDelete(true)}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-light)', fontSize: 11, padding: 0, fontFamily: 'inherit' }}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-light)', fontSize: 13, padding: 0, fontFamily: 'inherit' }}
                 >Delete note</button>
               )
             )}
@@ -928,13 +928,13 @@ export function ParentNoteSection({ note, selectedDate, onSave, onDelete }) {
           padding: '8px 20px 12px',
           borderTop: '1px solid var(--border)',
         }}>
-          <span style={{ fontSize: 11, color: 'var(--text-light)' }}>{body.length} / 1000</span>
+          <span style={{ fontSize: 13, color: 'var(--text-light)' }}>{body.length} / 1000</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {saveStatus === 'saved' && !isDirty && (
-              <span style={{ fontSize: 11, color: 'var(--mint)', fontWeight: 500 }}>✓ Saved</span>
+              <span style={{ fontSize: 13, color: 'var(--mint)', fontWeight: 500 }}>✓ Saved</span>
             )}
             {saveStatus === 'error' && (
-              <span style={{ fontSize: 11, color: 'var(--pink)', fontWeight: 500 }}>Failed to save</span>
+              <span style={{ fontSize: 13, color: 'var(--pink)', fontWeight: 500 }}>Failed to save</span>
             )}
             <button
               onClick={handleSave}
@@ -1088,13 +1088,13 @@ export function ClinicianNotesSidebar({
                 {isUpdated && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
                     <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--st-some)', flexShrink: 0, display: 'block' }} />
-                    <span style={{ fontSize: 9, fontWeight: 700, color: 'var(--st-some)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Updated</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--st-some)' }}>Updated</span>
                   </div>
                 )}
                 {!isRead && !isUpdated && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
                     <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--st-some)', flexShrink: 0, display: 'block' }} />
-                    <span style={{ fontSize: 9, fontWeight: 700, color: 'var(--st-some)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Unread</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--st-some)' }}>Unread</span>
                   </div>
                 )}
                 <div style={{ display: 'flex', gap: 5, alignItems: 'flex-start' }}>
@@ -1102,7 +1102,7 @@ export function ClinicianNotesSidebar({
                   <p style={{ margin: 0, fontSize: 12, color: 'var(--text-mid)', lineHeight: '28px' }}>{latest.body}</p>
                 </div>
                 {latest.created_at && (
-                  <p style={{ margin: '4px 0 0', fontSize: 10, color: 'var(--text-light)' }}>
+                  <p style={{ margin: '4px 0 0', fontSize: 12, color: 'var(--text-light)' }}>
                     {new Date(latest.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                   </p>
                 )}
@@ -1118,13 +1118,13 @@ export function ClinicianNotesSidebar({
             display: 'flex', flexWrap: 'wrap', gap: 5, alignItems: 'center',
           }}>
             {isRead && !isUpdated ? (
-              <span style={{ fontSize: 10, color: 'var(--mint)', fontWeight: 500 }}>✓ Read</span>
+              <span style={{ fontSize: 12, color: 'var(--mint)', fontWeight: 500 }}>✓ Read</span>
             ) : (
               <button
                 onClick={() => markClinicianNoteRead?.(latest)}
                 style={{
                   background: 'none', border: '1px solid var(--border-mid)',
-                  borderRadius: 20, padding: '3px 9px', fontSize: 10, fontWeight: 600,
+                  borderRadius: 20, padding: '3px 9px', fontSize: 12, fontWeight: 600,
                   color: isUpdated ? 'var(--st-some)' : 'var(--coral)', cursor: 'pointer',
                   fontFamily: "'Lato', sans-serif",
                   borderColor: isUpdated ? 'var(--st-some)' : 'var(--border-mid)',
@@ -1136,23 +1136,23 @@ export function ClinicianNotesSidebar({
               style={{
                 background: isSaved ? 'var(--peach-light)' : 'none',
                 border: `1px solid ${isSaved ? 'var(--peach-mid)' : 'var(--border-mid)'}`,
-                borderRadius: 20, padding: '3px 9px', fontSize: 10, fontWeight: 600,
+                borderRadius: 20, padding: '3px 9px', fontSize: 12, fontWeight: 600,
                 color: isSaved ? 'var(--peach)' : 'var(--text-light)', cursor: 'pointer',
                 fontFamily: "'Lato', sans-serif",
               }}
-            >{isSaved ? '🔖 Saved' : 'Save 🔖'}</button>
+            >{isSaved ? 'Saved' : 'Save'}</button>
             {onHideNote && (
               confirmHideLatest ? (
-                <span style={{ fontSize: 10, color: 'var(--text-light)', whiteSpace: 'nowrap' }}>
+                <span style={{ fontSize: 12, color: 'var(--text-light)', whiteSpace: 'nowrap' }}>
                   Hide?{' '}
                   <button
                     onClick={() => { onHideNote(latest.id); setConfirmHideLatest(false) }}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--pink)', fontWeight: 700, fontSize: 10, padding: 0, fontFamily: 'inherit' }}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--pink)', fontWeight: 700, fontSize: 12, padding: 0, fontFamily: 'inherit' }}
                   >Yes</button>
                   {' / '}
                   <button
                     onClick={() => setConfirmHideLatest(false)}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-light)', fontSize: 10, padding: 0, fontFamily: 'inherit' }}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-light)', fontSize: 12, padding: 0, fontFamily: 'inherit' }}
                   >Cancel</button>
                 </span>
               ) : (
@@ -1161,7 +1161,7 @@ export function ClinicianNotesSidebar({
                   title="Remove from this list"
                   style={{
                     background: 'none', border: '1px solid var(--border-mid)',
-                    borderRadius: 20, padding: '3px 9px', fontSize: 10, fontWeight: 600,
+                    borderRadius: 20, padding: '3px 9px', fontSize: 12, fontWeight: 600,
                     color: 'var(--text-light)', cursor: 'pointer', fontFamily: "'Lato', sans-serif",
                   }}
                 >Hide</button>
@@ -1182,9 +1182,9 @@ export function ClinicianNotesSidebar({
               opacity: savedClinicianNotes.length > 0 ? 1 : 0.4,
             }}
           >
-            <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--peach)' }}>📌 {savedClinicianNotes.length} saved</span>
+            <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--peach)' }}>{savedClinicianNotes.length} saved</span>
             {savedClinicianNotes.length > 0 && (
-              <span style={{ fontSize: 10, color: 'var(--text-light)' }}>{showSaved ? '▲' : '▼'}</span>
+              <span style={{ fontSize: 12, color: 'var(--text-light)' }}>{showSaved ? '▲' : '▼'}</span>
             )}
           </button>
           {showSaved && savedClinicianNotes.length > 0 && (
@@ -1198,8 +1198,8 @@ export function ClinicianNotesSidebar({
                 }}>
                   <div style={{ width: 2, background: 'var(--pink-mid)', flexShrink: 0, marginLeft: 8, marginRight: 6 }} />
                   <div style={{ flex: 1, padding: '7px 28px 7px 0' }}>
-                    <p style={{ margin: '0 0 3px', fontSize: 11, color: 'var(--text-mid)', lineHeight: '28px' }}>{note.body}</p>
-                    <span style={{ fontSize: 9, color: 'var(--text-light)' }}>
+                    <p style={{ margin: '0 0 3px', fontSize: 13, color: 'var(--text-mid)', lineHeight: '28px' }}>{note.body}</p>
+                    <span style={{ fontSize: 12, color: 'var(--text-light)' }}>
                       {new Date(note.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                     </span>
                   </div>
@@ -1219,16 +1219,16 @@ export function ClinicianNotesSidebar({
               {/* Clear all */}
               <div style={{ padding: '7px 12px', display: 'flex', justifyContent: 'flex-end' }}>
                 {confirmClear ? (
-                  <span style={{ fontSize: 10, color: 'var(--text-mid)', fontFamily: "'Lato', sans-serif" }}>
+                  <span style={{ fontSize: 12, color: 'var(--text-mid)', fontFamily: "'Lato', sans-serif" }}>
                     Sure?{' '}
                     <button
                       onClick={() => { clearAllSavedNotes?.(); setShowSaved(false); setConfirmClear(false) }}
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--pink)', fontSize: 10, fontWeight: 600, padding: 0, fontFamily: 'inherit' }}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--pink)', fontSize: 12, fontWeight: 600, padding: 0, fontFamily: 'inherit' }}
                     >Yes</button>
                     {' / '}
                     <button
                       onClick={() => setConfirmClear(false)}
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-light)', fontSize: 10, padding: 0, fontFamily: 'inherit' }}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-light)', fontSize: 12, padding: 0, fontFamily: 'inherit' }}
                     >Cancel</button>
                   </span>
                 ) : (
@@ -1238,7 +1238,7 @@ export function ClinicianNotesSidebar({
                     onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-light)' }}
                     style={{
                       background: 'none', border: 'none', cursor: 'pointer',
-                      fontSize: 10, color: 'var(--text-light)', padding: 0,
+                      fontSize: 12, color: 'var(--text-light)', padding: 0,
                       fontFamily: "'Lato', sans-serif", transition: 'color 0.15s',
                     }}
                   >Clear all saved</button>
@@ -1259,8 +1259,8 @@ export function ClinicianNotesSidebar({
                 cursor: 'pointer', fontFamily: "'Lato', sans-serif",
               }}
             >
-              <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-mid)' }}>History ({olderNotes.filter(n => !hiddenNoteIds.includes(n.id)).length})</span>
-              <span style={{ fontSize: 10, color: 'var(--text-light)' }}>{showAll ? '▲' : '▼'}</span>
+              <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-mid)' }}>History ({olderNotes.filter(n => !hiddenNoteIds.includes(n.id)).length})</span>
+              <span style={{ fontSize: 12, color: 'var(--text-light)' }}>{showAll ? '▲' : '▼'}</span>
             </button>
             {showAll && (
               <div style={{ borderTop: '1px solid var(--border)' }}>
@@ -1288,10 +1288,10 @@ export function ClinicianNotesSidebar({
                           fontFamily: 'inherit',
                         }}
                       >×</button>
-                      <div style={{ fontSize: 9, color: 'var(--text-light)', marginBottom: 3 }}>
+                      <div style={{ fontSize: 12, color: 'var(--text-light)', marginBottom: 3 }}>
                         {new Date(note.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                       </div>
-                      <p style={{ margin: 0, fontSize: 11, color: 'var(--text-mid)', lineHeight: 1.5 }}>
+                      <p style={{ margin: 0, fontSize: 13, color: 'var(--text-mid)', lineHeight: 1.5 }}>
                         {isExpanded ? note.body : preview}
                       </p>
                     </div>
@@ -1313,8 +1313,8 @@ export function ClinicianNotesSidebar({
                 cursor: 'pointer', fontFamily: "'Lato', sans-serif",
               }}
             >
-              <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-light)' }}>Removed ({removedNotes.length})</span>
-              <span style={{ fontSize: 10, color: 'var(--text-light)' }}>{showHidden ? '▲' : '▼'}</span>
+              <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-light)' }}>Removed ({removedNotes.length})</span>
+              <span style={{ fontSize: 12, color: 'var(--text-light)' }}>{showHidden ? '▲' : '▼'}</span>
             </button>
             {showHidden && (
               <div style={{ borderTop: '1px solid var(--border)' }}>
@@ -1323,14 +1323,14 @@ export function ClinicianNotesSidebar({
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8,
                     padding: '8px 12px', borderBottom: '1px solid var(--border)',
                   }}>
-                    <p style={{ margin: 0, fontSize: 11, color: 'var(--text-light)', lineHeight: 1.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <p style={{ margin: 0, fontSize: 13, color: 'var(--text-light)', lineHeight: 1.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {note.body}
                     </p>
                     <button
                       onClick={() => onUnhideNote?.(note.id)}
                       style={{
                         flexShrink: 0, background: 'none', border: '1px solid var(--border-mid)',
-                        borderRadius: 20, padding: '3px 9px', fontSize: 10, fontWeight: 600,
+                        borderRadius: 20, padding: '3px 9px', fontSize: 12, fontWeight: 600,
                         color: 'var(--mint)', cursor: 'pointer', fontFamily: "'Lato', sans-serif",
                       }}
                     >Restore</button>

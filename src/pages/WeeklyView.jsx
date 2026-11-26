@@ -5,9 +5,8 @@ import { getWeekDates, localIsoDate } from '../lib/constants'
 import { useIsMobile } from '../hooks/useIsMobile'
 import { useAppMode } from '../hooks/useAppMode'
 import BottomSheet from '../components/BottomSheet'
-import ChevronButton from '../components/ChevronButton'
-import WeekSummaryStrip from '../components/WeekSummaryStrip'
-import { daySummaries, weekSummary, longestStreak } from '../lib/weekSummary'
+import Icon, { OutcomeMark } from '../components/Icon'
+import { OUTCOME_META } from '../lib/outcomes'
 
 const DAYS = [
   { key: 'mon', label: 'Mon', full: 'Monday'    },
@@ -22,18 +21,14 @@ const DAYS = [
 const TODAY_ISO = localIsoDate()
 
 const MEALS = [
-  { key: 'breakfast', label: 'B', icon: '☀️' },
-  { key: 'lunch',     label: 'L', icon: '🥗' },
-  { key: 'snack',     label: 'S', icon: '🍎' },
-  { key: 'dinner',    label: 'D', icon: '🌙' },
+  { key: 'breakfast', label: 'Breakfast', short: 'Bkfst' },
+  { key: 'lunch',     label: 'Lunch',     short: 'Lunch' },
+  { key: 'snack',     label: 'Snack',     short: 'Snack' },
+  { key: 'dinner',    label: 'Dinner',    short: 'Dinner' },
 ]
 
-const STATUS_STYLE = {
-  okay:      { bg: 'var(--mint-light)', dot: 'var(--mint)', label: 'Okay'      },
-  difficult: { bg: 'var(--st-some-bg)', dot: 'var(--st-some)', label: 'Difficult' },
-  refused:   { bg: 'var(--pink-light)', dot: 'var(--pink)', label: 'Refused'   },
-  skipped:   { bg: 'var(--border)', dot: 'var(--text-light)', label: 'Skipped'   },
-  empty:     { bg: 'var(--surface-warm)', dot: null,      label: ''          },
+function shortDate(iso) {
+  return new Date(iso + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
 
 const MACRO_COLORS = {
@@ -71,7 +66,7 @@ function MacroPie({ macros }) {
           border: '2px dashed var(--border)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
-          <span style={{ fontSize: 11, color: 'var(--text-light)', textAlign: 'center', padding: '0 8px' }}>No data</span>
+          <span style={{ fontSize: 13, color: 'var(--text-light)', textAlign: 'center', padding: '0 8px' }}>No data</span>
         </div>
       </div>
     )
@@ -145,7 +140,7 @@ function DayPopover({ day, macros, style, popoverRef }) {
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
         <span style={{ fontWeight: 700, fontSize: 15, color: 'white' }}>{day.full}</span>
-        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', fontWeight: 500 }}>Daily summary</span>
+        <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', fontWeight: 500 }}>Daily summary</span>
       </div>
 
       {/* Body */}
@@ -209,30 +204,10 @@ export default function WeeklyView() {
     return result
   }, [weekDates, allMealItems])
 
-  // ── week summary chips (context above the grid) ──
-  const summaryChips = useMemo(() => {
-    const iso = DAYS.map(d => weekDates[d.key])
-    const summaries = daySummaries(mealStatuses, iso)
-    const roll = weekSummary(summaries)
-    const streak = longestStreak(summaries)
-    const produce = Math.round(
-      Object.values(macrosByDay).reduce((a, m) => a + (m.fruitsVeggies || 0), 0) / PRODUCE_G_PER_SERVING
-    )
-    const chips = [
-      { icon: '🍽️', label: 'Meals logged', value: `${roll.logged}/${roll.totalSlots}`, color: 'var(--text-dark)', bg: 'white', border: 'var(--border)' },
-      { icon: '🌿', label: 'Went okay',     value: `${roll.okayPct}%`,                 color: 'var(--mint)',  bg: 'var(--mint-light)',  border: 'var(--mint-mid)' },
-      { icon: '🔥', label: 'Day streak', value: streak, color: 'var(--coral)', bg: 'var(--coral-light)', border: 'var(--coral-mid)' },
-    ]
-    // Servings of one food group is a nutrition target in disguise, so it stays out of the focused mode.
-    if (!hideNutritionNumbers) {
-      chips.push({ icon: '🥕', label: 'Produce servings', value: produce, color: 'var(--peach)', bg: 'var(--peach-light)', border: 'var(--peach-mid)' })
-    }
-    return chips
-  }, [mealStatuses, weekDates, macrosByDay, hideNutritionNumbers])
-
-  // ── day header click → compute viewport-safe position ──
+  // ── day label click → compute viewport-safe position (desktop popover) ──
   const handleDayClick = useCallback((dayKey) => {
     if (hideNutritionNumbers) return
+    if (isMobile) { setSheetDay(dayKey); return }
     if (openDay === dayKey) { setOpenDay(null); return }
     const el = headerRefs.current[dayKey]
     if (!el) return
@@ -241,265 +216,110 @@ export default function WeeklyView() {
     const clampedLeft = Math.max(16, Math.min(idealLeft, window.innerWidth - POPOVER_WIDTH - 16))
     setPopoverPos({ top: rect.bottom + 8, left: clampedLeft })
     setOpenDay(dayKey)
-  }, [openDay, hideNutritionNumbers])
+  }, [openDay, hideNutritionNumbers, isMobile])
 
   const openDayObj = DAYS.find(d => d.key === openDay)
-
-  if (isMobile) {
-    const sheetDayObj = DAYS.find(d => d.key === sheetDay)
-    const sheetMacros = sheetDay ? macrosByDay[sheetDay] : null
-    const sheetHasData = sheetMacros && (sheetMacros.protein + sheetMacros.carbs + sheetMacros.fruitsVeggies) > 0
-
-    return (
-      <div style={{ padding: '6px 14px 24px', maxWidth: 480, margin: '0 auto', width: '100%' }}>
-        <h2 className="font-lora" style={{ fontSize: 23, fontWeight: 600, color: 'var(--text-dark)', margin: '6px 0 2px', lineHeight: 1.1 }}>
-          Week at a Glance
-        </h2>
-        <p style={{ fontSize: 13, color: 'var(--text-light)', margin: '0 0 14px' }}>
-          {hideNutritionNumbers ? 'How each meal went this week' : 'Tap a day for its nutrition summary'}
-        </p>
-
-        {/* Week navigator */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-          <ChevronButton dir="left" size={44} onClick={() => setWeekOffset(o => o - 1)} />
-          <span style={{ fontSize: 14, color: weekOffset === 0 ? 'var(--coral)' : 'var(--text-light)', fontWeight: 600, textAlign: 'center' }}>
-            {weekOffset === 0 ? 'This week' : weekOffset === -1 ? 'Last week' : weekOffset === 1 ? 'Next week' : (() => {
-              const mon = weekDates['mon'], sun = weekDates['sun']
-              return `${new Date(mon + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${new Date(sun + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
-            })()}
-            {weekOffset !== 0 && (
-              <button onClick={() => setWeekOffset(0)} style={{ marginLeft: 8, background: 'none', border: '1px solid var(--border-mid)', borderRadius: 6, cursor: 'pointer', color: 'var(--coral)', fontSize: 10, fontWeight: 600, padding: '2px 7px', fontFamily: 'inherit' }}>Today</button>
-            )}
-          </span>
-          <ChevronButton dir="right" size={44} onClick={() => setWeekOffset(o => o + 1)} />
-        </div>
-
-        {/* Summary chips */}
-        <WeekSummaryStrip items={summaryChips} compact />
-
-        {/* Compact grid */}
-        <div style={{ background: 'white', borderRadius: 16, border: '1.5px solid var(--border)', boxShadow: '0 2px 10px rgba(29,33,43,0.05)', overflow: 'hidden' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '28px repeat(7, 1fr)', background: 'var(--surface-warm)', borderBottom: '1.5px solid var(--border)' }}>
-            <div />
-            {DAYS.map(day => {
-              const dateIso = weekDates[day.key]
-              const isToday = dateIso === TODAY_ISO
-              const dayNum = new Date(dateIso + 'T12:00:00').getDate()
-              return (
-                <button key={day.key} onClick={hideNutritionNumbers ? undefined : () => setSheetDay(day.key)} style={{
-                  padding: '8px 1px', border: 'none', background: 'none', cursor: 'pointer',
-                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, fontFamily: "'Lato', sans-serif",
-                }}>
-                  <span style={{ fontSize: 10, fontWeight: 600, color: isToday ? 'var(--coral)' : 'var(--text-mid)' }}>{day.label}</span>
-                  <span style={{ fontSize: 9, color: isToday ? 'var(--coral)' : 'var(--text-light)' }}>{dayNum}</span>
-                </button>
-              )
-            })}
-          </div>
-          {MEALS.map((meal, mi) => (
-            <div key={meal.key} style={{ display: 'grid', gridTemplateColumns: '28px repeat(7, 1fr)', borderBottom: mi < MEALS.length - 1 ? '1px solid var(--border)' : 'none' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--surface-warm)', borderRight: '1px solid var(--border)', fontSize: 14 }}>{meal.icon}</div>
-              {DAYS.map(day => {
-                const status = mealStatuses[weekDates[day.key]]?.[meal.key] || 'empty'
-                const s = STATUS_STYLE[status]
-                return (
-                  <div key={day.key} style={{ minHeight: 44, background: s.bg, borderLeft: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <span style={{ width: 10, height: 10, borderRadius: '50%', background: s.dot || 'var(--border-mid)', opacity: s.dot ? 1 : 0.4 }} />
-                  </div>
-                )
-              })}
-            </div>
-          ))}
-        </div>
-
-        {/* Legend */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px 14px', margin: '14px 2px 0' }}>
-          {['okay', 'difficult', 'refused', 'skipped'].map(k => (
-            <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ width: 18, height: 12, borderRadius: 4, background: STATUS_STYLE[k].bg, border: `1.5px solid ${STATUS_STYLE[k].dot}66` }} />
-              <span style={{ fontSize: 11, color: 'var(--text-mid)' }}>{STATUS_STYLE[k].label}</span>
-            </div>
-          ))}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ width: 18, height: 12, borderRadius: 4, background: STATUS_STYLE.empty.bg, border: '1.5px dashed var(--border-mid)' }} />
-            <span style={{ fontSize: 11, color: 'var(--text-light)' }}>Not logged</span>
-          </div>
-        </div>
-
-        <BottomSheet open={!hideNutritionNumbers && !!sheetDay} onClose={() => setSheetDay(null)} title={sheetDayObj?.full || ''}>
-          <div style={{ textAlign: 'center', fontSize: 9, fontWeight: 700, color: 'var(--text-light)', letterSpacing: '0.6px', textTransform: 'uppercase', marginBottom: 12 }}>
-            Daily nutrition summary
-          </div>
-          {sheetHasData ? (
-            <MacroPie macros={sheetMacros} />
-          ) : (
-            <p style={{ fontSize: 13, color: 'var(--text-light)', textAlign: 'center', padding: '16px 0', fontStyle: 'italic' }}>No meals logged for this day</p>
-          )}
-        </BottomSheet>
-      </div>
-    )
+  const sheetDayObj = DAYS.find(d => d.key === sheetDay)
+  const sheetMacros = sheetDay ? macrosByDay[sheetDay] : null
+  const sheetHasData = sheetMacros && (sheetMacros.protein + sheetMacros.carbs + sheetMacros.fruitsVeggies) > 0
+  const weekLabel = weekOffset === 0 ? 'This week' : weekOffset === -1 ? 'Last week' : weekOffset === 1 ? 'Next week'
+    : `${shortDate(weekDates.mon)} – ${shortDate(weekDates.sun)}`
+  const cols = isMobile ? '76px repeat(4, minmax(0, 1fr))' : '120px repeat(4, minmax(0, 1fr))'
+  const navBtn = {
+    width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
+    borderRadius: 'var(--radius)', border: '1px solid var(--border-mid)', background: 'white',
+    color: 'var(--text-dark)', cursor: 'pointer',
   }
 
+  // The week as a page of the notebook: one line per day, a pen mark per meal. Facts only,
+  // no totals, percentages or streaks (PRODUCT.md: facts, not scores).
   return (
-    <div style={{ flex: 1, padding: '28px 32px', overflowY: 'auto', margin: '0 -24px' }}>
+    <div style={{ padding: isMobile ? '12px 0 24px' : '24px 8px', maxWidth: 760, margin: '0 auto', width: '100%' }}>
+      <div style={{ padding: isMobile ? '0 16px' : 0 }}>
+        <h1 className="font-hand" style={{ fontSize: 32, fontWeight: 600, lineHeight: 1.1 }}>The week</h1>
+        <p style={{ fontSize: 15, color: 'var(--text-mid)', margin: '4px 0 14px' }}>
+          {hideNutritionNumbers ? 'How each meal went.' : 'How each meal went. Tap a day for its nutrition summary.'}
+        </p>
+        <nav aria-label="Change week" style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+          <button onClick={() => setWeekOffset(o => o - 1)} aria-label="Previous week" style={navBtn}><Icon name="left" /></button>
+          <button onClick={() => setWeekOffset(o => o + 1)} aria-label="Next week" style={navBtn}><Icon name="right" /></button>
+          <span style={{ fontSize: 15, fontWeight: 700, marginLeft: 4 }}>{weekLabel}</span>
+          {weekOffset !== 0 && (
+            <button onClick={() => setWeekOffset(0)} style={{ border: 'none', background: 'none', color: 'var(--ink)', fontSize: 15, fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: 3, cursor: 'pointer', minHeight: 44 }}>This week</button>
+          )}
+        </nav>
+      </div>
 
-        {/* Header */}
-        <div style={{ marginBottom: 20 }}>
-          <h2 className="font-lora" style={{ fontSize: 26, fontWeight: 400, color: 'var(--text-dark)', marginBottom: 5, lineHeight: 1.15 }}>
-            Week at a Glance
-          </h2>
-          <p style={{ fontSize: 14, color: 'var(--text-mid)' }}>
-            {hideNutritionNumbers ? 'How each meal went this week' : 'Click a day header for the daily nutrition summary'}
-          </p>
-        </div>
-
-        {/* Week navigator */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 20, marginBottom: 18 }}>
-          <ChevronButton dir="left" size={42} onClick={() => setWeekOffset(o => o - 1)} />
-          <span style={{ fontSize: 13, color: weekOffset === 0 ? 'var(--coral)' : 'var(--text-light)', fontWeight: 600, minWidth: 140, textAlign: 'center' }}>
-            {weekOffset === 0 ? 'This week' : weekOffset === -1 ? 'Last week' : weekOffset === 1 ? 'Next week' : (() => {
-              const mon = weekDates['mon']
-              const sun = weekDates['sun']
-              return `${new Date(mon + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${new Date(sun + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
-            })()}
-            {weekOffset !== 0 && (
-              <button
-                onClick={() => setWeekOffset(0)}
-                style={{ marginLeft: 8, background: 'none', border: '1px solid var(--border-mid)', borderRadius: 6, cursor: 'pointer', color: 'var(--coral)', fontSize: 10, fontWeight: 600, padding: '2px 7px', fontFamily: 'inherit' }}
-              >Today</button>
-            )}
-          </span>
-          <ChevronButton dir="right" size={42} onClick={() => setWeekOffset(o => o + 1)} />
-        </div>
-
-        {/* Summary chips */}
-        <WeekSummaryStrip items={summaryChips} />
-
-        {/* Legend */}
-        <div style={{ display: 'flex', gap: 18, marginBottom: 20, flexWrap: 'wrap' }}>
-          {(['okay', 'difficult', 'refused', 'skipped']).map(s => (
-            <div key={s} style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-              <div style={{
-                width: 22, height: 14, borderRadius: 5,
-                background: STATUS_STYLE[s].bg,
-                border: `1.5px solid ${STATUS_STYLE[s].dot}40`,
-              }} />
-              <span style={{ fontSize: 12, color: 'var(--text-mid)', fontWeight: 500 }}>
-                {STATUS_STYLE[s].label}
-              </span>
+      <div role="table" aria-label="Meals by day" style={{
+        background: 'white', borderTop: '1px solid var(--rule-strong)', borderBottom: '1px solid var(--rule-strong)',
+        ...(isMobile ? {} : { border: '1px solid var(--rule-strong)', borderRadius: 'var(--radius)' }),
+      }}>
+        <div role="row" style={{ display: 'grid', gridTemplateColumns: cols, borderBottom: '1px solid var(--rule-strong)', background: 'var(--surface-warm)' }}>
+          <div role="columnheader" />
+          {MEALS.map(meal => (
+            <div role="columnheader" key={meal.key} style={{ padding: '10px 2px', textAlign: 'center', fontSize: 13, fontWeight: 700, color: 'var(--text-dark)' }}>
+              {isMobile ? meal.short : meal.label}
             </div>
           ))}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-            <div style={{
-              width: 22, height: 14, borderRadius: 5,
-              background: STATUS_STYLE.empty.bg, border: '1.5px dashed var(--border-mid)',
-            }} />
-            <span style={{ fontSize: 12, color: 'var(--text-light)', fontWeight: 500 }}>Not logged</span>
-          </div>
         </div>
-
-        {/* Grid */}
-        <div style={{
-          background: 'white', borderRadius: 20,
-          border: '1.5px solid var(--border)',
-          boxShadow: '0 4px 20px rgba(29,33,43,0.07)',
-          overflow: 'hidden',
-        }}>
-          {/* Header row — clickable day names */}
-          <div style={{
-            display: 'grid', gridTemplateColumns: '52px repeat(7, 1fr)',
-            borderBottom: '1.5px solid var(--border)',
-            background: 'var(--surface-warm)',
-          }}>
-            <div />
-            {DAYS.map(day => {
-              const dateIso = weekDates[day.key]
-              const isToday = dateIso === TODAY_ISO
-              const dateLabel = new Date(dateIso + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-              return (
-                <button
-                  key={day.key}
-                  ref={el => { headerRefs.current[day.key] = el }}
-                  onClick={() => handleDayClick(day.key)}
-                  style={{
-                    padding: '10px 6px', textAlign: 'center',
-                    fontSize: 12, fontWeight: 600,
-                    color: openDay === day.key ? 'var(--ink)' : isToday ? 'var(--coral)' : 'var(--text-mid)',
-                    borderLeft: '1px solid var(--border)',
-                    letterSpacing: '0.2px',
-                    background: openDay === day.key ? 'var(--st-refused-bg)' : 'transparent',
-                    border: 'none',
-                    cursor: 'pointer',
-                    transition: 'color 0.15s, background 0.15s',
-                    fontFamily: "'Lato', sans-serif",
-                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
-                  }}
-                >
-                  <span>{day.label}</span>
-                  <span style={{
-                    fontSize: 10, fontWeight: 400,
-                    color: isToday ? 'var(--coral)' : 'var(--text-light)',
-                  }}>{dateLabel}</span>
-                  {isToday && (
-                    <span style={{
-                      width: 3, height: 3, borderRadius: '50%',
-                      background: 'var(--coral)', display: 'block',
-                    }} />
-                  )}
-                </button>
-              )
-            })}
-          </div>
-
-          {/* Meal rows — dots only, no text */}
-          {MEALS.map((meal, mi) => (
-            <div key={meal.key} style={{
-              display: 'grid', gridTemplateColumns: '52px repeat(7, 1fr)',
-              borderBottom: mi < MEALS.length - 1 ? '1px solid var(--border)' : 'none',
+        {DAYS.map(day => {
+          const dateIso = weekDates[day.key]
+          const isToday = dateIso === TODAY_ISO
+          const isFuture = dateIso > TODAY_ISO
+          const dayNum = new Date(dateIso + 'T12:00:00').getDate()
+          const label = (
+            <>
+              <span className="font-hand" style={{ fontSize: 17, fontWeight: 600, display: 'block', lineHeight: 1.1 }}>{day.label}</span>
+              <span style={{ fontSize: 13, color: 'var(--text-mid)' }}>{dayNum}{isToday ? ' · today' : ''}</span>
+            </>
+          )
+          return (
+            <div role="row" key={day.key} style={{
+              display: 'grid', gridTemplateColumns: cols, borderBottom: '1px solid var(--rule)',
+              background: isToday ? 'var(--ink-light)' : 'transparent',
             }}>
-              <div style={{
-                display: 'flex', flexDirection: 'column', alignItems: 'center',
-                justifyContent: 'center', padding: '8px 4px', gap: 4,
-                borderRight: '1px solid var(--border)', background: 'var(--surface-warm)',
-              }}>
-                <span style={{ fontSize: 16 }}>{meal.icon}</span>
-                <span style={{
-                  fontSize: 9, fontWeight: 700, color: 'var(--text-light)',
-                  textTransform: 'uppercase', letterSpacing: '0.5px',
-                }}>{meal.label}</span>
+              <div role="rowheader" style={{ display: 'flex', alignItems: 'center', padding: '0 4px 0 12px', borderRight: '1px solid var(--margin)' }}>
+                {hideNutritionNumbers ? (
+                  <div style={{ padding: '8px 0' }}>{label}</div>
+                ) : (
+                  <button
+                    ref={el => { headerRefs.current[day.key] = el }}
+                    onClick={() => handleDayClick(day.key)}
+                    aria-label={`${day.full}: nutrition summary`}
+                    style={{ all: 'unset', cursor: 'pointer', minHeight: 52, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}
+                  >{label}</button>
+                )}
               </div>
-
-              {DAYS.map(day => {
-                const dateIso = weekDates[day.key]
-                const status  = mealStatuses[dateIso]?.[meal.key] || 'empty'
-                const s       = STATUS_STYLE[status]
-
+              {MEALS.map(meal => {
+                const status = mealStatuses[dateIso]?.[meal.key] || null
+                const m = OUTCOME_META[status]
                 return (
-                  <div
-                    key={day.key}
-                    style={{
-                      background: s.bg,
-                      minHeight: 90,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      // Longhand only — mixing the `border` shorthand with
-                      // `borderLeft` makes React's style diffing unreliable.
-                      borderLeft: status === 'empty' ? '1px solid transparent' : '1px solid var(--border)',
-                    }}
-                  >
-                    {s.dot ? (
-                      <div style={{ width: 10, height: 10, borderRadius: '50%', background: s.dot }} />
+                  <div role="cell" key={meal.key} style={{
+                    minHeight: 56, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2,
+                    color: m ? m.color : 'var(--text-mid)', fontSize: 12, fontWeight: 700,
+                  }}>
+                    {m ? (
+                      <><OutcomeMark mark={m.mark} size={18} color={m.color} /><span>{m.label}</span></>
                     ) : (
-                      <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--border-mid)', opacity: 0.4 }} />
+                      <span style={{ fontWeight: 400 }}>{isFuture ? '' : 'Not logged'}</span>
                     )}
                   </div>
                 )
               })}
             </div>
-          ))}
+          )
+        })}
       </div>
 
+      <BottomSheet open={!hideNutritionNumbers && !!sheetDay} onClose={() => setSheetDay(null)} title={sheetDayObj?.full || ''}>
+        <h3 style={{ textAlign: 'center', fontSize: 15, fontWeight: 700, marginBottom: 12 }}>Daily nutrition summary</h3>
+        {sheetHasData ? (
+          <MacroPie macros={sheetMacros} />
+        ) : (
+          <p style={{ fontSize: 15, color: 'var(--text-mid)', textAlign: 'center', padding: '16px 0' }}>No meals logged for this day.</p>
+        )}
+      </BottomSheet>
 
-      {/* Day popover — fixed, viewport-safe, closes on outside click */}
       {openDay && openDayObj && (
         <DayPopover
           day={openDayObj}

@@ -65,7 +65,7 @@ export default function ClinicianInsights() {
                     <span style={{ fontSize: 12, color: 'var(--text-light)' }}>· {m.loggedDays} day{m.loggedDays === 1 ? '' : 's'}</span>
                     {m.loggedDays >= 2 && (
                       <span style={{
-                        marginLeft: 'auto', fontSize: 11, fontWeight: 600, padding: '2px 9px', borderRadius: 8,
+                        marginLeft: 'auto', fontSize: 13, fontWeight: 600, padding: '2px 9px', borderRadius: 8,
                         color: m.consistent ? 'var(--mint)' : 'var(--peach)',
                         background: m.consistent ? 'var(--mint-light)' : 'var(--peach-light)',
                         border: `1px solid ${m.consistent ? 'var(--mint-mid)' : 'var(--peach-mid)'}`,
@@ -95,7 +95,7 @@ export default function ClinicianInsights() {
             }}>
               <span style={{ fontWeight: 700, color: 'var(--text-dark)' }}>Distress this week:</span>
               before {distressSummary.avgPre ?? '—'} → after {distressSummary.avgPost ?? '—'}
-              <span style={{ fontSize: 11, color: 'var(--text-light)' }}>({distressSummary.count} rated, 1–5)</span>
+              <span style={{ fontSize: 13, color: 'var(--text-light)' }}>({distressSummary.count} rated, 1–5)</span>
             </div>
           )}
           {trend.some(w => w.logged > 0)

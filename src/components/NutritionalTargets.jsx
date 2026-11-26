@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react'
 import { useNutritionalTargets } from '../contexts/NutritionalTargetsContext'
 
 const NUTRIENTS = [
-  { key: 'protein',       label: 'Protein',          icon: '🥩', color: 'var(--coral)',  bg: 'var(--coral-light)',  border: 'var(--coral-mid)'  },
-  { key: 'carbs',         label: 'Carbs',             icon: '🌾', color: 'var(--peach)',  bg: 'var(--peach-light)',  border: 'var(--peach-mid)'  },
-  { key: 'fruitsVeggies', label: 'Fruits & Veggies',  icon: '🥦', color: 'var(--mint)',   bg: 'var(--mint-light)',   border: 'var(--mint-mid)'   },
+  { key: 'protein',       label: 'Protein',          color: 'var(--coral)',  bg: 'var(--coral-light)',  border: 'var(--coral-mid)'  },
+  { key: 'carbs',         label: 'Carbs',             color: 'var(--peach)',  bg: 'var(--peach-light)',  border: 'var(--peach-mid)'  },
+  { key: 'fruitsVeggies', label: 'Fruits & Veggies',  color: 'var(--mint)',   bg: 'var(--mint-light)',   border: 'var(--mint-mid)'   },
 ]
 
 export default function NutritionalTargets() {
@@ -46,11 +46,6 @@ export default function NutritionalTargets() {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{
-            width: 36, height: 36, borderRadius: 11,
-            background: 'var(--coral-light)', border: '1px solid var(--coral-mid)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18,
-          }}>🎯</div>
           <div style={{ textAlign: 'left' }}>
             <div style={{ fontWeight: 600, fontSize: 15, color: 'var(--text-dark)' }}>
               Daily Nutritional Targets
@@ -79,10 +74,9 @@ export default function NutritionalTargets() {
                 padding: '14px 18px',
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <span style={{ fontSize: 20 }}>{n.icon}</span>
                   <div>
                     <div style={{ fontWeight: 600, fontSize: 14, color: n.color }}>{n.label}</div>
-                    <div style={{ fontSize: 11, color: 'var(--text-light)', marginTop: 1 }}>per day</div>
+                    <div style={{ fontSize: 13, color: 'var(--text-light)', marginTop: 1 }}>per day</div>
                   </div>
                 </div>
                 <div style={{ position: 'relative', width: 110 }}>

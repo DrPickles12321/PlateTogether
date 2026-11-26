@@ -63,7 +63,7 @@ export default function NutritionFacts({ food, onSave, onReset }) {
       {/* Source + serving + group */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
         <span style={{
-          fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20,
+          fontSize: 13, fontWeight: 600, padding: '3px 10px', borderRadius: 20,
           background: source === 'manual' ? 'var(--mint-light)' : source === 'usda' ? 'var(--coral-light)' : 'var(--surface-warm)',
           color: source === 'manual' ? 'var(--mint)' : source === 'usda' ? 'var(--coral)' : 'var(--text-light)',
           border: `1px solid ${source === 'manual' ? 'var(--mint-mid)' : source === 'usda' ? 'var(--coral-mid)' : 'var(--border)'}`,
@@ -71,7 +71,7 @@ export default function NutritionFacts({ food, onSave, onReset }) {
           {source === 'manual' ? 'Manually entered' : source === 'usda' ? 'From USDA' : 'No data'}
         </span>
         <span style={{
-          fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20,
+          fontSize: 13, fontWeight: 600, padding: '3px 10px', borderRadius: 20,
           marginLeft: 'auto', background: 'var(--peach-light)', color: 'var(--peach)',
           border: '1px solid var(--peach-mid)',
         }}>{GROUP_LABEL[group] || 'Mixed'}</span>
@@ -152,7 +152,7 @@ export default function NutritionFacts({ food, onSave, onReset }) {
         )}
       </div>
 
-      <p style={{ fontSize: 11, color: 'var(--text-light)', lineHeight: 1.5, marginTop: 16 }}>
+      <p style={{ fontSize: 13, color: 'var(--text-light)', lineHeight: 1.5, marginTop: 16 }}>
         Numbers are for planning only — not a substitute for medical advice.
       </p>
     </div>

@@ -50,13 +50,13 @@ export default function NoteComposer({ onSave, existingNote }) {
         }}
       />
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ fontSize: 11, color: 'var(--text-light)' }}>{body.length} / 1000</span>
+        <span style={{ fontSize: 13, color: 'var(--text-light)' }}>{body.length} / 1000</span>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {saveStatus === 'saved' && !isDirty && (
-            <span style={{ fontSize: 11, color: 'var(--mint)', fontWeight: 500 }}>✓ Saved</span>
+            <span style={{ fontSize: 13, color: 'var(--mint)', fontWeight: 500 }}>✓ Saved</span>
           )}
           {saveStatus === 'error' && (
-            <span style={{ fontSize: 11, color: 'var(--ink)', fontWeight: 500 }}>Failed to save</span>
+            <span style={{ fontSize: 13, color: 'var(--ink)', fontWeight: 500 }}>Failed to save</span>
           )}
           <button
             onClick={handleSave}

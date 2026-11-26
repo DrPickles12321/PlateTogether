@@ -89,8 +89,8 @@ function MyFoodsPicker({ foods, sortMode, inMealIds, onTap, onInfo }) {
         <div key={section.label || `s${si}`} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           {section.label && (
             <div style={{
-              fontSize: 10, fontWeight: 700, color: 'var(--text-light)',
-              letterSpacing: '0.7px', textTransform: 'uppercase', padding: '2px 2px 0',
+              fontSize: 12, fontWeight: 700, color: 'var(--text-light)',
+             padding: '2px 2px 0',
             }}>{section.label}</div>
           )}
           {section.foods.map(food => (
@@ -176,8 +176,8 @@ export default function AddFoodSheet({ open, onClose, mealLabel, mealItems = [],
           {foodItems.length > 0 && (
             <div style={{ marginBottom: 12 }}>
               <div style={{
-                fontSize: 10, fontWeight: 700, color: 'var(--text-light)',
-                letterSpacing: '0.7px', textTransform: 'uppercase', marginBottom: 6,
+                fontSize: 12, fontWeight: 700, color: 'var(--text-light)',
+               marginBottom: 6,
               }}>Sort by</div>
               <div style={{ display: 'flex', gap: 5 }}>
                 {SORT_OPTIONS.map(opt => {

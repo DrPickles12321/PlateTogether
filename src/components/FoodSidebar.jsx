@@ -24,7 +24,6 @@ function FoodCard({ food, onDelete, onChangeCategory }) {
   const { hideNutritionNumbers } = useAppMode()
   const menuRef = useRef(null)
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: food.id, data: { food } })
-  const cat = CATEGORIES.find(c => c.key === food.category) || CATEGORIES[0]
 
   useEffect(() => {
     function onClick(e) { if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false) }
@@ -44,8 +43,7 @@ function FoodCard({ food, onDelete, onChangeCategory }) {
           ...style,
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           background: 'white', border: '1.5px solid var(--border)',
-          borderLeft: `3px solid ${cat.color}`,
-          borderRadius: 11, padding: '8px 10px', marginBottom: 5,
+          borderRadius: 'var(--radius)', padding: '8px 10px', marginBottom: 5,
           boxShadow: '0 1px 5px rgba(29,33,43,0.05)',
           transition: isDragging ? 'none' : 'box-shadow 0.15s',
         }}
@@ -200,7 +198,7 @@ function Section({ config, foods, onDelete, onChangeCategory }) {
           <span style={{ width: 8, height: 8, borderRadius: '50%', background: config.color, display: 'inline-block' }} />
           {config.label}
           <span style={{
-            fontSize: 11, fontWeight: 600, color: config.color, opacity: 0.75,
+            fontSize: 13, fontWeight: 600, color: config.color, opacity: 0.75,
             background: 'white', borderRadius: 6, padding: '1px 7px',
           }}>{foods.length}</span>
         </span>
@@ -319,7 +317,7 @@ export function SuggestedFoods({ onAdd, existingNames, buttonSize = 22, assigned
       />
 
       {!q && (
-        <p style={{ fontSize: 11, color: 'var(--text-light)', lineHeight: 1.5, marginBottom: 10 }}>
+        <p style={{ fontSize: 13, color: 'var(--text-light)', lineHeight: 1.5, marginBottom: 10 }}>
           Pick how each food feels — familiar, working on, or a challenge.
         </p>
       )}
@@ -332,8 +330,8 @@ export function SuggestedFoods({ onAdd, existingNames, buttonSize = 22, assigned
         if (pinned.length === 0) return null
         return (
           <div style={{ marginBottom: 14 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--pink)', letterSpacing: '0.4px', textTransform: 'uppercase', marginBottom: 7 }}>
-              🎯 From your clinician
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--pink)', marginBottom: 7 }}>
+              From your clinician
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
               {pinned.map(c => (
@@ -372,7 +370,7 @@ export function SuggestedFoods({ onAdd, existingNames, buttonSize = 22, assigned
 
       {showMore && (
         <div style={{ marginBottom: 14 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-light)', letterSpacing: '0.4px', textTransform: 'uppercase', marginBottom: 7 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-light)', marginBottom: 7 }}>
             More foods{searching ? ' · searching…' : ''}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>

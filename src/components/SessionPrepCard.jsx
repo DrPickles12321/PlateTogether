@@ -13,7 +13,7 @@ function day(iso) {
 function Row({ label, children }) {
   return (
     <div style={{ marginBottom: 12 }}>
-      <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.7px', textTransform: 'uppercase', color: 'var(--text-light)', marginBottom: 3 }}>{label}</div>
+      <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-light)', marginBottom: 3 }}>{label}</div>
       <div style={{ fontSize: 13, color: 'var(--text-mid)', lineHeight: 1.5 }}>{children}</div>
     </div>
   )

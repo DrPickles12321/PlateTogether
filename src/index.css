@@ -21,6 +21,7 @@
 
   --highlight: #FFEE8A;
   --highlight-ink: #5C4600;
+  --highlight-edge: #E6CF52;
 
   /* Meal outcomes. Each also has a mark and a word; colour is never the only signal. */
   --st-okay: #23408E;

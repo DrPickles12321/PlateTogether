@@ -15,7 +15,7 @@ export default function SosAlert({ sos, patientEmail, onAcknowledge }) {
     <div style={{ marginBottom: 20 }}>
       {open.map(s => (
         <div key={s.id} style={{ background: 'var(--st-refused-bg)', border: '1.5px solid var(--pink-mid)', borderRadius: 14, padding: '14px 16px', marginBottom: 10 }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--st-refused)', marginBottom: 3 }}>🆘 Support requested</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--st-refused)', marginBottom: 3 }}>Support requested</div>
           <div style={{ fontSize: 12, color: 'var(--text-light)', marginBottom: 10 }}>
             {patientEmail} · {fmt(s.createdAt)}{s.note ? ` — “${s.note}”` : ''}
           </div>

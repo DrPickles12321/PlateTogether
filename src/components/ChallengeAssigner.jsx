@@ -57,7 +57,7 @@ export default function ChallengeAssigner({ challenges = [], onAdd, onRemove }) 
               borderRadius: 10, padding: '6px 8px 6px 12px',
               fontSize: 13, color: 'var(--text-dark)', fontWeight: 500,
             }}>
-              🎯 {c.name}
+              {c.name}
               <button
                 onClick={() => onRemove(c.id)}
                 aria-label={`Remove ${c.name}`}
