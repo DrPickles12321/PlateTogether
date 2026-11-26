@@ -29,7 +29,7 @@ export default function NutritionBadge({ foodName, food, mode = 'parent' }) {
           if (!cfg) return null
           return (
             <span key={flag} className="text-xs" title={cfg.label} aria-label={cfg.label}>
-              {cfg.icon}
+              {cfg.label}
             </span>
           )
         })}
@@ -48,7 +48,7 @@ export default function NutritionBadge({ foodName, food, mode = 'parent' }) {
           const cfg = FLAG_CONFIG[flag]
           if (!cfg) return null
           return (
-            <span key={flag} className="text-xs" title={cfg.label}>{cfg.icon}</span>
+            <span key={flag} className="text-xs" style={{ color: 'var(--text-mid)' }}>{cfg.label}</span>
           )
         })}
       </div>
@@ -69,7 +69,7 @@ export default function NutritionBadge({ foodName, food, mode = 'parent' }) {
                 const cfg = FLAG_CONFIG[flag]
                 return cfg ? (
                   <span key={flag} className={`px-1.5 py-0.5 rounded-full text-xs font-medium ${cfg.color}`}>
-                    {cfg.icon} {cfg.label}
+                    {cfg.label}
                   </span>
                 ) : null
               })}

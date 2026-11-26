@@ -23,7 +23,7 @@ const MARGIN = 56
 const DESK_MARGIN = 96
 
 const weekNavBtn = {
-  width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center',
+  width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
   borderRadius: 'var(--radius)', border: '1px solid var(--border-mid)', background: 'white',
   color: 'var(--text-dark)', cursor: 'pointer',
 }
@@ -380,7 +380,7 @@ function MealCard({ meal, items, onRemove, latestLog, onQuickLog, time, onTimeCh
                   onClick={() => onFoodStatusSet?.(meal.key, selectedFoodIndex, isSelected ? null : key)}
                   aria-pressed={isSelected}
                   style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 5, minHeight: 36,
+                    display: 'inline-flex', alignItems: 'center', gap: 5, minHeight: 44,
                     padding: '5px 10px', borderRadius: 'var(--radius)',
                     border: `1.5px solid ${isSelected ? opt.color : 'var(--border-mid)'}`,
                     background: isSelected ? opt.bg : 'white', color: opt.color,
@@ -534,7 +534,7 @@ function MobileMealCard({
               value={time}
               onChange={e => e.target.value && onTimeChange(meal.key, e.target.value)}
               style={{
-                minHeight: 40, border: '1.5px solid var(--border-mid)', background: 'white', borderRadius: 'var(--radius)',
+                minHeight: 44, border: '1.5px solid var(--border-mid)', background: 'white', borderRadius: 'var(--radius)',
                 padding: '6px 10px', fontSize: 16, color: 'var(--text-dark)',
               }}
             />

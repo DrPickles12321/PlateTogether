@@ -77,9 +77,6 @@ export default function NoteComposer({ onSave, existingNote }) {
               color: body.trim().length < 1 || isSaving || !isDirty
                 ? 'var(--text-light)'
                 : 'white',
-              boxShadow: body.trim().length < 1 || isSaving || !isDirty
-                ? 'none'
-                : '0 2px 8px rgba(35,64,142,0.3)',
             }}
           >
             {isSaving ? 'Saving…' : existingNote ? 'Update note' : 'Save note'}

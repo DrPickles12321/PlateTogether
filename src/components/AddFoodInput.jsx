@@ -162,7 +162,6 @@ export default function AddFoodInput({ onAddFood, existingFoodNames = [] }) {
             color: 'white', border: 'none', borderRadius: 'var(--radius)',
             padding: '8px 14px', fontSize: 13, fontWeight: 600, cursor: 'pointer',
             flexShrink: 0, fontFamily: "var(--font-ui)",
-            boxShadow: '0 2px 8px rgba(35,64,142,0.28)',
             transition: 'opacity 0.15s',
           }}
           onMouseEnter={e => e.currentTarget.style.opacity = '0.88'}

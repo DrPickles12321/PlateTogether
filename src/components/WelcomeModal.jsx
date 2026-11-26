@@ -80,7 +80,6 @@ export default function WelcomeModal({ role }) {
             width: '100%', border: 'none', borderRadius: 'var(--radius)', padding: '13px 0',
             background: 'var(--ink)',
             color: '#fff', fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
-            boxShadow: '0 4px 14px rgba(35,64,142,0.3)',
           }}
         >Get started</button>
       </div>

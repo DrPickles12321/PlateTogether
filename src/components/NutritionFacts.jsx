@@ -162,10 +162,9 @@ export default function NutritionFacts({ food, onSave, onReset }) {
 function btnStyle(primary) {
   return {
     padding: '9px 18px', fontSize: 13, fontWeight: 600, borderRadius: 'var(--radius)',
-    cursor: 'pointer', fontFamily: "var(--font-ui)", minHeight: 40,
+    cursor: 'pointer', fontFamily: "var(--font-ui)", minHeight: 44,
     border: primary ? 'none' : '1.5px solid var(--border)',
     background: primary ? 'var(--ink)' : 'white',
     color: primary ? 'white' : 'var(--text-mid)',
-    boxShadow: primary ? '0 2px 8px rgba(35,64,142,0.28)' : 'none',
   }
 }

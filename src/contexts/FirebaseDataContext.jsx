@@ -1,10 +1,11 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import { ref, onValue, set, update, get } from 'firebase/database'
 import { deleteUser } from 'firebase/auth'
 import { db, auth } from '../firebase'
 import { useAuth } from './AuthContext'
 import { fetchFoodInfo } from '../lib/foodData'
 import { quickLogPatch } from '../lib/quickLog'
+import { resolveViewingPatient, viewingStorageKey, visibleCareTeam } from '../lib/viewingPatient'
 
 const FirebaseDataContext = createContext(null)
 
@@ -92,7 +93,7 @@ export function FirebaseDataProvider({ children }) {
 
   // ── Clinician patient management ──────────────────────────────────────────
   const [patients, setPatients]                       = useState([])   // [{uid, email}]
-  const [viewingPatientUid, setViewingPatientUid]     = useState(null)
+  const [viewingChoice, setViewingChoice]             = useState({ owner: null, patient: null })
   const [patientAccessDenied, setPatientAccessDenied] = useState(false) // true if the viewed patient revoked access
   const [patientRetryNonce, setPatientRetryNonce]     = useState(0)     // bump to re-attempt a denied subscription
   const [patientSos, setPatientSos]                   = useState([])   // viewed patient's SOS
@@ -123,7 +124,7 @@ export function FirebaseDataProvider({ children }) {
       setFoodItems([])
       setFamilyCode(null)
       setPatients([])
-      setViewingPatientUid(null)
+      setViewingChoice({ owner: null, patient: null })
       setOwnPrescribedSupplements([])
       setCareTeam([])
       return
@@ -138,7 +139,7 @@ export function FirebaseDataProvider({ children }) {
 
     unsubs.push(onValue(ref(db, `${base}/careTeam`), snap => {
       const val = snap.val() || {}
-      setCareTeam(Object.entries(val).map(([cUid, v]) => ({ uid: cUid, ...v })))
+      setCareTeam(visibleCareTeam(Object.entries(val).map(([cUid, v]) => ({ uid: cUid, ...v })), uid))
     }))
 
     unsubs.push(onValue(ref(db, `${base}/nutritionalTargets`), snap => {
@@ -227,6 +228,20 @@ export function FirebaseDataProvider({ children }) {
     return () => unsubs.forEach(u => u())
   }, [uid])
 
+  // The clinician's open family belongs to whoever chose it (see lib/viewingPatient.js), and the
+  // last choice on this device survives a reload.
+  let storedPatient = null
+  try { storedPatient = uid ? sessionStorage.getItem(viewingStorageKey(uid)) : null } catch { storedPatient = null }
+  const viewingPatientUid = resolveViewingPatient({ viewing: viewingChoice, uid, patients, stored: storedPatient })
+  const setViewingPatientUid = useCallback(patient => {
+    setViewingChoice({ owner: uid, patient: patient || null })
+    try {
+      if (!uid) return
+      if (patient) sessionStorage.setItem(viewingStorageKey(uid), patient)
+      else sessionStorage.removeItem(viewingStorageKey(uid))
+    } catch { /* storage unavailable: the choice just won't survive a reload */ }
+  }, [uid])
+
   // Self-heal a missing careTeam entry for links created before this feature
   // existed, so the patient can see and revoke pre-existing clinician access
   // too. Proof is having an existing patients/ record for this patient at all
@@ -238,7 +253,7 @@ export function FirebaseDataProvider({ children }) {
   // patient list finishes loading rather than silently skipping if it raced
   // ahead of viewingPatientUid being set.
   useEffect(() => {
-    if (!viewingPatientUid || !uid) return
+    if (!viewingPatientUid || !uid || viewingPatientUid === uid) return
     const myPatientRecord = patients.find(p => p.uid === viewingPatientUid)
     if (!myPatientRecord) return
     // A parent-only revoked flag outranks everything: never recreate a revoked link.
