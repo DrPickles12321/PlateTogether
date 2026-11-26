@@ -1,123 +1,91 @@
-import { NavLink, useNavigate, useLocation } from 'react-router-dom'
-import { signOut } from 'firebase/auth'
-import { auth } from '../firebase'
-import { useAuth } from '../contexts/AuthContext'
+import { NavLink, useLocation } from 'react-router-dom'
 import { useFirebaseData } from '../contexts/FirebaseDataContext'
 import { useIsMobile } from '../hooks/useIsMobile'
+import { signOutOfApp } from '../lib/signOut'
 
 const PARENT_TABS = [
-  { to: '/parent/daily',   label: 'Daily' },
-  { to: '/parent/weekly',  label: 'Weekly' },
+  { to: '/parent/daily',   label: 'Today' },
+  { to: '/parent/weekly',  label: 'Week' },
   { to: '/parent/stats',   label: 'Insights' },
   { to: '/parent/notes',   label: 'Notes' },
   { to: '/parent/account', label: 'Account' },
 ]
 
+// The notebook's cover label: the name in handwriting. On phones the parent's tabs and
+// account actions live in the bottom tab bar and the Account page, so the top stays quiet.
 export default function Navbar() {
-  const { role } = useAuth()
   const { familyCode } = useFirebaseData()
-  const navigate = useNavigate()
   const { pathname } = useLocation()
-  const isMobile    = useIsMobile()
-  const isParent    = pathname.startsWith('/parent')
-  const isClinician = pathname.startsWith('/clinician')
+  const isMobile = useIsMobile()
+  const isParent = pathname.startsWith('/parent')
 
   return (
-    <nav style={{
-      background: 'rgba(255,255,255,0.92)',
-      backdropFilter: 'blur(12px)',
-      borderBottom: '1px solid var(--border)',
+    <header style={{
+      background: 'white',
+      borderBottom: '1px solid var(--rule-strong)',
       position: 'sticky', top: 0, zIndex: 40,
     }}>
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 60 }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: isMobile ? '0 16px' : '0 24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, height: isMobile ? 52 : 60 }}>
+          <span className="font-hand" style={{ fontWeight: 600, fontSize: isMobile ? 20 : 22, color: 'var(--ink)', lineHeight: 1 }}>
+            Plate Together
+          </span>
 
-          {/* Brand */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-            <div style={{
-              width: 36, height: 36,
-              background: 'linear-gradient(135deg, var(--coral) 0%, var(--pink) 100%)',
-              borderRadius: 11, display: 'flex', alignItems: 'center',
-              justifyContent: 'center', fontSize: 17, flexShrink: 0,
-              boxShadow: '0 2px 8px rgba(184,85,53,0.3)',
-            }}>🍽️</div>
-            <span className="font-lora" style={{
-              fontWeight: 500, fontSize: 19, color: 'var(--text-dark)',
-              letterSpacing: '-0.3px', lineHeight: 1,
-            }}>Plate Together</span>
-          </div>
-
-          {/* Parent sub-tabs (center) — hidden on mobile, replaced by bottom tab bar */}
           {isParent && !isMobile && (
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 2,
-              background: 'var(--surface-warm)', padding: '3px',
-              borderRadius: 13, border: '1.5px solid var(--border)',
-            }}>
+            <nav aria-label="Main" style={{ display: 'flex', alignItems: 'stretch', alignSelf: 'stretch', gap: 4 }}>
               {PARENT_TABS.map(tab => {
                 const isActive = pathname === tab.to || pathname.startsWith(tab.to + '/')
                 return (
                   <NavLink
                     key={tab.to}
                     to={tab.to}
+                    aria-current={isActive ? 'page' : undefined}
                     style={{
-                      padding: '6px 18px', borderRadius: 10,
-                      fontSize: 13, fontWeight: 500,
-                      textDecoration: 'none', transition: 'all 0.15s',
-                      color: isActive ? 'white' : 'var(--text-mid)',
-                      background: isActive
-                        ? 'linear-gradient(135deg, var(--coral) 0%, var(--pink) 100%)'
-                        : 'transparent',
-                      boxShadow: isActive ? '0 2px 8px rgba(184,85,53,0.28)' : 'none',
-                    }}
-                    onMouseEnter={e => {
-                      if (!isActive) {
-                        e.currentTarget.style.background = 'rgba(184,85,53,0.10)'
-                        e.currentTarget.style.color = 'var(--text-dark)'
-                      }
-                    }}
-                    onMouseLeave={e => {
-                      if (!isActive) {
-                        e.currentTarget.style.background = 'transparent'
-                        e.currentTarget.style.color = 'var(--text-mid)'
-                      }
+                      display: 'flex', alignItems: 'center', padding: '0 14px',
+                      fontSize: 15, fontWeight: isActive ? 700 : 500, textDecoration: 'none',
+                      color: isActive ? 'var(--ink)' : 'var(--text-mid)',
+                      borderBottom: isActive ? '3px solid var(--ink)' : '3px solid transparent',
+                      marginBottom: -1,
                     }}
                   >
                     {tab.label}
                   </NavLink>
                 )
               })}
-            </div>
+            </nav>
           )}
 
-          {/* Right side */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexShrink: 0 }}>
-            {isParent && familyCode && (
-              <div style={{
-                fontSize: 11, color: 'var(--text-light)',
-                background: 'var(--surface-warm)', border: '1px solid var(--border)',
-                borderRadius: 8, padding: '4px 10px', letterSpacing: '0.5px',
-              }}>
-                Code: <span style={{ fontWeight: 700, color: 'var(--text-mid)', letterSpacing: '1px' }}>{familyCode}</span>
-              </div>
-            )}
-
+          {!isMobile && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexShrink: 0 }}>
+              {isParent && familyCode && (
+                <span style={{ fontSize: 14, color: 'var(--text-mid)' }}>
+                  Family code <strong style={{ color: 'var(--text-dark)', letterSpacing: '0.08em' }}>{familyCode}</strong>
+                </span>
+              )}
+              <button
+                onClick={signOutOfApp}
+                style={{
+                  minHeight: 40, padding: '6px 12px', fontSize: 14, fontWeight: 600, color: 'var(--text-mid)',
+                  background: 'none', border: '1px solid var(--border-mid)', borderRadius: 'var(--radius)', cursor: 'pointer',
+                }}
+              >
+                Sign out
+              </button>
+            </div>
+          )}
+          {isMobile && !isParent && (
             <button
-              onClick={() => { localStorage.removeItem('demoRole'); signOut(auth) }}
+              onClick={signOutOfApp}
               style={{
-                fontSize: 12, color: 'var(--text-light)', background: 'none',
-                border: 'none', cursor: 'pointer', padding: 0,
-                fontFamily: "'Outfit', sans-serif",
-                transition: 'color 0.15s',
+                minHeight: 44, padding: '6px 12px', fontSize: 14, fontWeight: 600, color: 'var(--text-mid)',
+                background: 'none', border: 'none', cursor: 'pointer',
               }}
-              onMouseEnter={e => e.currentTarget.style.color = 'var(--text-mid)'}
-              onMouseLeave={e => e.currentTarget.style.color = 'var(--text-light)'}
             >
               Sign out
             </button>
-          </div>
+          )}
         </div>
       </div>
-    </nav>
+    </header>
   )
 }

@@ -5,10 +5,10 @@ const DAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
 // Bottom-to-top stacking order + colors (match the Week grid dots).
 const SEGMENTS = [
-  { key: 'okay',      color: '#5EA87A', label: 'Okay' },
-  { key: 'difficult', color: '#C09040', label: 'Difficult' },
-  { key: 'refused',   color: '#B86080', label: 'Refused' },
-  { key: 'skipped',   color: '#9C8A72', label: 'Skipped' },
+  { key: 'okay',      color: 'var(--mint)', label: 'Okay' },
+  { key: 'difficult', color: 'var(--st-some)', label: 'Difficult' },
+  { key: 'refused',   color: 'var(--pink)', label: 'Refused' },
+  { key: 'skipped',   color: 'var(--text-light)', label: 'Skipped' },
 ]
 
 const MAX_MEALS = 4 // breakfast / lunch / snack / dinner

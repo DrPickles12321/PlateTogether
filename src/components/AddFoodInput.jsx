@@ -118,12 +118,12 @@ export default function AddFoodInput({ onAddFood, existingFoodNames = [] }) {
               width: '100%', border: '1.5px solid var(--border)',
               borderRadius: 11, padding: '8px 12px', fontSize: 13,
               color: 'var(--text-dark)', outline: 'none', boxSizing: 'border-box',
-              fontFamily: "'Outfit', sans-serif", background: 'var(--surface-warm)',
+              fontFamily: "var(--font-ui)", background: 'var(--surface-warm)',
               transition: 'border-color 0.15s, box-shadow 0.15s',
             }}
             onFocusCapture={e => {
               e.target.style.borderColor = 'var(--coral)'
-              e.target.style.boxShadow = '0 0 0 3px rgba(184,85,53,0.1)'
+              e.target.style.boxShadow = '0 0 0 3px rgba(35,64,142,0.1)'
             }}
             onBlurCapture={e => {
               e.target.style.borderColor = 'var(--border)'
@@ -134,7 +134,7 @@ export default function AddFoodInput({ onAddFood, existingFoodNames = [] }) {
             <ul style={{
               position: 'absolute', zIndex: 50, left: 0, right: 0, top: '100%', marginTop: 5,
               background: 'white', border: '1.5px solid var(--border)', borderRadius: 13,
-              boxShadow: '0 8px 28px rgba(39,23,6,0.12)', overflow: 'hidden', listStyle: 'none',
+              boxShadow: '0 8px 28px rgba(29,33,43,0.12)', overflow: 'hidden', listStyle: 'none',
               padding: 4, margin: 0,
             }}>
               {merged.map((food, i) => (
@@ -159,11 +159,11 @@ export default function AddFoodInput({ onAddFood, existingFoodNames = [] }) {
         <button
           type="submit"
           style={{
-            background: 'linear-gradient(135deg, var(--coral) 0%, var(--pink) 100%)',
+            background: 'var(--ink)',
             color: 'white', border: 'none', borderRadius: 11,
             padding: '8px 14px', fontSize: 13, fontWeight: 600, cursor: 'pointer',
-            flexShrink: 0, fontFamily: "'Outfit', sans-serif",
-            boxShadow: '0 2px 8px rgba(184,85,53,0.28)',
+            flexShrink: 0, fontFamily: "var(--font-ui)",
+            boxShadow: '0 2px 8px rgba(35,64,142,0.28)',
             transition: 'opacity 0.15s',
           }}
           onMouseEnter={e => e.currentTarget.style.opacity = '0.88'}
@@ -186,7 +186,7 @@ export default function AddFoodInput({ onAddFood, existingFoodNames = [] }) {
                 background: active ? cat.bg : 'white',
                 color: active ? cat.color : 'var(--text-light)',
                 cursor: 'pointer', transition: 'all 0.15s',
-                fontFamily: "'Outfit', sans-serif",
+                fontFamily: "var(--font-ui)",
               }}
             >
               {cat.label}

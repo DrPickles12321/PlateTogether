@@ -22,7 +22,7 @@ export default function Modal({ isOpen, onClose, title, children, zIndex = 50 })
       style={{
         position: 'fixed', inset: 0, zIndex,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: 'rgba(39,23,6,0.38)', padding: 16,
+        background: 'rgba(29,33,43,0.38)', padding: 16,
         backdropFilter: 'blur(4px)',
       }}
       onClick={e => { if (e.target === e.currentTarget) onClose() }}
@@ -32,7 +32,7 @@ export default function Modal({ isOpen, onClose, title, children, zIndex = 50 })
         aria-modal="true"
         style={{
           background: 'white', borderRadius: 24,
-          boxShadow: '0 24px 64px rgba(39,23,6,0.22)',
+          boxShadow: '0 24px 64px rgba(29,33,43,0.22)',
           padding: '30px', width: '100%', maxWidth: 420, position: 'relative',
           border: '1.5px solid var(--border)',
         }}

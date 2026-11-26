@@ -31,7 +31,7 @@ export default function DeleteAccountModal({ open, onClose, onConfirm }) {
       onClick={busy ? undefined : onClose}
       style={{
         position: 'fixed', inset: 0, zIndex: 200,
-        background: 'rgba(39,23,6,0.55)',
+        background: 'rgba(29,33,43,0.55)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         padding: 20,
       }}
@@ -87,7 +87,7 @@ export default function DeleteAccountModal({ open, onClose, onConfirm }) {
             disabled={!armed || busy}
             style={{
               flex: 1, border: 'none', borderRadius: 12, padding: '11px 0',
-              background: armed ? '#B85535' : 'var(--border-mid)', color: '#fff',
+              background: armed ? 'var(--ink)' : 'var(--border-mid)', color: '#fff',
               fontSize: 14, fontWeight: 700, cursor: armed && !busy ? 'pointer' : 'default',
               opacity: busy ? 0.7 : 1, fontFamily: 'inherit',
             }}

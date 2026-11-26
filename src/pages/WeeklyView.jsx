@@ -29,17 +29,17 @@ const MEALS = [
 ]
 
 const STATUS_STYLE = {
-  okay:      { bg: '#E2EEE8', dot: '#5EA87A', label: 'Okay'      },
-  difficult: { bg: '#F5EDD8', dot: '#C09040', label: 'Difficult' },
-  refused:   { bg: '#F0E0E8', dot: '#B86080', label: 'Refused'   },
-  skipped:   { bg: '#EDE6DA', dot: '#9C8A72', label: 'Skipped'   },
-  empty:     { bg: '#F7F2EC', dot: null,      label: ''          },
+  okay:      { bg: 'var(--mint-light)', dot: 'var(--mint)', label: 'Okay'      },
+  difficult: { bg: 'var(--st-some-bg)', dot: 'var(--st-some)', label: 'Difficult' },
+  refused:   { bg: 'var(--pink-light)', dot: 'var(--pink)', label: 'Refused'   },
+  skipped:   { bg: 'var(--border)', dot: 'var(--text-light)', label: 'Skipped'   },
+  empty:     { bg: 'var(--surface-warm)', dot: null,      label: ''          },
 }
 
 const MACRO_COLORS = {
-  protein:       { color: '#E8735A', label: 'Protein' },
-  carbs:         { color: '#F5A623', label: 'Carbs'   },
-  fruitsVeggies: { color: '#7BC67E', label: 'F&V'     },
+  protein:       { color: 'var(--ink)', label: 'Protein' },
+  carbs:         { color: 'var(--st-some)', label: 'Carbs'   },
+  fruitsVeggies: { color: 'var(--mint)', label: 'F&V'     },
 }
 
 const PRODUCE_G_PER_SERVING = 80
@@ -68,10 +68,10 @@ function MacroPie({ macros }) {
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
         <div style={{
           width: 100, height: 100, borderRadius: '50%',
-          border: '2px dashed #E0E0E0',
+          border: '2px dashed var(--border)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
-          <span style={{ fontSize: 11, color: '#aaa', textAlign: 'center', padding: '0 8px' }}>No data</span>
+          <span style={{ fontSize: 11, color: 'var(--text-light)', textAlign: 'center', padding: '0 8px' }}>No data</span>
         </div>
       </div>
     )
@@ -95,7 +95,7 @@ function MacroPie({ macros }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
       <svg width={100} height={100}>
-        <circle cx={cx} cy={cy} r={r + 4} fill="white" stroke="#f0f0f0" strokeWidth={1} />
+        <circle cx={cx} cy={cy} r={r + 4} fill="white" stroke="var(--border)" strokeWidth={1} />
         {arcs.map(seg => (
           <path key={seg.key} d={seg.path} fill={seg.color} stroke="white" strokeWidth={1.5} />
         ))}
@@ -112,9 +112,9 @@ function MacroPie({ macros }) {
           <div key={item.key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <div style={{ width: 10, height: 10, borderRadius: '50%', background: item.color, flexShrink: 0 }} />
-              <span style={{ fontSize: 12, color: '#666' }}>{item.label}</span>
+              <span style={{ fontSize: 12, color: 'var(--text-light)' }}>{item.label}</span>
             </div>
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#333' }}>{item.value}g</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-dark)' }}>{item.value}g</span>
           </div>
         ))}
       </div>
@@ -141,7 +141,7 @@ function DayPopover({ day, macros, style, popoverRef }) {
     >
       {/* Header */}
       <div style={{
-        background: '#E8735A', padding: '12px 16px',
+        background: 'var(--ink)', padding: '12px 16px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
         <span style={{ fontWeight: 700, fontSize: 15, color: 'white' }}>{day.full}</span>
@@ -151,7 +151,7 @@ function DayPopover({ day, macros, style, popoverRef }) {
       {/* Body */}
       <div style={{ padding: '16px' }}>
         {!hasData ? (
-          <p style={{ fontSize: 13, color: '#aaa', textAlign: 'center', padding: '16px 0' }}>
+          <p style={{ fontSize: 13, color: 'var(--text-light)', textAlign: 'center', padding: '16px 0' }}>
             No meals logged for this day
           </p>
         ) : (
@@ -278,7 +278,7 @@ export default function WeeklyView() {
         <WeekSummaryStrip items={summaryChips} compact />
 
         {/* Compact grid */}
-        <div style={{ background: 'white', borderRadius: 16, border: '1.5px solid var(--border)', boxShadow: '0 2px 10px rgba(39,23,6,0.05)', overflow: 'hidden' }}>
+        <div style={{ background: 'white', borderRadius: 16, border: '1.5px solid var(--border)', boxShadow: '0 2px 10px rgba(29,33,43,0.05)', overflow: 'hidden' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '28px repeat(7, 1fr)', background: 'var(--surface-warm)', borderBottom: '1.5px solid var(--border)' }}>
             <div />
             {DAYS.map(day => {
@@ -402,7 +402,7 @@ export default function WeeklyView() {
         <div style={{
           background: 'white', borderRadius: 20,
           border: '1.5px solid var(--border)',
-          boxShadow: '0 4px 20px rgba(39,23,6,0.07)',
+          boxShadow: '0 4px 20px rgba(29,33,43,0.07)',
           overflow: 'hidden',
         }}>
           {/* Header row — clickable day names */}
@@ -424,10 +424,10 @@ export default function WeeklyView() {
                   style={{
                     padding: '10px 6px', textAlign: 'center',
                     fontSize: 12, fontWeight: 600,
-                    color: openDay === day.key ? '#E8735A' : isToday ? 'var(--coral)' : 'var(--text-mid)',
+                    color: openDay === day.key ? 'var(--ink)' : isToday ? 'var(--coral)' : 'var(--text-mid)',
                     borderLeft: '1px solid var(--border)',
                     letterSpacing: '0.2px',
-                    background: openDay === day.key ? '#FDF1EE' : 'transparent',
+                    background: openDay === day.key ? 'var(--st-refused-bg)' : 'transparent',
                     border: 'none',
                     cursor: 'pointer',
                     transition: 'color 0.15s, background 0.15s',

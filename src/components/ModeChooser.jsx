@@ -25,7 +25,7 @@ export default function ModeChooser() {
                 textAlign: 'left', padding: '10px 12px', minHeight: 48, borderRadius: 12, cursor: 'pointer',
                 border: `1.5px solid ${selected ? 'var(--coral)' : 'var(--border)'}`,
                 background: selected ? 'var(--coral-light)' : 'white',
-                fontFamily: "'Outfit', sans-serif",
+                fontFamily: "var(--font-ui)",
               }}
             >
               <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-dark)' }}>{m.label}</div>

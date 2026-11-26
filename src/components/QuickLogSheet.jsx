@@ -2,11 +2,11 @@ import BottomSheet from './BottomSheet'
 import { OUTCOMES, DIFFICULTY_LEVELS, STATUS_TO_OUTCOME } from '../lib/quickLog'
 
 // Same sage-to-terracotta ramp as DistressScale so the two read as one scale.
-const LEVEL_COLORS = ['#5EA87A', '#8FA85E', '#C09040', '#C77243', '#B85535']
+const LEVEL_COLORS = ['var(--mint)', 'var(--mint)', 'var(--st-some)', 'var(--ink)', 'var(--ink)']
 const OUTCOME_STYLE = {
-  finished: { color: '#2d9e5f', bg: '#eaf7f0', border: '#a8ddc0' },
-  partly:   { color: '#c9860a', bg: '#fef8e7', border: '#f5d07a' },
-  refused:  { color: '#d63f3f', bg: '#fdeaea', border: '#f5a8a8' },
+  finished: { color: 'var(--mint)', bg: 'var(--mint-light)', border: 'var(--mint-mid)' },
+  partly:   { color: 'var(--st-some)', bg: 'var(--st-some-bg)', border: 'var(--peach-mid)' },
+  refused:  { color: 'var(--st-refused)', bg: 'var(--st-refused-bg)', border: 'var(--pink-mid)' },
 }
 
 // Tap 1 (the Log button on a meal card) opens this. Tap 2 is how it went and is
@@ -25,7 +25,7 @@ export default function QuickLogSheet({ open, meal, status, difficulty, onOutcom
           style={{
             width: '100%', padding: 13, borderRadius: 13, border: '1.5px solid var(--border-mid)',
             background: 'white', color: 'var(--text-mid)', fontSize: 14, fontWeight: 600,
-            cursor: 'pointer', minHeight: 48, fontFamily: "'Outfit', sans-serif",
+            cursor: 'pointer', minHeight: 48, fontFamily: "var(--font-ui)",
           }}
         >Done</button>
       }
@@ -44,7 +44,7 @@ export default function QuickLogSheet({ open, meal, status, difficulty, onOutcom
                 flex: 1, minHeight: 56, borderRadius: 14, fontSize: 15, fontWeight: 600,
                 border: `2px solid ${selected ? s.color : s.border}`,
                 background: selected ? s.bg : 'white', color: s.color,
-                cursor: 'pointer', fontFamily: "'Outfit', sans-serif",
+                cursor: 'pointer', fontFamily: "var(--font-ui)",
                 WebkitTapHighlightColor: 'transparent',
               }}
             >{o.label}</button>
@@ -67,7 +67,7 @@ export default function QuickLogSheet({ open, meal, status, difficulty, onOutcom
                 flex: 1, minHeight: 52, borderRadius: 14, fontSize: 17, fontWeight: 700,
                 border: `2px solid ${selected ? color : 'var(--border-mid)'}`,
                 background: selected ? color : 'white', color: selected ? 'white' : 'var(--text-mid)',
-                cursor: 'pointer', fontFamily: "'Outfit', sans-serif",
+                cursor: 'pointer', fontFamily: "var(--font-ui)",
                 WebkitTapHighlightColor: 'transparent',
               }}
             >{level}</button>

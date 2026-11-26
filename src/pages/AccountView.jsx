@@ -1,50 +1,73 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useFirebaseData } from '../contexts/FirebaseDataContext'
 import { useIsMobile } from '../hooks/useIsMobile'
 import DeleteAccountModal from '../components/DeleteAccountModal'
 import CareTeamCard from '../components/CareTeamCard'
+import { signOutOfApp } from '../lib/signOut'
+
+const section = { marginTop: 28, paddingTop: 20, borderTop: '1px solid var(--rule)' }
+const h3 = { fontSize: 16, fontWeight: 700, color: 'var(--text-dark)', marginBottom: 6 }
 
 export default function AccountView() {
-  const { deleteAccount, careTeam, revokeCareTeamAccess, reEnableCareTeamAccess } = useFirebaseData()
+  const { deleteAccount, careTeam, revokeCareTeamAccess, reEnableCareTeamAccess, familyCode } = useFirebaseData()
   const isMobile = useIsMobile()
   const [showDelete, setShowDelete] = useState(false)
-
-  useEffect(() => { document.title = 'Account · Plate Together' }, [])
+  const [confirmSignOut, setConfirmSignOut] = useState(false)
 
   return (
-    <div style={{ padding: isMobile ? '6px 14px 24px' : '24px 32px', maxWidth: 560, margin: '0 auto', width: '100%' }}>
-      <h2 className="font-lora" style={{ fontSize: isMobile ? 23 : 26, fontWeight: isMobile ? 600 : 400, color: 'var(--text-dark)', margin: '6px 0 2px', lineHeight: 1.1 }}>
-        Account
-      </h2>
-      <p style={{ fontSize: 13, color: 'var(--text-light)', margin: '0 0 18px' }}>
-        Who can see your data, and account settings
+    <div style={{ padding: isMobile ? '12px 16px 24px' : '24px 32px', maxWidth: 600, margin: '0 auto', width: '100%' }}>
+      <h1 className="font-hand" style={{ fontSize: 32, fontWeight: 600, lineHeight: 1.1 }}>Account</h1>
+      <p style={{ fontSize: 15, color: 'var(--text-mid)', margin: '4px 0 20px' }}>
+        Who can see your notebook, and your account settings.
       </p>
+
+      {familyCode && (
+        <section style={{ marginBottom: 24 }}>
+          <h2 style={h3}>Family code</h2>
+          <p style={{ fontSize: 15, color: 'var(--text-mid)', lineHeight: 1.5, marginBottom: 10 }}>
+            Give this code to your clinician so they can see your notebook.
+          </p>
+          <div style={{
+            display: 'inline-block', padding: '10px 16px', borderRadius: 'var(--radius)',
+            border: '1.5px dashed var(--ink-mid)', background: 'white',
+            fontSize: 22, fontWeight: 700, letterSpacing: '0.16em', color: 'var(--ink)',
+          }}>{familyCode}</div>
+        </section>
+      )}
 
       <CareTeamCard careTeam={careTeam} onRevoke={revokeCareTeamAccess} onReEnable={reEnableCareTeamAccess} />
 
-      {/* Account · danger zone */}
-      <div style={{
-        marginTop: 24, padding: '18px 20px', borderRadius: 16,
-        border: '1px solid var(--pink-mid)', background: 'var(--pink-light)',
-      }}>
-        <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--pink)', letterSpacing: '0.6px', textTransform: 'uppercase', marginBottom: 8 }}>
-          Danger zone
-        </div>
-        <p style={{ fontSize: 13, color: 'var(--text-mid)', lineHeight: 1.55, margin: '0 0 14px' }}>
+      <section style={section}>
+        <h2 style={h3}>Sign out</h2>
+        {confirmSignOut ? (
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+            <span style={{ fontSize: 15, color: 'var(--text-mid)' }}>Sign out of Plate Together on this device?</span>
+            <button type="button" onClick={signOutOfApp} style={btn('var(--ink)', 'white')}>Sign out</button>
+            <button type="button" onClick={() => setConfirmSignOut(false)} style={btn('white', 'var(--text-dark)', 'var(--border-mid)')}>Cancel</button>
+          </div>
+        ) : (
+          <button type="button" onClick={() => setConfirmSignOut(true)} style={btn('white', 'var(--text-dark)', 'var(--border-mid)')}>Sign out</button>
+        )}
+      </section>
+
+      <section style={section}>
+        <h2 style={{ ...h3, color: 'var(--st-refused)' }}>Delete account</h2>
+        <p style={{ fontSize: 15, color: 'var(--text-mid)', lineHeight: 1.55, margin: '0 0 12px' }}>
           Deleting your account permanently removes all of your data. This can't be undone.
         </p>
-        <button
-          type="button"
-          onClick={() => setShowDelete(true)}
-          style={{
-            border: '1.5px solid var(--pink)', background: '#fff', color: 'var(--pink)',
-            borderRadius: 10, padding: '9px 16px', fontSize: 13, fontWeight: 600,
-            cursor: 'pointer', fontFamily: 'inherit',
-          }}
-        >Delete account</button>
-      </div>
+        <button type="button" onClick={() => setShowDelete(true)} style={btn('white', 'var(--st-refused)', 'var(--st-refused)')}>
+          Delete account
+        </button>
+      </section>
 
       <DeleteAccountModal open={showDelete} onClose={() => setShowDelete(false)} onConfirm={deleteAccount} />
     </div>
   )
+}
+
+function btn(bg, color, border) {
+  return {
+    minHeight: 44, padding: '8px 16px', borderRadius: 'var(--radius)', fontSize: 15, fontWeight: 700,
+    cursor: 'pointer', background: bg, color, border: border ? `1.5px solid ${border}` : 'none',
+  }
 }

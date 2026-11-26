@@ -18,7 +18,7 @@ export default function ClinicianTabBar({ variant }) {
     return (
       <nav style={{
         position: 'fixed', left: 0, right: 0, bottom: 0, zIndex: 50,
-        background: 'rgba(255,253,250,0.96)',
+        background: 'rgba(255,255,255,0.97)',
         backdropFilter: 'blur(12px)',
         borderTop: '1px solid var(--border)',
         display: 'flex',
@@ -34,8 +34,8 @@ export default function ClinicianTabBar({ variant }) {
                 flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
                 justifyContent: 'center', gap: 4, padding: '7px 4px 9px',
                 minHeight: 56, textDecoration: 'none',
-                color: isActive ? 'var(--coral)' : '#b0a294',
-                fontFamily: "'Outfit', sans-serif",
+                color: isActive ? 'var(--coral)' : 'var(--text-light)',
+                fontFamily: "var(--font-ui)",
               }}
             >
               <span style={{
@@ -74,13 +74,13 @@ export default function ClinicianTabBar({ variant }) {
               textDecoration: 'none', transition: 'all 0.15s',
               color: isActive ? 'white' : 'var(--text-mid)',
               background: isActive
-                ? 'linear-gradient(135deg, var(--coral) 0%, var(--pink) 100%)'
+                ? 'var(--ink)'
                 : 'transparent',
-              boxShadow: isActive ? '0 2px 8px rgba(184,85,53,0.28)' : 'none',
+              boxShadow: isActive ? '0 2px 8px rgba(35,64,142,0.28)' : 'none',
             }}
             onMouseEnter={e => {
               if (!isActive) {
-                e.currentTarget.style.background = 'rgba(184,85,53,0.10)'
+                e.currentTarget.style.background = 'rgba(35,64,142,0.10)'
                 e.currentTarget.style.color = 'var(--text-dark)'
               }
             }}

@@ -39,7 +39,7 @@ export default function WelcomeModal({ role }) {
     <div
       onClick={dismiss}
       style={{
-        position: 'fixed', inset: 0, zIndex: 210, background: 'rgba(39,23,6,0.5)',
+        position: 'fixed', inset: 0, zIndex: 210, background: 'rgba(29,33,43,0.5)',
         display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20,
       }}
     >
@@ -80,9 +80,9 @@ export default function WelcomeModal({ role }) {
           onClick={dismiss}
           style={{
             width: '100%', border: 'none', borderRadius: 13, padding: '13px 0',
-            background: 'linear-gradient(135deg, var(--coral) 0%, var(--pink) 100%)',
+            background: 'var(--ink)',
             color: '#fff', fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
-            boxShadow: '0 4px 14px rgba(184,85,53,0.3)',
+            boxShadow: '0 4px 14px rgba(35,64,142,0.3)',
           }}
         >Get started</button>
       </div>

@@ -51,7 +51,7 @@ function FoodRow({ food, added, onTap, onInfo }) {
           background: added ? 'var(--mint-light)' : 'white',
           border: `1.5px solid ${added ? 'var(--mint-mid)' : 'var(--border)'}`,
           borderRadius: 12, padding: '11px 12px', minHeight: 46,
-          textAlign: 'left', cursor: 'pointer', fontFamily: "'Outfit', sans-serif",
+          textAlign: 'left', cursor: 'pointer', fontFamily: "var(--font-ui)",
           transition: 'background 0.12s, border-color 0.12s',
         }}
       >
@@ -67,7 +67,7 @@ function FoodRow({ food, added, onTap, onInfo }) {
           border: '1.5px solid var(--border)', background: 'white',
           color: 'var(--text-light)', fontSize: 17, cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontFamily: 'Georgia, serif', fontStyle: 'italic', fontWeight: 700,
+          fontFamily: 'var(--font-hand)', fontStyle: 'italic', fontWeight: 700,
         }}
       >i</button>
     </div>
@@ -137,9 +137,9 @@ export default function AddFoodSheet({ open, onClose, mealLabel, mealItems = [],
           onClick={onClose}
           style={{
             width: '100%', padding: '13px', borderRadius: 13, border: 'none',
-            background: 'linear-gradient(135deg, var(--coral) 0%, var(--pink) 100%)',
+            background: 'var(--ink)',
             color: 'white', fontSize: 14, fontWeight: 600, cursor: 'pointer',
-            fontFamily: "'Outfit', sans-serif", minHeight: 44,
+            fontFamily: "var(--font-ui)", minHeight: 44,
           }}
         >
           Done
@@ -159,8 +159,8 @@ export default function AddFoodSheet({ open, onClose, mealLabel, mealItems = [],
               background: tab === t.key ? 'white' : 'transparent',
               color: tab === t.key ? 'var(--coral)' : 'var(--text-light)',
               fontWeight: 600, fontSize: 13, cursor: 'pointer', minHeight: 40,
-              boxShadow: tab === t.key ? '0 1px 5px rgba(39,23,6,0.08)' : 'none',
-              fontFamily: "'Outfit', sans-serif", transition: 'all 0.15s',
+              boxShadow: tab === t.key ? '0 1px 5px rgba(29,33,43,0.08)' : 'none',
+              fontFamily: "var(--font-ui)", transition: 'all 0.15s',
             }}
           >{t.label}</button>
         ))}
@@ -192,7 +192,7 @@ export default function AddFoodSheet({ open, onClose, mealLabel, mealItems = [],
                         border: `1.5px solid ${active ? 'var(--coral)' : 'var(--border)'}`,
                         background: active ? 'var(--coral-light)' : 'white',
                         color: active ? 'var(--coral)' : 'var(--text-light)',
-                        fontFamily: "'Outfit', sans-serif", transition: 'all 0.15s',
+                        fontFamily: "var(--font-ui)", transition: 'all 0.15s',
                       }}
                     >{opt.label}</button>
                   )

@@ -59,7 +59,7 @@ export default function NutritionFacts({ food, onSave, onReset }) {
   }
 
   return (
-    <div style={{ fontFamily: "'Outfit', sans-serif" }}>
+    <div style={{ fontFamily: "var(--font-ui)" }}>
       {/* Source + serving + group */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
         <span style={{
@@ -104,7 +104,7 @@ export default function NutritionFacts({ food, onSave, onReset }) {
                   style={{
                     width: 84, textAlign: 'right', padding: '7px 10px', borderRadius: 9,
                     border: '1.5px solid var(--border)', fontSize: 14, color: 'var(--text-dark)',
-                    fontFamily: "'Outfit', sans-serif", outline: 'none', boxSizing: 'border-box',
+                    fontFamily: "var(--font-ui)", outline: 'none', boxSizing: 'border-box',
                   }}
                   onFocus={e => e.target.style.borderColor = 'var(--coral)'}
                   onBlur={e => e.target.style.borderColor = 'var(--border)'}
@@ -162,10 +162,10 @@ export default function NutritionFacts({ food, onSave, onReset }) {
 function btnStyle(primary) {
   return {
     padding: '9px 18px', fontSize: 13, fontWeight: 600, borderRadius: 11,
-    cursor: 'pointer', fontFamily: "'Outfit', sans-serif", minHeight: 40,
+    cursor: 'pointer', fontFamily: "var(--font-ui)", minHeight: 40,
     border: primary ? 'none' : '1.5px solid var(--border)',
-    background: primary ? 'linear-gradient(135deg, var(--coral) 0%, var(--pink) 100%)' : 'white',
+    background: primary ? 'var(--ink)' : 'white',
     color: primary ? 'white' : 'var(--text-mid)',
-    boxShadow: primary ? '0 2px 8px rgba(184,85,53,0.28)' : 'none',
+    boxShadow: primary ? '0 2px 8px rgba(35,64,142,0.28)' : 'none',
   }
 }

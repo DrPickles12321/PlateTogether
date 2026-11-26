@@ -11,7 +11,7 @@ export default function WeekSummaryStrip({ items = [], compact = false }) {
           background: it.bg || 'white',
           borderRadius: compact ? 14 : 16,
           border: `1.5px solid ${it.border || 'var(--border)'}`,
-          boxShadow: '0 2px 8px rgba(39,23,6,0.05)',
+          boxShadow: '0 2px 8px rgba(29,33,43,0.05)',
           padding: compact ? '12px 6px' : '16px 12px',
           textAlign: 'center',
           minWidth: 0,

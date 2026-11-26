@@ -13,7 +13,7 @@ export default function CareTeamCard({ careTeam = [], onRevoke, onReEnable }) {
     <div style={{
       marginTop: 24, padding: '18px 20px', borderRadius: 16,
       border: '1px solid var(--border)', background: 'white',
-      boxShadow: '0 2px 10px rgba(39,23,6,0.05)',
+      boxShadow: '0 2px 10px rgba(29,33,43,0.05)',
     }}>
       <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-light)', letterSpacing: '0.6px', textTransform: 'uppercase', marginBottom: 8 }}>
         Care Team

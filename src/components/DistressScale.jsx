@@ -4,7 +4,7 @@
 const LEVELS = [1, 2, 3, 4, 5]
 
 // Gentle ramp: sage → amber → terracotta (matches the app palette).
-const LEVEL_COLORS = ['#5EA87A', '#8FA85E', '#C09040', '#C77243', '#B85535']
+const LEVEL_COLORS = ['var(--mint)', 'var(--mint)', 'var(--st-some)', 'var(--ink)', 'var(--ink)']
 
 const LABEL_W = 86 // room for "Before eating" / "After eating"
 const DOT_GAP = 6

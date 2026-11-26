@@ -33,7 +33,7 @@ export default function NutritionalTargets() {
       background: 'white',
       borderRadius: 20,
       border: '1.5px solid var(--border)',
-      boxShadow: '0 2px 12px rgba(39,23,6,0.06)',
+      boxShadow: '0 2px 12px rgba(29,33,43,0.06)',
       overflow: 'hidden',
     }}>
       <button
@@ -42,7 +42,7 @@ export default function NutritionalTargets() {
           width: '100%', display: 'flex', alignItems: 'center',
           justifyContent: 'space-between', padding: '18px 24px',
           background: 'none', border: 'none', cursor: 'pointer',
-          fontFamily: "'Outfit', sans-serif",
+          fontFamily: "var(--font-ui)",
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -100,7 +100,7 @@ export default function NutritionalTargets() {
                       background: 'white',
                       fontSize: 16, fontWeight: 700,
                       color: 'var(--text-dark)',
-                      fontFamily: "'Outfit', sans-serif",
+                      fontFamily: "var(--font-ui)",
                       outline: 'none', textAlign: 'right',
                     }}
                     onFocus={e => { e.target.style.borderColor = n.color }}
@@ -122,10 +122,10 @@ export default function NutritionalTargets() {
               onClick={handleSave}
               style={{
                 padding: '10px 28px', borderRadius: 12, border: 'none',
-                background: 'linear-gradient(135deg, var(--coral) 0%, var(--pink) 100%)',
+                background: 'var(--ink)',
                 color: 'white', fontWeight: 600, fontSize: 14, cursor: 'pointer',
-                boxShadow: '0 2px 8px rgba(184,85,53,0.28)',
-                fontFamily: "'Outfit', sans-serif", transition: 'opacity 0.15s',
+                boxShadow: '0 2px 8px rgba(35,64,142,0.28)',
+                fontFamily: "var(--font-ui)", transition: 'opacity 0.15s',
               }}
               onMouseEnter={e => { e.currentTarget.style.opacity = '0.88' }}
               onMouseLeave={e => { e.currentTarget.style.opacity = '1' }}

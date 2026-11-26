@@ -13,7 +13,7 @@ const INPUT_STYLE = {
   width: '100%', padding: '12px 14px', borderRadius: 12,
   border: '1.5px solid var(--border)',
   background: 'white', fontSize: 14, color: 'var(--text-dark)',
-  fontFamily: "'Outfit', sans-serif",
+  fontFamily: "var(--font-ui)",
   outline: 'none', boxSizing: 'border-box',
   transition: 'border-color 0.15s, box-shadow 0.15s',
 }
@@ -69,7 +69,7 @@ export default function LoginScreen() {
     }
   }
 
-  function focusRing(e) { e.target.style.borderColor = 'var(--coral)'; e.target.style.boxShadow = '0 0 0 3px rgba(184,85,53,0.12)' }
+  function focusRing(e) { e.target.style.borderColor = 'var(--coral)'; e.target.style.boxShadow = '0 0 0 3px rgba(35,64,142,0.12)' }
   function blurRing(e)  { e.target.style.borderColor = 'var(--border)'; e.target.style.boxShadow = 'none' }
 
   const heading = (
@@ -106,17 +106,17 @@ export default function LoginScreen() {
                 style={{
                   flex: 1, padding: '11px 0', borderRadius: 12, border: '1.5px solid',
                   cursor: 'pointer', fontSize: 14, fontWeight: 600, minHeight: 46,
-                  fontFamily: "'Outfit', sans-serif",
+                  fontFamily: "var(--font-ui)",
                   transition: 'all 0.15s',
                   borderColor: role === r ? (r === 'parent' ? 'var(--coral)' : 'var(--mint)') : 'var(--border)',
                   background: role === r
                     ? (r === 'parent'
-                      ? 'linear-gradient(135deg, var(--coral) 0%, var(--pink) 100%)'
-                      : 'linear-gradient(135deg, var(--mint) 0%, #306050 100%)')
+                      ? 'var(--ink)'
+                      : 'linear-gradient(135deg, var(--mint) 0%, var(--mint) 100%)')
                     : 'white',
                   color: role === r ? 'white' : 'var(--text-mid)',
                   boxShadow: role === r
-                    ? (r === 'parent' ? '0 2px 8px rgba(184,85,53,0.28)' : '0 2px 8px rgba(72,122,103,0.28)')
+                    ? (r === 'parent' ? '0 2px 8px rgba(35,64,142,0.28)' : '0 2px 8px rgba(72,122,103,0.28)')
                     : 'none',
                 }}
               >
@@ -182,11 +182,11 @@ export default function LoginScreen() {
         {/* Error */}
         {displayError && (
           <div style={{
-            background: '#FEF0EE', border: '1.5px solid #F5C4B4',
+            background: 'var(--st-refused-bg)', border: '1.5px solid var(--pink-mid)',
             borderRadius: 10, padding: '12px 14px',
             fontSize: 13, color: 'var(--coral)', lineHeight: 1.5,
             fontWeight: 500,
-            boxShadow: '0 2px 8px rgba(184,85,53,0.12)',
+            boxShadow: '0 2px 8px rgba(35,64,142,0.12)',
             display: 'flex', alignItems: 'flex-start', gap: 8,
           }}>
             <span style={{ flexShrink: 0, fontSize: 15 }}>⚠️</span>
@@ -202,11 +202,11 @@ export default function LoginScreen() {
             width: '100%', padding: '14px 0', borderRadius: 13, border: 'none',
             background: loading || (mode === 'register' && !consented)
               ? 'rgba(232,115,90,0.5)'
-              : 'linear-gradient(135deg, var(--coral) 0%, var(--pink) 100%)',
+              : 'var(--ink)',
             color: 'white', fontSize: 15, fontWeight: 600, minHeight: 50,
-            fontFamily: "'Outfit', sans-serif",
+            fontFamily: "var(--font-ui)",
             cursor: loading ? 'not-allowed' : 'pointer',
-            boxShadow: loading ? 'none' : '0 4px 14px rgba(184,85,53,0.32)',
+            boxShadow: loading ? 'none' : '0 4px 14px rgba(35,64,142,0.32)',
             transition: 'all 0.15s',
             marginTop: 4,
           }}
@@ -226,7 +226,7 @@ export default function LoginScreen() {
           style={{
             background: 'none', border: 'none', cursor: 'pointer',
             color: 'var(--coral)', fontWeight: 600, fontSize: 13,
-            fontFamily: "'Outfit', sans-serif", padding: 0,
+            fontFamily: "var(--font-ui)", padding: 0,
           }}
         >
           {mode === 'signin' ? 'Create account' : 'Sign in'}
@@ -240,7 +240,7 @@ export default function LoginScreen() {
     return (
       <div style={{
         minHeight: '100svh',
-        background: 'radial-gradient(circle at 80% 0%, rgba(184,85,53,0.10) 0%, transparent 45%), radial-gradient(circle at 0% 100%, rgba(72,122,103,0.10) 0%, transparent 45%), #F3ECE2',
+        background: 'radial-gradient(circle at 80% 0%, rgba(35,64,142,0.10) 0%, transparent 45%), radial-gradient(circle at 0% 100%, rgba(72,122,103,0.10) 0%, transparent 45%), var(--surface-warm)',
         display: 'flex', flexDirection: 'column', justifyContent: 'center',
         padding: '32px 20px calc(28px + env(safe-area-inset-bottom))',
         boxSizing: 'border-box',
@@ -251,8 +251,8 @@ export default function LoginScreen() {
             <div style={{
               display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
               width: 60, height: 60, borderRadius: 18, fontSize: 28,
-              background: 'linear-gradient(135deg, var(--coral) 0%, var(--pink) 100%)',
-              boxShadow: '0 6px 18px rgba(184,85,53,0.32)', marginBottom: 16,
+              background: 'var(--ink)',
+              boxShadow: '0 6px 18px rgba(35,64,142,0.32)', marginBottom: 16,
             }}>🍽️</div>
             <h1 className="font-lora" style={{ fontSize: 32, fontWeight: 500, color: 'var(--text-dark)', letterSpacing: '-0.3px', lineHeight: 1.05, marginBottom: 8 }}>
               Plate Together
@@ -266,7 +266,7 @@ export default function LoginScreen() {
           <div style={{
             background: 'white', borderRadius: 22, padding: '26px 22px',
             border: '1px solid var(--border)',
-            boxShadow: '0 8px 30px rgba(39,23,6,0.08)',
+            boxShadow: '0 8px 30px rgba(29,33,43,0.08)',
           }}>
             {heading}
             {formBlock}
@@ -286,7 +286,7 @@ export default function LoginScreen() {
       {/* Left brand panel */}
       <div style={{
         flex: '0 0 42%',
-        background: 'linear-gradient(155deg, #271706 0%, #3E200C 55%, #2A1808 100%)',
+        background: 'linear-gradient(155deg, var(--text-dark) 0%, var(--text-dark) 55%, var(--text-dark) 100%)',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
@@ -297,7 +297,7 @@ export default function LoginScreen() {
         <div style={{
           position: 'absolute', width: 480, height: 480, borderRadius: '50%',
           top: -160, right: -160,
-          background: 'radial-gradient(circle, rgba(184,85,53,0.22) 0%, transparent 65%)',
+          background: 'radial-gradient(circle, rgba(35,64,142,0.22) 0%, transparent 65%)',
           pointerEvents: 'none',
         }} />
         <div style={{
@@ -311,14 +311,14 @@ export default function LoginScreen() {
           <div style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
             width: 54, height: 54, borderRadius: 17,
-            background: 'rgba(184,85,53,0.28)',
-            border: '1px solid rgba(184,85,53,0.38)',
+            background: 'rgba(35,64,142,0.28)',
+            border: '1px solid rgba(35,64,142,0.38)',
             fontSize: 26, marginBottom: 32,
           }}>🍽️</div>
 
           <h1 className="font-lora" style={{
             fontSize: 50, fontWeight: 400, lineHeight: 1.08,
-            color: '#F5EAD8', letterSpacing: '-0.5px', marginBottom: 22,
+            color: 'var(--st-some-bg)', letterSpacing: '-0.5px', marginBottom: 22,
           }}>
             Plate<br />Together
           </h1>
@@ -356,7 +356,7 @@ export default function LoginScreen() {
       {/* Right form panel */}
       <div style={{
         flex: 1,
-        background: '#F3ECE2',
+        background: 'var(--surface-warm)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -365,7 +365,7 @@ export default function LoginScreen() {
       }}>
         <div style={{
           position: 'absolute', inset: 0,
-          backgroundImage: 'radial-gradient(circle at 75% 15%, rgba(184,85,53,0.07) 0%, transparent 48%), radial-gradient(circle at 25% 85%, rgba(72,122,103,0.07) 0%, transparent 48%)',
+          backgroundImage: 'radial-gradient(circle at 75% 15%, rgba(35,64,142,0.07) 0%, transparent 48%), radial-gradient(circle at 25% 85%, rgba(72,122,103,0.07) 0%, transparent 48%)',
           pointerEvents: 'none',
         }} />
 

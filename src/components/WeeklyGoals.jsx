@@ -12,7 +12,7 @@ const NUTRIENTS = [
     color: 'var(--coral)',
     bg: 'var(--coral-light)',
     border: 'var(--coral-mid)',
-    barEnd: '#DBA898',
+    barEnd: 'var(--ink-mid)',
     getActual: info => info.protein_g || 0,
   },
   {
@@ -22,7 +22,7 @@ const NUTRIENTS = [
     color: 'var(--peach)',
     bg: 'var(--peach-light)',
     border: 'var(--peach-mid)',
-    barEnd: '#E0C07C',
+    barEnd: 'var(--peach-mid)',
     getActual: info => info.carbs_g || 0,
   },
   {
@@ -32,7 +32,7 @@ const NUTRIENTS = [
     color: 'var(--mint)',
     bg: 'var(--mint-light)',
     border: 'var(--mint-mid)',
-    barEnd: '#8EC0B0',
+    barEnd: 'var(--mint-mid)',
     getActual: info => info.plate_zone === 'produce' ? PRODUCE_G_PER_SERVING : 0,
   },
 ]
@@ -88,7 +88,7 @@ export default function WeeklyGoals({ allMealItems }) {
       background: 'white',
       borderRadius: 20,
       border: '1.5px solid var(--border)',
-      boxShadow: '0 2px 12px rgba(39,23,6,0.06)',
+      boxShadow: '0 2px 12px rgba(29,33,43,0.06)',
       padding: '20px 24px',
     }}>
       <header style={{ marginBottom: 18 }}>

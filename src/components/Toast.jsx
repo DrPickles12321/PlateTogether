@@ -26,8 +26,8 @@ export function ToastProvider({ children }) {
                 borderRadius: 14, padding: '12px 18px',
                 fontSize: 13, fontWeight: 500, color: s.text,
                 minWidth: 230, display: 'flex', alignItems: 'center', gap: 10,
-                boxShadow: '0 6px 24px rgba(39,23,6,0.12)',
-                fontFamily: "'Outfit', sans-serif",
+                boxShadow: '0 6px 24px rgba(29,33,43,0.12)',
+                fontFamily: "var(--font-ui)",
                 animation: 'toastIn 0.2s ease',
               }}>
                 <span style={{

@@ -9,7 +9,7 @@ export default function SupplementChecklist({ checkedSupplements, onToggleChecke
       <div style={{
         position: 'absolute', top: 0, left: '50%',
         transform: 'translateX(-50%) rotate(-1deg)',
-        background: '#e8dcc8',
+        background: 'var(--border)',
         borderRadius: 4,
         width: 64, height: 14,
         zIndex: 1,
@@ -22,28 +22,28 @@ export default function SupplementChecklist({ checkedSupplements, onToggleChecke
         border: '1px solid var(--border)',
         borderRadius: 14,
         overflow: 'hidden',
-        boxShadow: '0 2px 8px rgba(39,23,6,0.06)',
+        boxShadow: '0 2px 8px rgba(29,33,43,0.06)',
       }}>
         {/* Header */}
         <div style={{
           padding: '12px 14px 8px',
           borderBottom: '1px solid var(--border)',
         }}>
-          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--coral)', fontFamily: "'Outfit', sans-serif" }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--coral)', fontFamily: "var(--font-ui)" }}>
             Daily Supplements
           </span>
         </div>
 
         {/* Ruled content with margin line */}
         <div style={{
-          backgroundImage: 'repeating-linear-gradient(transparent, transparent 27px, #e8e0d4 27px, #e8e0d4 28px)',
+          backgroundImage: 'repeating-linear-gradient(transparent, transparent 27px, var(--border) 27px, var(--border) 28px)',
           backgroundSize: '100% 28px',
           backgroundPositionY: '4px',
           padding: '10px 12px 12px 0',
           display: 'flex',
         }}>
           {/* Red margin line */}
-          <div style={{ width: 2, background: '#f4b8b8', flexShrink: 0, marginLeft: 12, marginRight: 10 }} />
+          <div style={{ width: 2, background: 'var(--pink-mid)', flexShrink: 0, marginLeft: 12, marginRight: 10 }} />
 
           {/* Items */}
           <div style={{ flex: 1 }}>
@@ -76,7 +76,7 @@ export default function SupplementChecklist({ checkedSupplements, onToggleChecke
                   <span style={{
                     fontSize: 12, color: checked ? 'var(--text-light)' : 'var(--text-dark)',
                     textDecoration: checked ? 'line-through' : 'none',
-                    fontFamily: "'Outfit', sans-serif",
+                    fontFamily: "var(--font-ui)",
                     transition: 'all 0.15s',
                   }}>{rec.nutrient}</span>
                 </div>
@@ -91,7 +91,7 @@ export default function SupplementChecklist({ checkedSupplements, onToggleChecke
           borderTop: '1px solid var(--border)',
           fontSize: 9, color: 'var(--text-light)',
           fontStyle: 'italic', lineHeight: 1.4,
-          fontFamily: "'Outfit', sans-serif",
+          fontFamily: "var(--font-ui)",
         }}>
           Not a substitute for medical advice · Resets daily
         </div>

@@ -67,4 +67,14 @@ describe('buildSessionPrep', () => {
     const onlyThis = buildSessionPrep({ isoDates: week, previousIsoDates: prev, mealDistress: { '2026-11-16': { dinner: { post: 2 } } } })
     expect(onlyThis.distress.change).toBeNull()
   })
+
+  it("does not count days that have not happened yet", () => {
+    const r = buildSessionPrep({
+      isoDates: week,
+      today: "2026-11-19",
+      mealStatuses: { "2026-11-16": { breakfast: "okay" }, "2026-11-18": { lunch: "okay" } },
+    })
+    expect(r.totalSlots).toBe(16)
+    expect(r.notLoggedDays).toEqual(["2026-11-17", "2026-11-19"])
+  })
 })

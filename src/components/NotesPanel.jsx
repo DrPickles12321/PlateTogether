@@ -30,16 +30,16 @@ export default function NotesPanel({ notes, mode, onSave, onDelete, notesReadByP
 
   return (
     <section style={{
-      background: '#FFFDF8',
+      background: 'var(--surface-warm)',
       border: '1px solid var(--border)',
       borderRadius: 14,
       overflow: 'hidden',
-      boxShadow: '0 2px 12px rgba(39,23,6,0.07)',
-      fontFamily: "'Outfit', sans-serif",
+      boxShadow: '0 2px 12px rgba(29,33,43,0.07)',
+      fontFamily: "var(--font-ui)",
     }}>
       {/* Notebook tab header */}
       <div style={{
-        background: 'linear-gradient(135deg, var(--coral) 0%, var(--pink) 100%)',
+        background: 'var(--ink)',
         padding: '12px 18px',
         display: 'flex',
         alignItems: 'center',
@@ -64,7 +64,7 @@ export default function NotesPanel({ notes, mode, onSave, onDelete, notesReadByP
         {/* Red margin line */}
         <div style={{
           width: 2,
-          background: 'rgba(184,85,53,0.25)',
+          background: 'rgba(35,64,142,0.25)',
           flexShrink: 0,
           marginLeft: 32,
         }} />
@@ -73,7 +73,7 @@ export default function NotesPanel({ notes, mode, onSave, onDelete, notesReadByP
         <div style={{
           flex: 1,
           padding: '16px 18px 16px 14px',
-          backgroundImage: 'repeating-linear-gradient(transparent, transparent 27px, rgba(184,85,53,0.08) 27px, rgba(184,85,53,0.08) 28px)',
+          backgroundImage: 'repeating-linear-gradient(transparent, transparent 27px, rgba(35,64,142,0.08) 27px, rgba(35,64,142,0.08) 28px)',
           backgroundSize: '100% 28px',
           backgroundPositionY: '4px',
         }}>
@@ -86,12 +86,12 @@ export default function NotesPanel({ notes, mode, onSave, onDelete, notesReadByP
               {todayNote && (
                 <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
                   {notesReadByParent[todayNote.id]
-                    ? <span style={{ fontSize: 11, color: '#487A67', fontWeight: 500 }}>✓ Parent has read this note</span>
-                    : <span style={{ fontSize: 11, color: '#B07828', fontWeight: 500 }}>○ Parent hasn't read this yet</span>
+                    ? <span style={{ fontSize: 11, color: 'var(--mint)', fontWeight: 500 }}>✓ Parent has read this note</span>
+                    : <span style={{ fontSize: 11, color: 'var(--st-some)', fontWeight: 500 }}>○ Parent hasn't read this yet</span>
                   }
                   {onDelete && (
                     confirmDelete ? (
-                      <span style={{ fontSize: 11, color: 'var(--text-mid)', fontFamily: "'Outfit', sans-serif" }}>
+                      <span style={{ fontSize: 11, color: 'var(--text-mid)', fontFamily: "var(--font-ui)" }}>
                         Delete this note?{' '}
                         <button
                           onClick={() => { onDelete(todayNote.id); setConfirmDelete(false) }}
@@ -120,7 +120,7 @@ export default function NotesPanel({ notes, mode, onSave, onDelete, notesReadByP
                 <p style={{
                   fontSize: 14, color: 'var(--text-dark)',
                   lineHeight: '28px', whiteSpace: 'pre-wrap', margin: 0,
-                  fontFamily: "'Outfit', sans-serif",
+                  fontFamily: "var(--font-ui)",
                 }}>{todayNote.body}</p>
               </div>
               <p style={{ fontSize: 11, color: 'var(--text-light)', marginTop: 10 }}>
@@ -129,7 +129,7 @@ export default function NotesPanel({ notes, mode, onSave, onDelete, notesReadByP
             </div>
           ) : (
             <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', paddingTop: 4 }}>
-              <span style={{ color: 'rgba(184,85,53,0.3)', fontSize: 16, lineHeight: 1.6 }}>○</span>
+              <span style={{ color: 'rgba(35,64,142,0.3)', fontSize: 16, lineHeight: 1.6 }}>○</span>
               <p style={{ fontSize: 14, color: 'var(--text-light)', fontStyle: 'italic', margin: 0, lineHeight: '28px' }}>
                 No note for today yet.
               </p>

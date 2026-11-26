@@ -45,7 +45,7 @@ export default function NoteComposer({ onSave, existingNote }) {
           color: 'var(--text-dark)',
           lineHeight: '28px',
           outline: 'none',
-          fontFamily: "'Outfit', sans-serif",
+          fontFamily: "var(--font-ui)",
           padding: 0,
         }}
       />
@@ -53,10 +53,10 @@ export default function NoteComposer({ onSave, existingNote }) {
         <span style={{ fontSize: 11, color: 'var(--text-light)' }}>{body.length} / 1000</span>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {saveStatus === 'saved' && !isDirty && (
-            <span style={{ fontSize: 11, color: '#487A67', fontWeight: 500 }}>✓ Saved</span>
+            <span style={{ fontSize: 11, color: 'var(--mint)', fontWeight: 500 }}>✓ Saved</span>
           )}
           {saveStatus === 'error' && (
-            <span style={{ fontSize: 11, color: '#B85535', fontWeight: 500 }}>Failed to save</span>
+            <span style={{ fontSize: 11, color: 'var(--ink)', fontWeight: 500 }}>Failed to save</span>
           )}
           <button
             onClick={handleSave}
@@ -68,17 +68,17 @@ export default function NoteComposer({ onSave, existingNote }) {
               cursor: body.trim().length < 1 || isSaving || !isDirty ? 'not-allowed' : 'pointer',
               fontSize: 12,
               fontWeight: 600,
-              fontFamily: "'Outfit', sans-serif",
+              fontFamily: "var(--font-ui)",
               transition: 'all 0.15s',
               background: body.trim().length < 1 || isSaving || !isDirty
-                ? 'rgba(184,85,53,0.15)'
-                : 'linear-gradient(135deg, var(--coral) 0%, var(--pink) 100%)',
+                ? 'rgba(35,64,142,0.15)'
+                : 'var(--ink)',
               color: body.trim().length < 1 || isSaving || !isDirty
                 ? 'var(--text-light)'
                 : 'white',
               boxShadow: body.trim().length < 1 || isSaving || !isDirty
                 ? 'none'
-                : '0 2px 8px rgba(184,85,53,0.3)',
+                : '0 2px 8px rgba(35,64,142,0.3)',
             }}
           >
             {isSaving ? 'Saving…' : existingNote ? 'Update note' : 'Save note'}

@@ -29,7 +29,7 @@ export default function ChallengeAssigner({ challenges = [], onAdd, onRemove }) 
           style={{
             flex: 1, border: '1.5px solid var(--border)', borderRadius: 10,
             padding: '9px 12px', fontSize: 13, outline: 'none',
-            fontFamily: "'Outfit', sans-serif", background: 'var(--surface-warm)',
+            fontFamily: "var(--font-ui)", background: 'var(--surface-warm)',
           }}
         />
         <button
@@ -39,7 +39,7 @@ export default function ChallengeAssigner({ challenges = [], onAdd, onRemove }) 
             background: input.trim() ? 'var(--coral)' : 'var(--border)',
             color: 'white', border: 'none', borderRadius: 10, padding: '9px 18px',
             fontSize: 13, fontWeight: 600, cursor: input.trim() ? 'pointer' : 'default',
-            fontFamily: "'Outfit', sans-serif",
+            fontFamily: "var(--font-ui)",
           }}
         >Assign</button>
       </div>

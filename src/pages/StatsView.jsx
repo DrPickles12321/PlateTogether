@@ -23,7 +23,7 @@ function DailyRhythmCard({ summaries, compact = false }) {
   return (
     <div style={{
       background: 'white', borderRadius: compact ? 18 : 22, border: '1.5px solid var(--border)',
-      padding: compact ? '20px' : '24px 22px', boxShadow: '0 3px 14px rgba(39,23,6,0.06)',
+      padding: compact ? '20px' : '24px 22px', boxShadow: '0 3px 14px rgba(29,33,43,0.06)',
       marginTop: compact ? 12 : 22, ...(compact ? { marginBottom: 12 } : {}),
     }}>
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 16, gap: 8, flexWrap: 'wrap' }}>
@@ -52,7 +52,7 @@ function DistressCard({ summary, compact = false }) {
   return (
     <div style={{
       background: 'white', borderRadius: compact ? 18 : 22, border: '1.5px solid var(--border)',
-      padding: compact ? '20px' : '24px 22px', boxShadow: '0 3px 14px rgba(39,23,6,0.06)',
+      padding: compact ? '20px' : '24px 22px', boxShadow: '0 3px 14px rgba(29,33,43,0.06)',
       marginTop: compact ? 12 : 22,
     }}>
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 14, gap: 8, flexWrap: 'wrap' }}>
@@ -93,7 +93,7 @@ function TrendCard({ trend, compact = false }) {
   return (
     <div style={{
       background: 'white', borderRadius: compact ? 18 : 22, border: '1.5px solid var(--border)',
-      padding: compact ? '20px' : '24px 22px', boxShadow: '0 3px 14px rgba(39,23,6,0.06)',
+      padding: compact ? '20px' : '24px 22px', boxShadow: '0 3px 14px rgba(29,33,43,0.06)',
       marginTop: compact ? 12 : 22,
     }}>
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 14, gap: 8, flexWrap: 'wrap' }}>
@@ -149,7 +149,7 @@ function ProgressStat({ label, current, previous, unit = '', inverse = false }) 
 const INSIGHT_STYLES = {
   positive: { bg: 'var(--mint-light)', border: 'var(--mint-mid)' },
   tip:      { bg: 'var(--peach-light)', border: 'var(--peach-mid)' },
-  notice:   { bg: 'var(--coral-light)', border: '#fecaca' },
+  notice:   { bg: 'var(--coral-light)', border: 'var(--st-refused-bg)' },
 }
 
 function AIInsightsSection({ weekStatuses, allMealItems = {}, mealStatuses = {}, mealTimesByDate = {} }) {
@@ -198,7 +198,7 @@ function AIInsightsSection({ weekStatuses, allMealItems = {}, mealStatuses = {},
   return (
     <div style={{
       background: 'white', borderRadius: 22, border: '1.5px solid var(--border)',
-      padding: '28px', boxShadow: '0 3px 14px rgba(39,23,6,0.06)', marginTop: 22,
+      padding: '28px', boxShadow: '0 3px 14px rgba(29,33,43,0.06)', marginTop: 22,
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
         <span style={{ fontSize: 20 }}>✨</span>
@@ -305,12 +305,12 @@ export default function StatsView() {
 
   if (isMobile) {
     const pills = [
-      { label: 'Okay %',   value: `${stats.successRate}%`, color: '#E8735A',          bg: '#FDF1EE',            border: '#F5C4B4' },
+      { label: 'Okay %',   value: `${stats.successRate}%`, color: 'var(--ink)',          bg: 'var(--st-refused-bg)',            border: 'var(--pink-mid)' },
       { label: 'Logged',   value: stats.total,              color: 'var(--text-dark)', bg: 'white',              border: 'var(--border)' },
       { label: 'Okay',     value: stats.okay,               color: 'var(--mint)',      bg: 'var(--mint-light)',  border: 'var(--mint-mid)' },
       { label: 'Difficult',value: stats.difficult,          color: 'var(--peach)',     bg: 'var(--peach-light)', border: 'var(--peach-mid)' },
       { label: 'Refused',  value: stats.refused,            color: 'var(--pink)',      bg: 'var(--pink-light)',  border: 'var(--pink-mid)' },
-      { label: 'Skipped',  value: stats.skipped,            color: '#8a7568',          bg: '#f1ece3',            border: '#ddd0bd' },
+      { label: 'Skipped',  value: stats.skipped,            color: 'var(--text-light)',          bg: 'var(--surface-warm)',            border: 'var(--border)' },
     ]
     return (
       <div style={{ padding: '6px 14px 24px', maxWidth: 480, margin: '0 auto', width: '100%' }}>
@@ -320,7 +320,7 @@ export default function StatsView() {
         <p style={{ fontSize: 13, color: 'var(--text-light)', margin: '0 0 16px' }}>A gentle look at this week's progress</p>
 
         {/* Challenge ring */}
-        <div style={{ background: 'white', borderRadius: 18, border: '1.5px solid var(--border)', padding: '22px', boxShadow: '0 2px 12px rgba(39,23,6,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+        <div style={{ background: 'white', borderRadius: 18, border: '1.5px solid var(--border)', padding: '22px', boxShadow: '0 2px 12px rgba(29,33,43,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, marginBottom: 12 }}>
           <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-light)', letterSpacing: '0.7px', textTransform: 'uppercase' }}>Challenge Attempts</div>
           <div style={{ position: 'relative' }}>
             <svg width={96} height={96} style={{ transform: 'rotate(-90deg)' }}>
@@ -359,7 +359,7 @@ export default function StatsView() {
         </div>
 
         {/* Hardest meal */}
-        <div style={{ background: 'white', borderRadius: 18, border: '1.5px solid var(--border)', padding: '20px', boxShadow: '0 2px 12px rgba(39,23,6,0.05)', marginBottom: 12 }}>
+        <div style={{ background: 'white', borderRadius: 18, border: '1.5px solid var(--border)', padding: '20px', boxShadow: '0 2px 12px rgba(29,33,43,0.05)', marginBottom: 12 }}>
           <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-light)', letterSpacing: '0.7px', textTransform: 'uppercase', marginBottom: 12 }}>Most Logged Difficulty</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 13, marginBottom: 12 }}>
             <div style={{ width: 48, height: 48, borderRadius: 14, background: 'var(--pink-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0 }}>😰</div>
@@ -384,7 +384,7 @@ export default function StatsView() {
 
         {/* Weekly progress */}
         {hasLastWeekData && (
-          <div style={{ background: 'white', borderRadius: 18, border: '1.5px solid var(--border)', padding: '20px', boxShadow: '0 2px 12px rgba(39,23,6,0.05)' }}>
+          <div style={{ background: 'white', borderRadius: 18, border: '1.5px solid var(--border)', padding: '20px', boxShadow: '0 2px 12px rgba(29,33,43,0.05)' }}>
             <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-light)', letterSpacing: '0.7px', textTransform: 'uppercase', marginBottom: 14 }}>Weekly Progress</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
               <ProgressStat label="Okay Meals" current={stats.successRate} previous={lastWeekStats.successRate} unit="%" />
@@ -418,7 +418,7 @@ export default function StatsView() {
           {/* Card 1: Challenge ring */}
           <div style={{
             background: 'white', borderRadius: 22, border: '1.5px solid var(--border)',
-            padding: '28px 22px', boxShadow: '0 3px 14px rgba(39,23,6,0.06)',
+            padding: '28px 22px', boxShadow: '0 3px 14px rgba(29,33,43,0.06)',
             display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14,
           }}>
             <div style={{
@@ -460,7 +460,7 @@ export default function StatsView() {
           <div style={{
             background: 'linear-gradient(148deg, var(--peach-light) 0%, var(--pink-light) 100%)',
             borderRadius: 22, border: '1.5px solid var(--border)',
-            padding: '28px 22px', boxShadow: '0 3px 14px rgba(39,23,6,0.06)',
+            padding: '28px 22px', boxShadow: '0 3px 14px rgba(29,33,43,0.06)',
             display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 16,
           }}>
             <div style={{
@@ -494,7 +494,7 @@ export default function StatsView() {
           {/* Card 3: Hardest meal */}
           <div style={{
             background: 'white', borderRadius: 22, border: '1.5px solid var(--border)',
-            padding: '28px 22px', boxShadow: '0 3px 14px rgba(39,23,6,0.06)',
+            padding: '28px 22px', boxShadow: '0 3px 14px rgba(29,33,43,0.06)',
             display: 'flex', flexDirection: 'column', gap: 16,
           }}>
             <div style={{
@@ -539,12 +539,12 @@ export default function StatsView() {
         {/* Summary stat pills */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12 }}>
           {[
-            { label: 'Okay Meals',   value: `${stats.successRate}%`, color: '#E8735A',          bg: '#FDF1EE',            border: '#F5C4B4',          shadow: 'rgba(232,115,90,0.10)' },
-            { label: 'Total Logged', value: stats.total,              color: 'var(--text-dark)', bg: 'white',              border: 'var(--border)',    shadow: 'rgba(39,23,6,0.05)' },
+            { label: 'Okay Meals',   value: `${stats.successRate}%`, color: 'var(--ink)',          bg: 'var(--st-refused-bg)',            border: 'var(--pink-mid)',          shadow: 'rgba(232,115,90,0.10)' },
+            { label: 'Total Logged', value: stats.total,              color: 'var(--text-dark)', bg: 'white',              border: 'var(--border)',    shadow: 'rgba(29,33,43,0.05)' },
             { label: 'Okay',         value: stats.okay,               color: 'var(--mint)',      bg: 'var(--mint-light)',  border: 'var(--mint-mid)',  shadow: 'rgba(72,122,103,0.08)' },
             { label: 'Difficult',    value: stats.difficult,          color: 'var(--peach)',     bg: 'var(--peach-light)', border: 'var(--peach-mid)', shadow: 'rgba(176,120,40,0.08)' },
             { label: 'Refused',      value: stats.refused,            color: 'var(--pink)',      bg: 'var(--pink-light)',  border: 'var(--pink-mid)',  shadow: 'rgba(174,76,106,0.08)' },
-            { label: 'Skipped',      value: stats.skipped,            color: '#8a7568',          bg: '#f1ece3',            border: '#ddd0bd',          shadow: 'rgba(138,117,104,0.08)' },
+            { label: 'Skipped',      value: stats.skipped,            color: 'var(--text-light)',          bg: 'var(--surface-warm)',            border: 'var(--border)',          shadow: 'rgba(138,117,104,0.08)' },
           ].map(s => (
             <div key={s.label} style={{
               background: s.bg, borderRadius: 18, padding: '20px',
@@ -572,7 +572,7 @@ export default function StatsView() {
         {hasLastWeekData && (
           <div style={{
             background: 'white', borderRadius: 22, border: '1.5px solid var(--border)',
-            padding: '24px 22px', boxShadow: '0 3px 14px rgba(39,23,6,0.06)', marginTop: 22,
+            padding: '24px 22px', boxShadow: '0 3px 14px rgba(29,33,43,0.06)', marginTop: 22,
           }}>
             <div style={{
               fontSize: 10, fontWeight: 700, color: 'var(--text-light)',

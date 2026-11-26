@@ -42,11 +42,11 @@ function AppLayout() {
       <div style={{
         minHeight: '100svh', display: 'flex',
         alignItems: 'center', justifyContent: 'center',
-        background: '#F5EFE6',
+        background: 'var(--surface-warm)',
       }}>
         <div style={{
           width: 38, height: 38, borderRadius: '50%',
-          border: '3px solid #E8735A', borderTopColor: 'transparent',
+          border: '3px solid var(--ink)', borderTopColor: 'transparent',
           animation: 'spin 0.8s linear infinite',
         }} />
         <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
