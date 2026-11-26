@@ -1,0 +1,603 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-26T06:44:05+00:00",
+  "title": "Design System: Plate Together",
+  "extensions": {
+    "colorMeta": {
+      "ink": {
+        "role": "primary",
+        "displayName": "Ballpoint Ink",
+        "canonical": "#23408E",
+        "tonalRamp": [
+          "#01003A",
+          "#051763",
+          "#1C3885",
+          "#3858A8",
+          "#597CD0",
+          "#7CA2F9",
+          "#B3CAFC",
+          "#E7EFFF"
+        ]
+      },
+      "ink-hover": {
+        "role": "primary",
+        "displayName": "Pressed Ink",
+        "canonical": "#1A3170",
+        "tonalRamp": [
+          "#010039",
+          "#091C59",
+          "#223B7B",
+          "#3F5A9D",
+          "#607EC4",
+          "#83A3EC",
+          "#B3CAFC",
+          "#E7EFFF"
+        ]
+      },
+      "ink-light": {
+        "role": "primary",
+        "displayName": "Ink Wash",
+        "canonical": "#EAEFF9",
+        "tonalRamp": [
+          "#080B11",
+          "#20242B",
+          "#3C4048",
+          "#595E66",
+          "#7C8089",
+          "#A0A5AE",
+          "#C6CBD4",
+          "#EAEFF9"
+        ]
+      },
+      "ink-mid": {
+        "role": "primary",
+        "displayName": "Faded Ink",
+        "canonical": "#A7B7DD",
+        "tonalRamp": [
+          "#030823",
+          "#182240",
+          "#323F5E",
+          "#4F5D7E",
+          "#7180A3",
+          "#95A4C9",
+          "#BACAF1",
+          "#E8EEFF"
+        ]
+      },
+      "highlight": {
+        "role": "secondary",
+        "displayName": "Highlighter",
+        "canonical": "#FFEE8A",
+        "tonalRamp": [
+          "#100B00",
+          "#2B2400",
+          "#494004",
+          "#6B5E0C",
+          "#928109",
+          "#B7A640",
+          "#DDCC69",
+          "#FFF19E"
+        ]
+      },
+      "highlight-ink": {
+        "role": "secondary",
+        "displayName": "Highlighter Ink",
+        "canonical": "#5C4600",
+        "tonalRamp": [
+          "#130900",
+          "#2F2200",
+          "#503D00",
+          "#715A1E",
+          "#957D43",
+          "#BAA267",
+          "#E1C88B",
+          "#FEEDC5"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "#FFFFFF",
+        "tonalRamp": [
+          "#0B0B0B",
+          "#242424",
+          "#404040",
+          "#5D5D5D",
+          "#808080",
+          "#A4A4A4",
+          "#CACACA",
+          "#EEEEEE"
+        ]
+      },
+      "desk": {
+        "role": "neutral",
+        "displayName": "Desk",
+        "canonical": "#F2F4F7",
+        "tonalRamp": [
+          "#0A0B0D",
+          "#232426",
+          "#3E4042",
+          "#5C5E60",
+          "#7E8083",
+          "#A3A5A7",
+          "#C9CBCD",
+          "#EDEFF2"
+        ]
+      },
+      "surface-warm": {
+        "role": "neutral",
+        "displayName": "Pale Paper",
+        "canonical": "#F7F9FC",
+        "tonalRamp": [
+          "#0A0B0D",
+          "#232426",
+          "#3E4042",
+          "#5C5E60",
+          "#7E8083",
+          "#A3A5A7",
+          "#C9CBCD",
+          "#EDEFF1"
+        ]
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Blue Rule",
+        "canonical": "#D6E0F0",
+        "tonalRamp": [
+          "#060B15",
+          "#1D2430",
+          "#38404D",
+          "#565E6C",
+          "#78818F",
+          "#9CA5B4",
+          "#C1CBDB",
+          "#E6EFFE"
+        ]
+      },
+      "rule-strong": {
+        "role": "neutral",
+        "displayName": "Strong Rule",
+        "canonical": "#B9C8E2",
+        "tonalRamp": [
+          "#030A1C",
+          "#192437",
+          "#344055",
+          "#515E75",
+          "#738199",
+          "#97A5BE",
+          "#BCCBE5",
+          "#E6EFFE"
+        ]
+      },
+      "margin": {
+        "role": "neutral",
+        "displayName": "Rose Margin",
+        "canonical": "#E9B3B3",
+        "tonalRamp": [
+          "#1F0003",
+          "#3D1518",
+          "#5D3133",
+          "#7D4F50",
+          "#A37172",
+          "#C99595",
+          "#F1BBBB",
+          "#FEE9E8"
+        ]
+      },
+      "text-dark": {
+        "role": "neutral",
+        "displayName": "Graphite",
+        "canonical": "#1D212B",
+        "tonalRamp": [
+          "#080B14",
+          "#20242E",
+          "#3B404B",
+          "#595D69",
+          "#7B808D",
+          "#9FA4B2",
+          "#C5CAD8",
+          "#E9EEFC"
+        ]
+      },
+      "text-mid": {
+        "role": "neutral",
+        "displayName": "Soft Graphite",
+        "canonical": "#464D5B",
+        "tonalRamp": [
+          "#060B16",
+          "#1E2430",
+          "#39404D",
+          "#565E6C",
+          "#798090",
+          "#9DA5B5",
+          "#C2CBDB",
+          "#E7EFFF"
+        ]
+      },
+      "text-light": {
+        "role": "neutral",
+        "displayName": "Faint Graphite",
+        "canonical": "#626A79",
+        "tonalRamp": [
+          "#060B16",
+          "#1D2431",
+          "#39404E",
+          "#565E6D",
+          "#788190",
+          "#9CA5B5",
+          "#C2CBDC",
+          "#E6EFFF"
+        ]
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "#E1E6EE",
+        "tonalRamp": [
+          "#080B10",
+          "#21242A",
+          "#3C4046",
+          "#5A5E65",
+          "#7C8088",
+          "#A0A5AC",
+          "#C6CBD3",
+          "#EAEFF7"
+        ]
+      },
+      "border-mid": {
+        "role": "neutral",
+        "displayName": "Firm Hairline",
+        "canonical": "#C9D1DD",
+        "tonalRamp": [
+          "#070B13",
+          "#1E242D",
+          "#3A404A",
+          "#575E68",
+          "#79818C",
+          "#9EA5B1",
+          "#C3CBD7",
+          "#E7EFFB"
+        ]
+      },
+      "st-okay": {
+        "role": "tertiary",
+        "displayName": "Finished",
+        "canonical": "#23408E",
+        "tonalRamp": [
+          "#01003A",
+          "#051763",
+          "#1C3885",
+          "#3858A8",
+          "#597CD0",
+          "#7CA2F9",
+          "#B3CAFC",
+          "#E7EFFF"
+        ]
+      },
+      "st-okay-bg": {
+        "role": "tertiary",
+        "displayName": "Finished Tint",
+        "canonical": "#EAEFF9",
+        "tonalRamp": [
+          "#080B11",
+          "#20242B",
+          "#3C4048",
+          "#595E66",
+          "#7C8089",
+          "#A0A5AE",
+          "#C6CBD4",
+          "#EAEFF9"
+        ]
+      },
+      "st-some": {
+        "role": "tertiary",
+        "displayName": "Partly",
+        "canonical": "#7A5200",
+        "tonalRamp": [
+          "#160700",
+          "#332000",
+          "#563901",
+          "#7D5505",
+          "#A27835",
+          "#C89C5A",
+          "#EFC280",
+          "#FEECD2"
+        ]
+      },
+      "st-some-bg": {
+        "role": "tertiary",
+        "displayName": "Partly Tint",
+        "canonical": "#FBF0D6",
+        "tonalRamp": [
+          "#110A00",
+          "#2B230E",
+          "#483F29",
+          "#665D46",
+          "#897F68",
+          "#AEA48B",
+          "#D4CAB0",
+          "#F9EED4"
+        ]
+      },
+      "st-refused": {
+        "role": "tertiary",
+        "displayName": "Refused",
+        "canonical": "#9C2F1C",
+        "tonalRamp": [
+          "#230000",
+          "#4B0100",
+          "#771402",
+          "#A03320",
+          "#C95944",
+          "#F37E67",
+          "#FCB7A9",
+          "#FEE9E5"
+        ]
+      },
+      "st-refused-bg": {
+        "role": "tertiary",
+        "displayName": "Refused Tint",
+        "canonical": "#F9E3DE",
+        "tonalRamp": [
+          "#140705",
+          "#2F201C",
+          "#4C3B37",
+          "#6B5955",
+          "#8F7B77",
+          "#B49F9B",
+          "#DAC5C0",
+          "#FFE9E4"
+        ]
+      },
+      "st-skipped": {
+        "role": "tertiary",
+        "displayName": "Skipped",
+        "canonical": "#545B69",
+        "tonalRamp": [
+          "#060B15",
+          "#1E2430",
+          "#39404D",
+          "#575E6C",
+          "#79808F",
+          "#9DA5B4",
+          "#C3CBDB",
+          "#E7EFFE"
+        ]
+      },
+      "st-skipped-bg": {
+        "role": "tertiary",
+        "displayName": "Skipped Tint",
+        "canonical": "#EEF0F3",
+        "tonalRamp": [
+          "#0A0B0D",
+          "#232426",
+          "#3E4042",
+          "#5C5E60",
+          "#7E8083",
+          "#A3A5A7",
+          "#C9CBCD",
+          "#EDEFF2"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Day Heading",
+        "purpose": "Shantell Sans 600, 32px phone / 34px desktop. The handwritten day heading."
+      },
+      "headline": {
+        "displayName": "Handwritten Headline",
+        "purpose": "Meal names on a line (19-20px), clinician section titles, the wordmark."
+      },
+      "title": {
+        "displayName": "Handwritten Title",
+        "purpose": "Bottom-sheet titles (17px) and the hard-moment card line (18px, ink)."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Atkinson Hyperlegible Next 15px/1.5, tabular numerals. Food summaries 14px."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Bold 14-15px for every button and outcome chip."
+      },
+      "caption": {
+        "displayName": "Caption",
+        "purpose": "12-13px margin times, tab labels, grid cells, legends. 12px is the floor."
+      }
+    },
+    "shadows": [
+      {
+        "name": "sheet-lift",
+        "value": "0 -8px 30px rgba(29,33,43,0.18)",
+        "purpose": "Bottom sheet, over a rgba(29,33,43,0.35) backdrop."
+      },
+      {
+        "name": "modal-lift",
+        "value": "0 24px 64px rgba(29,33,43,0.22)",
+        "purpose": "Centred dialogs."
+      },
+      {
+        "name": "toast-lift",
+        "value": "0 6px 24px rgba(29,33,43,0.12)",
+        "purpose": "Transient confirmations."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ink-settle",
+        "value": "inkSettle 0.45s cubic-bezier(0.16, 1, 0.3, 1) both",
+        "purpose": "A newly written line or card settles from 0.35 opacity and 1.5px blur. The one authored moment."
+      },
+      {
+        "name": "page-rise",
+        "value": "ptRise 0.18s ease-out both",
+        "purpose": "Route change, opacity 0.6 to 1 only; a transform would break fixed sheets."
+      },
+      {
+        "name": "sheet-spring",
+        "value": "spring stiffness 380, damping 32",
+        "purpose": "Bottom sheet slides up from 100%."
+      },
+      {
+        "name": "backdrop-fade",
+        "value": "opacity 0.18s",
+        "purpose": "Sheet backdrop."
+      },
+      {
+        "name": "state-transition",
+        "value": "background 0.15s, color 0.15s",
+        "purpose": "Button hover fills."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "animation: none; transition-duration: 0.01ms",
+        "purpose": "Applied under prefers-reduced-motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "mobile",
+        "value": "768px"
+      },
+      {
+        "name": "content-max",
+        "value": "1200px"
+      },
+      {
+        "name": "today-column",
+        "value": "560px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Ink Button",
+      "kind": "button",
+      "refersTo": "button-ink",
+      "description": "The single primary action on a view, e.g. Log on an empty meal line.",
+      "html": "<button class=\"ds-btn-ink\">Log</button>",
+      "css": ".ds-btn-ink { font-family: var(--font-ui, 'Atkinson Hyperlegible Next', ui-sans-serif, system-ui, sans-serif); min-height: 44px; padding: 6px 18px; border-radius: var(--radius, 6px); border: none; background: var(--ink, #23408E); color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; transition: background 0.15s; } .ds-btn-ink:hover { background: var(--ink-hover, #1A3170); } .ds-btn-ink:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Secondary action with a leading drawn icon; Need help is this button.",
+      "html": "<button class=\"ds-btn-outline\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"8.5\"/><circle cx=\"12\" cy=\"12\" r=\"3.5\"/><path d=\"M6 6l3.5 3.5M18 6l-3.5 3.5M6 18l3.5-3.5M18 18l-3.5-3.5\"/></svg>Need help</button>",
+      "css": ".ds-btn-outline { font-family: var(--font-ui, 'Atkinson Hyperlegible Next', ui-sans-serif, system-ui, sans-serif); display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 14px; border-radius: var(--radius, 6px); border: 1.5px solid var(--ink, #23408E); background: #fff; color: var(--ink, #23408E); font-size: 15px; font-weight: 700; cursor: pointer; transition: background 0.15s; } .ds-btn-outline:hover { background: var(--ink-light, #EAEFF9); } .ds-btn-outline:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }"
+    },
+    {
+      "name": "Call Buttons",
+      "kind": "button",
+      "refersTo": "button-urgent",
+      "description": "Emergency (brick red) and crisis-line (ink wash) call links used in the hard-moment card and help sheet.",
+      "html": "<div class=\"ds-calls\"><a class=\"ds-call ds-call-urgent\" href=\"#\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7 3.5h2.5l1.5 4-2 1.5a10 10 0 0 0 6 6l1.5-2 4 1.5V17a2 2 0 0 1-2 2A15.5 15.5 0 0 1 5 5.5a2 2 0 0 1 2-2z\"/></svg>Call 911</a><a class=\"ds-call\" href=\"#\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7 3.5h2.5l1.5 4-2 1.5a10 10 0 0 0 6 6l1.5-2 4 1.5V17a2 2 0 0 1-2 2A15.5 15.5 0 0 1 5 5.5a2 2 0 0 1 2-2z\"/></svg>Call or text 988</a></div>",
+      "css": ".ds-calls { display: grid; gap: 8px; max-width: 320px; } .ds-call { font-family: var(--font-ui, 'Atkinson Hyperlegible Next', ui-sans-serif, system-ui, sans-serif); display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 10px 14px; box-sizing: border-box; border-radius: var(--radius, 6px); text-decoration: none; font-weight: 700; font-size: 15px; color: var(--ink, #23408E); background: var(--ink-light, #EAEFF9); border: 1.5px solid var(--ink-mid, #A7B7DD); } .ds-call-urgent { color: #fff; background: var(--st-refused, #9C2F1C); border: none; } .ds-call:hover { filter: brightness(0.96); } .ds-call:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }"
+    },
+    {
+      "name": "Outcome Chips",
+      "kind": "chip",
+      "refersTo": "outcome-finished",
+      "description": "How a meal went: pen mark plus word in the outcome colour on its tint. Never colour alone.",
+      "html": "<div class=\"ds-outcomes\"><button class=\"ds-oc ds-oc-okay\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12.5l4.5 4.5L19 7\"/></svg>Finished</button><button class=\"ds-oc ds-oc-some\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"7.5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"/><path d=\"M12 4.5a7.5 7.5 0 0 0 0 15z\" fill=\"currentColor\"/></svg>Partly</button><button class=\"ds-oc ds-oc-refused\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6.5 6.5l11 11M17.5 6.5l-11 11\"/></svg>Refused</button><button class=\"ds-oc ds-oc-skipped\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6 12h12\"/></svg>Skipped</button></div>",
+      "css": ".ds-outcomes { display: flex; flex-wrap: wrap; gap: 8px; } .ds-oc { font-family: var(--font-ui, 'Atkinson Hyperlegible Next', ui-sans-serif, system-ui, sans-serif); display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 6px 12px; border-radius: var(--radius, 6px); font-size: 14px; font-weight: 700; cursor: pointer; border: 1.5px solid currentColor; } .ds-oc-okay { color: var(--st-okay, #23408E); background: var(--st-okay-bg, #EAEFF9); } .ds-oc-some { color: var(--st-some, #7A5200); background: var(--st-some-bg, #FBF0D6); } .ds-oc-refused { color: var(--st-refused, #9C2F1C); background: var(--st-refused-bg, #F9E3DE); } .ds-oc-skipped { color: var(--st-skipped, #545B69); background: var(--st-skipped-bg, #EEF0F3); } .ds-oc:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }"
+    },
+    {
+      "name": "Meal Lines",
+      "kind": "card",
+      "refersTo": "meal-line",
+      "description": "The parent's ruled page: time in the rose margin, handwritten meal name, what was served in ink, action at the right.",
+      "html": "<section class=\"ds-page\"><div class=\"ds-line\"><span class=\"ds-time\">7:30<br>AM</span><div class=\"ds-meal\"><span class=\"ds-meal-name\">Breakfast</span><span class=\"ds-meal-food\">Oatmeal, Banana, Milk</span></div><button class=\"ds-oc ds-oc-okay\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12.5l4.5 4.5L19 7\"/></svg>Finished</button></div><div class=\"ds-line\"><span class=\"ds-time\">3:30<br>PM</span><div class=\"ds-meal\"><span class=\"ds-meal-name\">Snack</span><span class=\"ds-meal-food ds-empty\">Not written yet</span></div><button class=\"ds-log\">Log</button></div></section>",
+      "css": ".ds-page { font-family: var(--font-ui, 'Atkinson Hyperlegible Next', ui-sans-serif, system-ui, sans-serif); max-width: 420px; background: #fff; border-top: 1px solid var(--rule-strong, #B9C8E2); border-bottom: 1px solid var(--rule-strong, #B9C8E2); background-image: linear-gradient(to right, transparent 55px, var(--margin, #E9B3B3) 55px, var(--margin, #E9B3B3) 56px, transparent 56px); } .ds-line { display: grid; grid-template-columns: 56px 1fr auto; align-items: center; min-height: 64px; border-bottom: 1px solid var(--rule, #D6E0F0); padding-right: 12px; } .ds-line:last-child { border-bottom: none; } .ds-time { font-size: 13px; color: var(--text-mid, #464D5B); text-align: center; line-height: 1.2; } .ds-meal { display: flex; flex-direction: column; padding: 12px 10px 12px 14px; min-width: 0; } .ds-meal-name { font-family: var(--font-hand, 'Shantell Sans', 'Atkinson Hyperlegible Next', sans-serif); letter-spacing: -0.01em; font-size: 19px; font-weight: 600; color: var(--text-dark, #1D212B); line-height: 1.25; } .ds-meal-food { font-size: 14px; color: var(--ink, #23408E); margin-top: 2px; } .ds-empty { color: var(--text-mid, #464D5B); } .ds-oc { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 6px 12px; border-radius: 6px; font: 700 14px/1 inherit; color: var(--st-okay, #23408E); background: var(--st-okay-bg, #EAEFF9); border: 1.5px solid currentColor; cursor: pointer; } .ds-log { min-height: 44px; padding: 6px 18px; border-radius: 6px; border: none; background: var(--ink, #23408E); color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; } .ds-log:hover { background: var(--ink-hover, #1A3170); } .ds-log:focus-visible, .ds-oc:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }"
+    },
+    {
+      "name": "Hard-Moment Card",
+      "kind": "custom",
+      "refersTo": "hard-moment-card",
+      "description": "Answers a refused or 4-5 distress meal in place: one steady line and the care team one tap away.",
+      "html": "<div class=\"ds-hard\" role=\"status\"><p class=\"ds-hard-title\">That meal was hard.</p><p class=\"ds-hard-body\">Hard meals happen in recovery. You don't have to work this out alone.</p><div class=\"ds-hard-actions\"><button class=\"ds-hb ds-hb-ink\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4.5 5.5h15v10h-8l-4.5 3.5v-3.5H4.5z\"/></svg>Message your care team</button><button class=\"ds-hb\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"8.5\"/><circle cx=\"12\" cy=\"12\" r=\"3.5\"/><path d=\"M6 6l3.5 3.5M18 6l-3.5 3.5M6 18l3.5-3.5M18 18l-3.5-3.5\"/></svg>When to get help</button><button class=\"ds-hb ds-hb-text\">Close</button></div></div>",
+      "css": ".ds-hard { font-family: var(--font-ui, 'Atkinson Hyperlegible Next', ui-sans-serif, system-ui, sans-serif); max-width: 380px; padding: 12px 14px; border-radius: var(--radius, 6px); background: var(--ink-light, #EAEFF9); border: 1px solid var(--ink-mid, #A7B7DD); animation: ds-ink-settle 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; } @keyframes ds-ink-settle { from { opacity: 0.35; filter: blur(1.5px); } to { opacity: 1; filter: blur(0); } } .ds-hard-title { font-family: var(--font-hand, 'Shantell Sans', 'Atkinson Hyperlegible Next', sans-serif); letter-spacing: -0.01em; margin: 0 0 4px; font-size: 18px; font-weight: 600; color: var(--ink, #23408E); } .ds-hard-body { margin: 0 0 12px; font-size: 15px; line-height: 1.5; color: var(--text-dark, #1D212B); } .ds-hard-actions { display: flex; flex-wrap: wrap; gap: 8px; } .ds-hb { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 14px; border-radius: 6px; font-size: 15px; font-weight: 700; cursor: pointer; background: #fff; color: var(--ink, #23408E); border: 1.5px solid var(--ink-mid, #A7B7DD); } .ds-hb-ink { background: var(--ink, #23408E); color: #fff; border: none; } .ds-hb-ink:hover { background: var(--ink-hover, #1A3170); } .ds-hb-text { background: none; border: none; color: var(--text-mid, #464D5B); } .ds-hb:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; } @media (prefers-reduced-motion: reduce) { .ds-hard { animation: none; } }"
+    },
+    {
+      "name": "Parent Tab Strip",
+      "kind": "nav",
+      "refersTo": "tab-strip-parent",
+      "description": "Notebook index tabs along the bottom edge; word first, drawn icon below; the open tab is cut from the page.",
+      "html": "<nav class=\"ds-tabs\" aria-label=\"Main\"><a class=\"ds-tab\" aria-current=\"page\" href=\"#\"><span>Today</span><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.1\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6 3.5h10l3 3V20.5H6z\"/><path d=\"M9 9.5h7M9 13h7M9 16.5h4.5\"/></svg></a><a class=\"ds-tab\" href=\"#\"><span>Week</span><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"3.5\" y=\"5\" width=\"17\" height=\"15\" rx=\"1.5\"/><path d=\"M3.5 9.5h17M8 3v4M16 3v4M9.5 9.5v10.5M14.5 9.5v10.5\"/></svg></a><a class=\"ds-tab\" href=\"#\"><span>Insights</span><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4 19.5h16\"/><path d=\"M5.5 15.5l4-4.5 3.5 3 5.5-6.5\"/></svg></a></nav>",
+      "css": ".ds-tabs { font-family: var(--font-ui, 'Atkinson Hyperlegible Next', ui-sans-serif, system-ui, sans-serif); display: flex; gap: 3px; padding: 0 4px; background: var(--surface-warm, #F7F9FC); max-width: 390px; } .ds-tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 58px; text-decoration: none; color: var(--text-mid, #464D5B); background: #fff; border: 1px solid var(--rule-strong, #B9C8E2); border-radius: 0 0 6px 6px; margin-top: -1px; font-size: 13px; font-weight: 500; } .ds-tab[aria-current=\"page\"] { color: var(--ink, #23408E); background: var(--desk, #F2F4F7); border-top-color: var(--desk, #F2F4F7); font-weight: 700; } .ds-tab:hover { color: var(--ink, #23408E); } .ds-tab:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }"
+    },
+    {
+      "name": "Clinician Grid Cells",
+      "kind": "custom",
+      "refersTo": "grid-cell-flagged",
+      "description": "Clinician week-grid cells; a refusal or distress 4-5 fills with highlighter, with a legend.",
+      "html": "<div class=\"ds-grid\"><div class=\"ds-cell\"><div class=\"ds-cell-oc ds-c-okay\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12.5l4.5 4.5L19 7\"/></svg>Finished</div>Pasta with sauce</div><div class=\"ds-cell ds-flag\"><div class=\"ds-cell-oc ds-c-ref\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6.5 6.5l11 11M17.5 6.5l-11 11\"/></svg>Refused</div>Cheese and crackers<div class=\"ds-dis\">Distress before 4</div></div></div><p class=\"ds-legend\"><span class=\"ds-swatch\"></span>Highlighted: refused, or distress 4 or 5</p>",
+      "css": ".ds-grid { font-family: var(--font-ui, 'Atkinson Hyperlegible Next', ui-sans-serif, system-ui, sans-serif); display: grid; grid-template-columns: 150px 150px; border-top: 1px solid var(--rule-strong, #B9C8E2); border-left: 1px solid var(--rule-strong, #B9C8E2); } .ds-cell { min-height: 84px; padding: 8px; font-size: 13px; color: var(--text-dark, #1D212B); background: #fff; border-right: 1px solid var(--rule-strong, #B9C8E2); border-bottom: 1px solid var(--rule-strong, #B9C8E2); } .ds-flag { background: var(--highlight, #FFEE8A); } .ds-cell-oc { display: flex; align-items: center; gap: 4px; font-weight: 700; margin-bottom: 4px; } .ds-cell-oc svg { width: 14px; height: 14px; } .ds-c-okay { color: var(--st-okay, #23408E); } .ds-c-ref { color: var(--st-refused, #9C2F1C); } .ds-dis { margin-top: 4px; font-size: 12px; font-weight: 700; color: var(--highlight-ink, #5C4600); } .ds-legend { font-family: var(--font-ui, 'Atkinson Hyperlegible Next', ui-sans-serif, system-ui, sans-serif); display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-mid, #464D5B); } .ds-swatch { width: 14px; height: 14px; background: var(--highlight, #FFEE8A); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Kitchen-Table Notebook",
+    "overview": "Plate Together is the family's meal notebook. Each day is a ruled page the parent writes on: cool white paper, pale blue rules, one soft rose margin line, graphite text. Meals are lines on that page, not cards in a grid. The parent's own entries and the one main action are written in ballpoint-blue ink. Highlighter yellow appears only where a clinician should look. The voice is calm and plain because the person holding the phone is often stressed, one-handed, at or just after the table, and a teen in recovery may be reading over their shoulder.\n\nThe clinician side keeps the same paper and ink but reads as a case folder: a tabbed family file whose week grid is a ruled ledger, with the exceptions (a refusal, or distress at 4 or 5) highlighted so they are seen first. Density rises on the clinician's laptop; the vocabulary, marks and colours do not change.\n\nThe system refuses the wellness-tracker default: no emoji tiles, no KPI grids, no gradient buttons, no scores or streaks, no default Inter-on-white. Depth is paper on a desk, not floating cards.",
+    "keyCharacteristics": [
+      "Ruled meal lines with the time written in a rose-ruled margin.",
+      "One ink colour for the parent's words and the primary action.",
+      "Outcomes are pen marks (tick, half circle, cross, dash) always paired with a word.",
+      "A handwriting face for headings and the parent's own words; a legibility-first face for everything else.",
+      "Square-ish 6px corners, hairline rules, shadows only on sheets that slide over the page.",
+      "Highlighter reserved for clinician exceptions."
+    ],
+    "rules": [
+      {
+        "name": "The One Ink Rule",
+        "body": "Ballpoint blue means \"the parent wrote this\" or \"do this next\". It is not decoration and not a second accent.",
+        "section": "colors"
+      },
+      {
+        "name": "The Highlighter Rule",
+        "body": "Yellow highlighter marks clinician exceptions only: refused, or distress 4 or 5. It never appears on a parent screen as emphasis, and a legend always states what it means.",
+        "section": "colors"
+      },
+      {
+        "name": "The Mark And Word Rule",
+        "body": "Colour is never the only signal for an outcome. Every outcome shows its pen mark and its word (Finished, Partly, Refused, Skipped), in every size, on every screen.",
+        "section": "colors"
+      },
+      {
+        "name": "The Own Words Rule",
+        "body": "The handwriting face is for headings and the parent's own words only. Buttons, labels, guidance, clinical wording and numbers stay in Atkinson Hyperlegible Next.",
+        "section": "typography"
+      },
+      {
+        "name": "The 12px Floor Rule",
+        "body": "No text below 12px. Inputs are 16px on viewports up to 768px so iOS does not zoom on focus.",
+        "section": "typography"
+      },
+      {
+        "name": "The Sheets Only Rule",
+        "body": "A shadow means \"this is lying on top of the page and will go away\". Buttons, chips, cards and lines never carry one.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do write meals as ruled lines on a page, with the time in the rose margin and the action at the right edge.",
+      "Do show every outcome as its pen mark plus its word (Finished, Partly, Refused, Skipped) in the outcome colour; colour is never the only signal.",
+      "Do use ballpoint ink (`ink`) for the parent's own entries and the single primary action on a view.",
+      "Do keep every touch target at least 44px tall (48px for call buttons and sheet footers, 64px for outcome choices).",
+      "Do keep text at 12px or larger, and inputs at 16px on phones.",
+      "Do use drawn line icons from the shared icon set (24px grid, 1.75px stroke), always beside a word or with an accessible name.",
+      "Do answer a hard meal in place with the hard-moment card and the care team one tap away.",
+      "Do use the 6px radius for every control and card; 20px only for the top corners of bottom sheets.",
+      "Do keep a visible 2px ink focus ring on every interactive element."
+    ],
+    "donts": [
+      "Don't use emoji or Unicode glyphs as icons, bullets or status markers.",
+      "Don't show scores, streaks, percentages, totals or comparisons on parent screens; parents see facts and their clinician's words.",
+      "Don't use highlighter yellow for anything except clinician exceptions (refused, or distress 4 or 5), and never without its legend.",
+      "Don't set buttons, labels, guidance, clinical wording or numbers in the handwriting face; it is for headings and the parent's own words only.",
+      "Don't put shadows on buttons, chips, cards or lines; shadows belong to sheets, modals and toasts.",
+      "Don't build emoji tiles, KPI card grids, gradient buttons or purple gradients.",
+      "Don't add a second accent colour for emphasis; the outcome colours mean outcomes and nothing else."
+    ]
+  }
+}

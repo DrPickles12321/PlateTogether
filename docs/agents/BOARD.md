@@ -7,7 +7,7 @@ Keep rows short. Remove a row when its branch is merged.
 
 | Agent | Branch | Area / files claimed | Status | Updated |
 |-------|--------|----------------------|--------|---------|
-| claude | claude/design-pass | Whole UI: `src/index.css`, `src/pages/*`, most of `src/components/*`, new `src/lib/{outcomes,supportCopy,signOut}.js`, `PRODUCT.md`, `DESIGN.md`, `.impeccable/` | in progress | 2026-11-26 |
+| claude | claude/design-pass | Whole UI: `src/index.css`, `src/pages/*`, most of `src/components/*`, new `src/lib/{outcomes,supportCopy,signOut}.js`, `PRODUCT.md`, `DESIGN.md`, `.impeccable/` | ready for review | 2026-11-26 |
 
 Status values: `in progress`, `blocked`, `ready for review`.
 

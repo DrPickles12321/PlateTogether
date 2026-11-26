@@ -21,7 +21,6 @@
 
   --highlight: #FFEE8A;
   --highlight-ink: #5C4600;
-  --highlight-edge: #E6CF52;
 
   /* Meal outcomes. Each also has a mark and a word; colour is never the only signal. */
   --st-okay: #23408E;
@@ -98,14 +97,6 @@ a { color: var(--ink); text-underline-offset: 3px; }
 
 /* Handwritten voice: day headings, section titles, the parent's own notes. */
 .font-lora, .font-hand { font-family: var(--font-hand); letter-spacing: -0.01em; }
-
-/* A sheet of ruled notebook paper. */
-.nb-paper {
-  background-color: var(--paper);
-  background-image:
-    linear-gradient(to right, transparent 39px, var(--margin) 39px, var(--margin) 40px, transparent 40px),
-    repeating-linear-gradient(to bottom, transparent 0, transparent 31px, var(--rule) 31px, var(--rule) 32px);
-}
 
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
