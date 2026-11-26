@@ -9,6 +9,7 @@ export default function ClinicianOverview() {
     parentNotesArray: parentNotes,
     allMealItems: parentMealItems,
     mealStatuses: parentMealStatuses,
+    mealDistress: parentMealDistress,
     markPatientParentNoteReadById,
     patients,
     viewingPatientUid,
@@ -31,6 +32,7 @@ export default function ClinicianOverview() {
           onMarkNoteRead={markPatientParentNoteReadById}
           parentMealItems={parentMealItems}
           mealStatuses={parentMealStatuses}
+          mealDistress={parentMealDistress}
         />
       </RevealSection>
     </>

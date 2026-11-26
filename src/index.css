@@ -1,55 +1,80 @@
-@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&family=Outfit:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Shantell+Sans:wght@400;500;600&display=swap");
 @import "tailwindcss";
 
+/* The family's meal notebook. Composition-book paper, blue rules, one rose margin line,
+   graphite text, ballpoint ink for the parent's own entries and the main action, highlighter
+   only for "look at this". */
 :root {
-  /* Primary accent — terracotta */
-  --coral: #B85535;
-  --coral-light: #F7E9E2;
-  --coral-mid: #DBA898;
+  --font-ui: 'Atkinson Hyperlegible Next', ui-sans-serif, system-ui, sans-serif;
+  --font-hand: 'Shantell Sans', 'Atkinson Hyperlegible Next', ui-sans-serif, sans-serif;
 
-  /* Secondary — warm amber */
-  --peach: #B07828;
-  --peach-light: #FAF1DE;
-  --peach-mid: #E0C07C;
+  --paper: #FFFFFF;
+  --desk: #F2F4F7;
+  --rule: #D6E0F0;
+  --rule-strong: #B9C8E2;
+  --margin: #E9B3B3;
 
-  /* Tertiary — dusty rose */
-  --pink: #AE4C6A;
-  --pink-light: #F7DEE8;
-  --pink-mid: #DC9EB8;
+  --ink: #23408E;
+  --ink-hover: #1A3170;
+  --ink-light: #EAEFF9;
+  --ink-mid: #A7B7DD;
 
-  /* Success — forest sage */
-  --mint: #487A67;
-  --mint-light: #DEF0E8;
-  --mint-mid: #8EC0B0;
+  --highlight: #FFEE8A;
+  --highlight-ink: #5C4600;
 
-  /* Text */
-  --text-dark: #271706;
-  --text-mid: #68503A;
-  --text-light: #A88C78;
+  /* Meal outcomes. Each also has a mark and a word; colour is never the only signal. */
+  --st-okay: #23408E;
+  --st-okay-bg: #EAEFF9;
+  --st-some: #7A5200;
+  --st-some-bg: #FBF0D6;
+  --st-refused: #9C2F1C;
+  --st-refused-bg: #F9E3DE;
+  --st-skipped: #545B69;
+  --st-skipped-bg: #EEF0F3;
 
-  /* Borders */
-  --border: #EBE0D3;
-  --border-mid: #D8C8B4;
+  /* Older token names, kept so every screen moves to the new palette at once. */
+  --coral: var(--ink);
+  --coral-light: var(--ink-light);
+  --coral-mid: var(--ink-mid);
+  --peach: #7A5200;
+  --peach-light: #FBF0D6;
+  --peach-mid: #E2C27A;
+  --pink: #9C2F1C;
+  --pink-light: #F9E3DE;
+  --pink-mid: #E3A797;
+  --mint: #2E6A4E;
+  --mint-light: #E2F1E8;
+  --mint-mid: #9CC9B1;
 
-  /* Surfaces */
-  --surface: #FFFFFF;
-  --surface-warm: #FCF8F3;
+  --text-dark: #1D212B;
+  --text-mid: #464D5B;
+  --text-light: #626A79;
 
-  font-family: 'Outfit', system-ui, sans-serif;
+  --border: #E1E6EE;
+  --border-mid: #C9D1DD;
+
+  --surface: var(--paper);
+  --surface-warm: #F7F9FC;
+
+  --radius: 6px;
+
+  font-family: var(--font-ui);
+  font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #F3ECE2;
+  font-variant-numeric: tabular-nums;
+  background: var(--desk);
   color: var(--text-dark);
+  caret-color: var(--ink);
+  accent-color: var(--ink);
 }
 
 body {
   margin: 0;
-  background:
-    radial-gradient(circle at 14% 6%, rgba(184,85,53,0.055) 0%, transparent 38%),
-    radial-gradient(circle at 86% 94%, rgba(72,122,103,0.05) 0%, transparent 40%),
-    #F3ECE2;
-  background-attachment: fixed;
+  background: var(--desk);
 }
+
+::selection { background: var(--highlight); color: var(--text-dark); }
 
 #root {
   width: 100%;
@@ -63,29 +88,35 @@ body {
 }
 
 :focus-visible {
-  outline: 2px solid var(--coral);
+  outline: 2px solid var(--ink);
   outline-offset: 2px;
   border-radius: 4px;
 }
 
-/* Heading font — Cormorant Garamond replaces Lora */
-.font-lora { font-family: 'Cormorant Garamond', Georgia, serif; }
+a { color: var(--ink); text-underline-offset: 3px; }
 
-::-webkit-scrollbar { width: 4px; height: 4px; }
+/* Handwritten voice: day headings, section titles, the parent's own notes. */
+.font-lora, .font-hand { font-family: var(--font-hand); letter-spacing: -0.01em; }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 3px; }
+* { scrollbar-color: var(--border-mid) transparent; }
 
 /* iOS Safari auto-zooms the page on focusing any input under ~16px. */
 @media (max-width: 768px) {
   input, textarea, select { font-size: 16px; }
 }
 
+input, textarea, select, button { font-family: inherit; }
+input::placeholder, textarea::placeholder { color: var(--text-light); opacity: 1; }
+
 h1, h2, h3 { margin: 0; font-weight: 600; color: var(--text-dark); }
 p { margin: 0; }
 
 @keyframes toastIn {
-  from { opacity: 0; transform: translateY(8px) scale(0.97); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes livePulse {
@@ -98,90 +129,86 @@ p { margin: 0; }
   to { transform: rotate(360deg); }
 }
 
-/* Gentle entrance for route content. Opacity-only on purpose: a transform here
-   would create a containing block and break position:fixed children (the
-   bottom sheets would anchor to the page instead of the viewport). */
+/* The one authored moment: a written line settles onto the page like ink drying. */
+@keyframes inkSettle {
+  from { opacity: 0.35; filter: blur(1.5px); }
+  to   { opacity: 1; filter: blur(0); }
+}
+.nb-ink-settle { animation: inkSettle 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* Route change: opacity only on purpose. A transform here would create a containing block
+   and break position:fixed children (the bottom sheets would anchor to the page). */
 @keyframes ptRise {
-  from { opacity: 0; }
+  from { opacity: 0.6; }
   to   { opacity: 1; }
 }
-.pt-rise { animation: ptRise 0.4s ease both; }
+.pt-rise { animation: ptRise 0.18s ease-out both; }
+
 @media (prefers-reduced-motion: reduce) {
-  .pt-rise { animation: none; }
+  .pt-rise, .nb-ink-settle { animation: none; }
+  *, *::before, *::after { transition-duration: 0.01ms !important; }
 }
 
-/* ── Clinician view scroll-reveal ──────────────────────────────────── */
-.clv-reveal {
-  opacity: 0;
-  transform: translateY(28px);
-  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.clv-reveal.clv-visible { opacity: 1; transform: none; }
-.clv-reveal.d1 { transition-delay: 0.08s; }
-.clv-reveal.d2 { transition-delay: 0.16s; }
-.clv-reveal.d3 { transition-delay: 0.24s; }
+/* ── Clinician view ──────────────────────────────────────────────── */
+.clv-reveal { opacity: 1; }
+.clv-reveal.clv-visible { opacity: 1; }
 
-.clv-eyebrow {
-  font-size: 10px;
+.clv-section-title {
+  font-family: var(--font-hand);
+  font-size: 20px;
   font-weight: 600;
-  letter-spacing: 1.8px;
-  text-transform: uppercase;
-  color: var(--text-light);
-  display: block;
-  margin-bottom: 12px;
+  color: var(--text-dark);
+  margin: 0 0 10px;
 }
 
 .clv-pill-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 7px 18px;
-  border-radius: 999px;
-  border: 1.5px solid var(--coral);
+  min-height: 40px;
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  border: 1.5px solid var(--ink);
   background: transparent;
-  color: var(--coral);
-  font-size: 13px;
-  font-weight: 500;
-  font-family: 'Outfit', sans-serif;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
   flex-shrink: 0;
 }
-.clv-pill-btn:hover { background: var(--coral); color: white; }
-.clv-pill-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.clv-pill-btn.filled { background: var(--coral); color: white; }
-.clv-pill-btn.filled:hover { background: #9e4128; border-color: #9e4128; }
+.clv-pill-btn:hover { background: var(--ink-light); }
+.clv-pill-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.clv-pill-btn.filled { background: var(--ink); color: white; }
+.clv-pill-btn.filled:hover { background: var(--ink-hover); border-color: var(--ink-hover); }
 
 .clv-digest-item {
   display: flex;
   gap: 14px;
   padding: 10px 0;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--rule);
 }
 .clv-digest-item:last-child { border-bottom: none; }
 .clv-digest-accent {
-  width: 3px;
-  border-radius: 3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
   flex-shrink: 0;
-  align-self: stretch;
-  min-height: 16px;
+  margin-top: 6px;
 }
 
 .clv-timeline-item {
   display: grid;
-  grid-template-columns: 72px 1fr auto;
+  grid-template-columns: 76px 1fr auto;
   gap: 12px;
   padding: 12px 0;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--rule);
   align-items: start;
 }
 .clv-timeline-item:last-child { border-bottom: none; }
 .clv-timeline-date {
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 600;
-  letter-spacing: 0.5px;
-  color: var(--text-light);
-  text-transform: uppercase;
+  color: var(--text-mid);
   padding-top: 2px;
 }

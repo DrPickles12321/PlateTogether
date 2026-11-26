@@ -5,50 +5,39 @@ export default function SupplementChecklist({ checkedSupplements, onToggleChecke
 
   return (
     <div style={{ position: 'relative', paddingTop: 14 }}>
-      {/* Tape label */}
-      <div style={{
-        position: 'absolute', top: 0, left: '50%',
-        transform: 'translateX(-50%) rotate(-1deg)',
-        background: '#e8dcc8',
-        borderRadius: 4,
-        width: 64, height: 14,
-        zIndex: 1,
-        boxShadow: '0 1px 3px rgba(0,0,0,0.10)',
-      }} />
 
       {/* Notebook card */}
       <div style={{
         background: 'white',
         border: '1px solid var(--border)',
-        borderRadius: 14,
+        borderRadius: 'var(--radius)',
         overflow: 'hidden',
-        boxShadow: '0 2px 8px rgba(39,23,6,0.06)',
       }}>
         {/* Header */}
         <div style={{
           padding: '12px 14px 8px',
           borderBottom: '1px solid var(--border)',
         }}>
-          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--coral)', fontFamily: "'Outfit', sans-serif" }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--coral)', fontFamily: "var(--font-ui)" }}>
             Daily Supplements
           </span>
         </div>
 
         {/* Ruled content with margin line */}
         <div style={{
-          backgroundImage: 'repeating-linear-gradient(transparent, transparent 27px, #e8e0d4 27px, #e8e0d4 28px)',
+          backgroundImage: 'repeating-linear-gradient(transparent, transparent 27px, var(--border) 27px, var(--border) 28px)',
           backgroundSize: '100% 28px',
           backgroundPositionY: '4px',
           padding: '10px 12px 12px 0',
           display: 'flex',
         }}>
           {/* Red margin line */}
-          <div style={{ width: 2, background: '#f4b8b8', flexShrink: 0, marginLeft: 12, marginRight: 10 }} />
+          <div style={{ width: 1, background: 'var(--margin)', flexShrink: 0, marginLeft: 12, marginRight: 10 }} />
 
           {/* Items */}
           <div style={{ flex: 1 }}>
             {items.length === 0 ? (
-              <p style={{ fontSize: 11, color: 'var(--text-light)', fontStyle: 'italic', padding: '4px 0', lineHeight: '28px' }}>
+              <p style={{ fontSize: 13, color: 'var(--text-light)', fontStyle: 'italic', padding: '4px 0', lineHeight: '28px' }}>
                 No supplements prescribed yet.
               </p>
             ) : items.map((rec, i) => {
@@ -71,12 +60,12 @@ export default function SupplementChecklist({ checkedSupplements, onToggleChecke
                     }}
                     aria-label={`Toggle ${rec.nutrient}`}
                   >
-                    {checked && <span style={{ color: 'white', fontSize: 10, lineHeight: 1, fontWeight: 700 }}>✓</span>}
+                    {checked && <span style={{ color: 'white', fontSize: 12, lineHeight: 1, fontWeight: 700 }}><Icon name="tick" size={14} /></span>}
                   </button>
                   <span style={{
                     fontSize: 12, color: checked ? 'var(--text-light)' : 'var(--text-dark)',
                     textDecoration: checked ? 'line-through' : 'none',
-                    fontFamily: "'Outfit', sans-serif",
+                    fontFamily: "var(--font-ui)",
                     transition: 'all 0.15s',
                   }}>{rec.nutrient}</span>
                 </div>
@@ -89,9 +78,9 @@ export default function SupplementChecklist({ checkedSupplements, onToggleChecke
         <div style={{
           padding: '6px 12px 8px',
           borderTop: '1px solid var(--border)',
-          fontSize: 9, color: 'var(--text-light)',
+          fontSize: 12, color: 'var(--text-light)',
           fontStyle: 'italic', lineHeight: 1.4,
-          fontFamily: "'Outfit', sans-serif",
+          fontFamily: "var(--font-ui)",
         }}>
           Not a substitute for medical advice · Resets daily
         </div>

@@ -69,11 +69,11 @@ export default function TrendChart({ trend = [], compact = false }) {
 
       {/* Legend */}
       <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginTop: 8, flexWrap: 'wrap' }}>
-        <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: 'var(--text-mid)' }}>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--text-mid)' }}>
           <span style={{ width: 12, height: 12, borderRadius: 3, background: 'var(--peach-mid)', opacity: 0.55, display: 'inline-block' }} />
           Meals logged
         </span>
-        <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: 'var(--text-mid)' }}>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--text-mid)' }}>
           <span style={{ width: 12, height: 3, borderRadius: 2, background: 'var(--coral)', display: 'inline-block' }} />
           Went okay %
         </span>

@@ -1,4 +1,4 @@
-const ZONE_COLORS = { grain: '#F59E0B', protein: '#EF4444', produce: '#22C55E', fat: '#FACC15', dairy: '#60A5FA' }
+const ZONE_COLORS = { grain: 'var(--st-some)', protein: 'var(--st-refused)', produce: 'var(--mint)', fat: 'var(--st-some)', dairy: 'var(--ink-mid)' }
 const ZONE_LABELS = { grain: 'Grains', protein: 'Protein', produce: 'Produce', fat: 'Fats', dairy: 'Dairy' }
 
 function polarToCartesian(cx, cy, r, angleDeg) {
@@ -44,7 +44,7 @@ export default function PlateVisual({ plateBalance }) {
   return (
     <div className="flex flex-col items-center gap-3">
       <svg width="120" height="120" role="img" aria-label={ariaLabel}>
-        <circle cx={cx} cy={cy} r={r + 5} fill="white" stroke="#e5e7eb" strokeWidth="1" />
+        <circle cx={cx} cy={cy} r={r + 5} fill="white" stroke="var(--border)" strokeWidth="1" />
         {arcs.map(z => (
           <path key={z.key} d={z.path} fill={ZONE_COLORS[z.key]} stroke="white" strokeWidth="2" />
         ))}

@@ -27,8 +27,11 @@ function postDistress(mealDistress, isoDates) {
  * @param {object} args
  * @param {string[]} args.isoDates this week, chronological
  * @param {string[]} [args.previousIsoDates] the week before, for the distress comparison
+ * @param {string} [args.today] YYYY-MM-DD; days after it have not happened yet, so they are
+ *   neither counted as slots nor listed as "nothing logged". Omit to treat the whole week as past.
  */
-export function buildSessionPrep({ mealStatuses = {}, mealDistress = {}, allMealItems = {}, isoDates = [], previousIsoDates = [] }) {
+export function buildSessionPrep({ mealStatuses = {}, mealDistress = {}, allMealItems = {}, isoDates = [], previousIsoDates = [], today = null }) {
+  const pastDates = today ? isoDates.filter(iso => iso <= today) : isoDates
   const counts = { okay: 0, difficult: 0, refused: 0, skipped: 0 }
   const hardEntries = []
   const hardByMeal = Object.fromEntries(MEAL_KEYS.map(k => [k, 0]))
@@ -49,7 +52,7 @@ export function buildSessionPrep({ mealStatuses = {}, mealDistress = {}, allMeal
   }
 
   const logged = counts.okay + counts.difficult + counts.refused + counts.skipped
-  const notLoggedDays = isoDates.filter(iso => loggedByDay[iso] === 0)
+  const notLoggedDays = pastDates.filter(iso => loggedByDay[iso] === 0)
 
   // Hardest meal only when one meal clearly leads; a tie is not a finding.
   const ranked = MEAL_KEYS.filter(k => hardByMeal[k] > 0).sort((a, b) => hardByMeal[b] - hardByMeal[a])
@@ -73,7 +76,7 @@ export function buildSessionPrep({ mealStatuses = {}, mealDistress = {}, allMeal
 
   return {
     logged,
-    totalSlots: isoDates.length * MEAL_KEYS.length,
+    totalSlots: pastDates.length * MEAL_KEYS.length,
     counts,
     notLoggedDays,
     hardestMeal,

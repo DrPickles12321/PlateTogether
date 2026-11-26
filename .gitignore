@@ -28,3 +28,6 @@ agent/.env
 *.sln
 *.sw?
 .superpowers/
+# Impeccable review captures and live-mode scratch (local only)
+.impeccable/review/
+.impeccable/live/

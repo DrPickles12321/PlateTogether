@@ -50,7 +50,7 @@ export default function NoteCard({ note, slotLabel, showMarkRead, onMarkRead, on
         </button>
       )}
       {showMarkRead && note.is_read && (
-        <p className="mt-2 text-xs text-gray-400">✓ Read</p>
+        <p className="mt-2 text-xs text-gray-400"><Icon name="tick" size={15} style={{ display: 'inline-block', verticalAlign: '-3px', marginRight: 4 }} />Read</p>
       )}
     </div>
   )

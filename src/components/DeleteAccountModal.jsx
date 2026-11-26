@@ -31,7 +31,7 @@ export default function DeleteAccountModal({ open, onClose, onConfirm }) {
       onClick={busy ? undefined : onClose}
       style={{
         position: 'fixed', inset: 0, zIndex: 200,
-        background: 'rgba(39,23,6,0.55)',
+        background: 'rgba(29,33,43,0.55)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         padding: 20,
       }}
@@ -45,7 +45,6 @@ export default function DeleteAccountModal({ open, onClose, onConfirm }) {
           padding: '26px 24px', boxShadow: '0 12px 40px rgba(0,0,0,0.25)',
         }}
       >
-        <div style={{ fontSize: 34, marginBottom: 8 }}>⚠️</div>
         <h3 className="font-lora" style={{ margin: '0 0 8px', fontSize: 21, fontWeight: 600, color: 'var(--text-dark)' }}>
           Delete your account?
         </h3>
@@ -54,7 +53,7 @@ export default function DeleteAccountModal({ open, onClose, onConfirm }) {
           statuses, distress ratings, and notes. This <strong>cannot be undone</strong>.
         </p>
         <p style={{ fontSize: 13, color: 'var(--text-light)', margin: '0 0 14px' }}>
-          Type <strong style={{ color: 'var(--coral)', letterSpacing: '0.5px' }}>DELETE</strong> to confirm.
+          Type <strong style={{ color: 'var(--coral)' }}>DELETE</strong> to confirm.
         </p>
         <input
           value={typed}
@@ -65,7 +64,7 @@ export default function DeleteAccountModal({ open, onClose, onConfirm }) {
           aria-label="Type DELETE to confirm"
           style={{
             width: '100%', boxSizing: 'border-box', border: '1.5px solid var(--border-mid)',
-            borderRadius: 10, padding: '10px 12px', fontSize: 15, letterSpacing: '1px',
+            borderRadius: 'var(--radius)', padding: '10px 12px', fontSize: 15,
             outline: 'none', marginBottom: 16, fontFamily: 'inherit',
           }}
         />
@@ -76,7 +75,7 @@ export default function DeleteAccountModal({ open, onClose, onConfirm }) {
             onClick={onClose}
             disabled={busy}
             style={{
-              flex: 1, border: '1.5px solid var(--border-mid)', borderRadius: 12, padding: '11px 0',
+              flex: 1, border: '1.5px solid var(--border-mid)', borderRadius: 'var(--radius)', padding: '11px 0',
               background: '#fff', color: 'var(--text-mid)', fontSize: 14, fontWeight: 600,
               cursor: busy ? 'default' : 'pointer', fontFamily: 'inherit',
             }}
@@ -86,8 +85,8 @@ export default function DeleteAccountModal({ open, onClose, onConfirm }) {
             onClick={handleDelete}
             disabled={!armed || busy}
             style={{
-              flex: 1, border: 'none', borderRadius: 12, padding: '11px 0',
-              background: armed ? '#B85535' : 'var(--border-mid)', color: '#fff',
+              flex: 1, border: 'none', borderRadius: 'var(--radius)', padding: '11px 0',
+              background: armed ? 'var(--ink)' : 'var(--border-mid)', color: '#fff',
               fontSize: 14, fontWeight: 700, cursor: armed && !busy ? 'pointer' : 'default',
               opacity: busy ? 0.7 : 1, fontFamily: 'inherit',
             }}

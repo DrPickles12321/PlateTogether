@@ -1,545 +1,330 @@
 ---
-version: alpha
-name: Airbnb-design-analysis
-description: A warm, generous consumer marketplace anchored on a clean white canvas and Airbnb Rausch (#ff385c), the single brand voltage that carries every primary CTA, search-button orb, and rating dot. Type runs Airbnb Cereal VF at modest weights — display sits at 22–28px in weight 500/600 rather than the heavy 700+ that fintech and enterprise systems use; the brand trusts photography and generous whitespace over typographic muscle. Three product entries (Homes, Experiences, Services) sit in the top nav with hand-illustrated 32-icon glyphs and "NEW" badges, signaling a marketplace expansion rather than a feature dump. Pill-shaped search bars (`{rounded.full}`), softly rounded property cards (`{rounded.lg}` ~14px), and 32px button radii read as friendly and human — there is no hard corner anywhere except the body grid.
-
+name: Plate Together
+description: The family's meal notebook. Ruled pages a parent writes on, read by the clinician as a tabbed family file.
 colors:
-  primary: "#ff385c"
-  primary-active: "#e00b41"
-  primary-disabled: "#ffd1da"
-  primary-error-text: "#c13515"
-  primary-error-text-hover: "#b32505"
-  luxe: "#460479"
-  plus: "#92174d"
-  ink: "#222222"
-  body: "#3f3f3f"
-  muted: "#6a6a6a"
-  muted-soft: "#929292"
-  hairline: "#dddddd"
-  hairline-soft: "#ebebeb"
-  border-strong: "#c1c1c1"
-  canvas: "#ffffff"
-  surface-soft: "#f7f7f7"
-  surface-card: "#ffffff"
-  surface-strong: "#f2f2f2"
-  on-primary: "#ffffff"
-  on-dark: "#ffffff"
-  legal-link: "#428bff"
-  star-rating: "#222222"
-  scrim: "#000000"
-
+  ink: "#23408E"
+  ink-hover: "#1A3170"
+  ink-light: "#EAEFF9"
+  ink-mid: "#A7B7DD"
+  highlight: "#FFEE8A"
+  highlight-ink: "#5C4600"
+  paper: "#FFFFFF"
+  desk: "#F2F4F7"
+  surface-warm: "#F7F9FC"
+  rule: "#D6E0F0"
+  rule-strong: "#B9C8E2"
+  margin: "#E9B3B3"
+  text-dark: "#1D212B"
+  text-mid: "#464D5B"
+  text-light: "#626A79"
+  border: "#E1E6EE"
+  border-mid: "#C9D1DD"
+  st-okay: "#23408E"
+  st-okay-bg: "#EAEFF9"
+  st-some: "#7A5200"
+  st-some-bg: "#FBF0D6"
+  st-refused: "#9C2F1C"
+  st-refused-bg: "#F9E3DE"
+  st-skipped: "#545B69"
+  st-skipped-bg: "#EEF0F3"
 typography:
-  display-xl:
-    fontFamily: "'Airbnb Cereal VF', Circular, -apple-system, system-ui, Roboto, 'Helvetica Neue', sans-serif"
-    fontSize: 28px
-    fontWeight: 700
-    lineHeight: 1.43
-    letterSpacing: 0
-  display-lg:
-    fontFamily: "'Airbnb Cereal VF', Circular, sans-serif"
-    fontSize: 22px
-    fontWeight: 500
-    lineHeight: 1.18
-    letterSpacing: -0.44px
-  display-md:
-    fontFamily: "'Airbnb Cereal VF', Circular, sans-serif"
-    fontSize: 21px
-    fontWeight: 700
-    lineHeight: 1.43
-    letterSpacing: 0
-  display-sm:
-    fontFamily: "'Airbnb Cereal VF', Circular, sans-serif"
-    fontSize: 20px
+  display:
+    fontFamily: "Shantell Sans, Atkinson Hyperlegible Next, ui-sans-serif, sans-serif"
+    fontSize: "32px"
     fontWeight: 600
-    lineHeight: 1.20
-    letterSpacing: -0.18px
-  title-md:
-    fontFamily: "'Airbnb Cereal VF', Circular, sans-serif"
-    fontSize: 16px
-    fontWeight: 600
-    lineHeight: 1.25
-    letterSpacing: 0
-  title-sm:
-    fontFamily: "'Airbnb Cereal VF', Circular, sans-serif"
-    fontSize: 16px
-    fontWeight: 500
-    lineHeight: 1.25
-    letterSpacing: 0
-  rating-display:
-    fontFamily: "'Airbnb Cereal VF', Circular, sans-serif"
-    fontSize: 64px
-    fontWeight: 700
     lineHeight: 1.1
-    letterSpacing: -1px
-  body-md:
-    fontFamily: "'Airbnb Cereal VF', Circular, sans-serif"
-    fontSize: 16px
+    letterSpacing: "-0.01em"
+  headline:
+    fontFamily: "Shantell Sans, Atkinson Hyperlegible Next, ui-sans-serif, sans-serif"
+    fontSize: "20px"
+    fontWeight: 600
+    lineHeight: 1.25
+    letterSpacing: "-0.01em"
+  title:
+    fontFamily: "Shantell Sans, Atkinson Hyperlegible Next, ui-sans-serif, sans-serif"
+    fontSize: "18px"
+    fontWeight: 600
+    lineHeight: 1.25
+    letterSpacing: "-0.01em"
+  body:
+    fontFamily: "Atkinson Hyperlegible Next, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "15px"
     fontWeight: 400
     lineHeight: 1.5
-    letterSpacing: 0
-  body-sm:
-    fontFamily: "'Airbnb Cereal VF', Circular, sans-serif"
-    fontSize: 14px
-    fontWeight: 400
-    lineHeight: 1.43
-    letterSpacing: 0
+    fontFeature: "tnum"
+  label:
+    fontFamily: "Atkinson Hyperlegible Next, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "15px"
+    fontWeight: 700
+    lineHeight: 1.2
   caption:
-    fontFamily: "'Airbnb Cereal VF', Circular, sans-serif"
-    fontSize: 14px
+    fontFamily: "Atkinson Hyperlegible Next, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "13px"
     fontWeight: 500
-    lineHeight: 1.29
-    letterSpacing: 0
-  caption-sm:
-    fontFamily: "'Airbnb Cereal VF', Circular, sans-serif"
-    fontSize: 13px
-    fontWeight: 400
-    lineHeight: 1.23
-    letterSpacing: 0
-  badge:
-    fontFamily: "'Airbnb Cereal VF', Circular, sans-serif"
-    fontSize: 11px
-    fontWeight: 600
-    lineHeight: 1.18
-    letterSpacing: 0
-  micro-label:
-    fontFamily: "'Airbnb Cereal VF', Circular, sans-serif"
-    fontSize: 12px
-    fontWeight: 700
-    lineHeight: 1.33
-    letterSpacing: 0
-  uppercase-tag:
-    fontFamily: "'Airbnb Cereal VF', Circular, sans-serif"
-    fontSize: 8px
-    fontWeight: 700
-    lineHeight: 1.25
-    letterSpacing: 0.32px
-    textTransform: uppercase
-  button-md:
-    fontFamily: "'Airbnb Cereal VF', Circular, sans-serif"
-    fontSize: 16px
-    fontWeight: 500
-    lineHeight: 1.25
-    letterSpacing: 0
-  button-sm:
-    fontFamily: "'Airbnb Cereal VF', Circular, sans-serif"
-    fontSize: 14px
-    fontWeight: 500
-    lineHeight: 1.29
-    letterSpacing: 0
-  link:
-    fontFamily: "'Airbnb Cereal VF', Circular, sans-serif"
-    fontSize: 14px
-    fontWeight: 400
-    lineHeight: 1.43
-    letterSpacing: 0
-  nav-link:
-    fontFamily: "'Airbnb Cereal VF', Circular, sans-serif"
-    fontSize: 16px
-    fontWeight: 600
-    lineHeight: 1.25
-    letterSpacing: 0
-
+    lineHeight: 1.2
 rounded:
-  none: 0px
-  xs: 4px
-  sm: 8px
-  md: 14px
-  lg: 20px
-  xl: 32px
-  full: 9999px
-
+  base: "6px"
+  sheet: "20px"
 spacing:
-  xxs: 2px
-  xs: 4px
-  sm: 8px
-  md: 12px
-  base: 16px
-  lg: 24px
-  xl: 32px
-  xxl: 48px
-  section: 64px
-
+  xs: "4px"
+  sm: "8px"
+  md: "12px"
+  lg: "16px"
+  margin-phone: "56px"
+  margin-desk: "96px"
 components:
-  button-primary:
-    backgroundColor: "{colors.primary}"
-    textColor: "{colors.on-primary}"
-    typography: "{typography.button-md}"
-    rounded: "{rounded.sm}"
-    padding: 14px 24px
-    height: 48px
-  button-primary-active:
-    backgroundColor: "{colors.primary-active}"
-    textColor: "{colors.on-primary}"
-    rounded: "{rounded.sm}"
-  button-primary-disabled:
-    backgroundColor: "{colors.primary-disabled}"
-    textColor: "{colors.on-primary}"
-    rounded: "{rounded.sm}"
-  button-secondary:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    typography: "{typography.button-md}"
-    rounded: "{rounded.sm}"
-    padding: 13px 23px
-    height: 48px
-  button-tertiary-text:
-    backgroundColor: transparent
-    textColor: "{colors.ink}"
-    typography: "{typography.button-md}"
-  button-pill-rausch:
-    backgroundColor: "{colors.primary}"
-    textColor: "{colors.on-primary}"
-    typography: "{typography.button-sm}"
-    rounded: "{rounded.full}"
-    padding: 10px 20px
-  search-orb:
-    backgroundColor: "{colors.primary}"
-    textColor: "{colors.on-primary}"
-    rounded: "{rounded.full}"
-    height: 48px
-  icon-button-circle:
-    backgroundColor: "{colors.surface-strong}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.full}"
-    height: 32px
-  icon-button-outline:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.full}"
-    height: 40px
-  top-nav:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    typography: "{typography.nav-link}"
-    height: 80px
-  product-tab-active:
-    backgroundColor: transparent
-    textColor: "{colors.ink}"
-    typography: "{typography.nav-link}"
-    rounded: "{rounded.none}"
-  product-tab-inactive:
-    backgroundColor: transparent
-    textColor: "{colors.muted}"
-    typography: "{typography.nav-link}"
-  search-bar-pill:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body-sm}"
-    rounded: "{rounded.full}"
-    padding: 14px 24px
-    height: 64px
-  search-field-segment:
-    backgroundColor: transparent
-    textColor: "{colors.ink}"
-    typography: "{typography.caption}"
-    padding: 8px 24px
-  category-strip:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.muted}"
-    typography: "{typography.button-sm}"
-  category-tab-active:
-    backgroundColor: transparent
-    textColor: "{colors.ink}"
-    typography: "{typography.button-sm}"
-    rounded: "{rounded.none}"
-  property-card:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body-sm}"
-    rounded: "{rounded.md}"
-  property-card-photo:
-    rounded: "{rounded.md}"
-  experience-card:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    typography: "{typography.title-md}"
-    rounded: "{rounded.md}"
-  city-link-block:
-    backgroundColor: transparent
-    textColor: "{colors.ink}"
-    typography: "{typography.title-sm}"
-  rating-display-card:
-    backgroundColor: transparent
-    textColor: "{colors.ink}"
-    typography: "{typography.rating-display}"
-  guest-favorite-badge:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    typography: "{typography.badge}"
-    rounded: "{rounded.full}"
-    padding: 4px 10px
-  new-tag:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    typography: "{typography.uppercase-tag}"
-    rounded: "{rounded.full}"
-    padding: 2px 6px
-  amenity-row:
-    backgroundColor: transparent
-    textColor: "{colors.ink}"
-    typography: "{typography.body-md}"
-    padding: 12px 0
-  reviews-card:
-    backgroundColor: transparent
-    textColor: "{colors.ink}"
-    typography: "{typography.body-sm}"
-  host-card:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body-sm}"
-    rounded: "{rounded.md}"
-    padding: 24px
-  reservation-card:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body-md}"
-    rounded: "{rounded.md}"
-    padding: 24px
-  date-picker-day:
-    backgroundColor: transparent
-    textColor: "{colors.ink}"
-    typography: "{typography.body-sm}"
-    rounded: "{rounded.full}"
-  date-picker-day-selected:
+  button-ink:
     backgroundColor: "{colors.ink}"
-    textColor: "{colors.on-dark}"
-    rounded: "{rounded.full}"
-  text-input:
-    backgroundColor: "{colors.canvas}"
+    textColor: "{colors.paper}"
+    typography: "{typography.label}"
+    rounded: "{rounded.base}"
+    padding: "6px 18px"
+    height: "44px"
+  button-ink-hover:
+    backgroundColor: "{colors.ink-hover}"
+  button-outline:
+    backgroundColor: "{colors.paper}"
     textColor: "{colors.ink}"
-    typography: "{typography.body-md}"
-    rounded: "{rounded.sm}"
-    padding: 14px 12px
-    height: 56px
-  footer-light:
-    backgroundColor: "{colors.canvas}"
+    typography: "{typography.label}"
+    rounded: "{rounded.base}"
+    padding: "8px 14px"
+    height: "44px"
+  button-urgent:
+    backgroundColor: "{colors.st-refused}"
+    textColor: "{colors.paper}"
+    typography: "{typography.label}"
+    rounded: "{rounded.base}"
+    padding: "10px 14px"
+    height: "48px"
+  button-call:
+    backgroundColor: "{colors.ink-light}"
     textColor: "{colors.ink}"
-    typography: "{typography.body-sm}"
-    padding: 48px 80px
-  footer-link:
-    backgroundColor: transparent
+    typography: "{typography.label}"
+    rounded: "{rounded.base}"
+    padding: "10px 14px"
+    height: "48px"
+  outcome-finished:
+    backgroundColor: "{colors.st-okay-bg}"
+    textColor: "{colors.st-okay}"
+    rounded: "{rounded.base}"
+    padding: "6px 12px"
+    height: "44px"
+  outcome-partly:
+    backgroundColor: "{colors.st-some-bg}"
+    textColor: "{colors.st-some}"
+    rounded: "{rounded.base}"
+    padding: "6px 12px"
+    height: "44px"
+  outcome-refused:
+    backgroundColor: "{colors.st-refused-bg}"
+    textColor: "{colors.st-refused}"
+    rounded: "{rounded.base}"
+    padding: "6px 12px"
+    height: "44px"
+  outcome-skipped:
+    backgroundColor: "{colors.st-skipped-bg}"
+    textColor: "{colors.st-skipped}"
+    rounded: "{rounded.base}"
+    padding: "6px 12px"
+    height: "44px"
+  meal-line:
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.text-dark}"
+    height: "64px"
+  hard-moment-card:
+    backgroundColor: "{colors.ink-light}"
+    textColor: "{colors.text-dark}"
+    rounded: "{rounded.base}"
+    padding: "12px 14px"
+  bottom-sheet:
+    backgroundColor: "{colors.paper}"
+    rounded: "{rounded.sheet}"
+    padding: "14px 18px"
+  tab-strip-parent:
+    backgroundColor: "{colors.surface-warm}"
+    textColor: "{colors.text-mid}"
+    height: "58px"
+  tab-strip-parent-active:
+    backgroundColor: "{colors.desk}"
     textColor: "{colors.ink}"
-    typography: "{typography.body-sm}"
-  legal-band:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.muted}"
-    typography: "{typography.caption-sm}"
+  grid-cell-flagged:
+    backgroundColor: "{colors.highlight}"
+    textColor: "{colors.text-dark}"
+    padding: "8px"
 ---
+
+# Design System: Plate Together
 
 ## Overview
 
-Airbnb is the canonical example of a generous, photography-led consumer marketplace. The base canvas is **pure white** (`{colors.canvas}` — #ffffff) with deep near-black ink (`{colors.ink}` — #222222) for headlines and body, and a single voltage of **Rausch** (`{colors.primary}` — #ff385c) carrying every primary CTA, the search-button orb, the heart save state, and inline brand links. There is no secondary brand color in mainline marketing — the **Luxe purple** (`{colors.luxe}` — #460479) and **Plus magenta** (`{colors.plus}` — #92174d) tokens are sub-brand accents that only appear inside Airbnb Luxe / Plus contexts.
+**Creative North Star: "The Kitchen-Table Notebook"**
 
-Type runs **Airbnb Cereal VF** (a custom variable font Airbnb licenses), with **Circular** as the historic in-house fallback and a system stack underneath. Cereal sits at modest weights — display headlines render at 22–28px in weight 500–600, not the heavy 700+ weights that financial or enterprise systems lean on. The hero h1 ("Inspiration for future getaways") on the homepage is just 28px / 700, which would feel small on a typical SaaS page; here it works because the layout leans on photography (city collage, property cards) for visual weight rather than typographic muscle.
+Plate Together is the family's meal notebook. Each day is a ruled page the parent writes on: cool white paper, pale blue rules, one soft rose margin line, graphite text. Meals are lines on that page, not cards in a grid. The parent's own entries and the one main action are written in ballpoint-blue ink. Highlighter yellow appears only where a clinician should look. The voice is calm and plain because the person holding the phone is often stressed, one-handed, at or just after the table, and a teen in recovery may be reading over their shoulder.
 
-The shape language is **soft**. Buttons are 8px radius (`{rounded.sm}`), property cards are ~14px (`{rounded.md}`), the search bar is fully pill-shaped (`{rounded.full}`), wishlist hearts and search orbs are circles (`{rounded.full}`), and category strip rounded corners run at 32px (`{rounded.xl}`). There is essentially no hard corner anywhere except the body grid itself — every interactive element is rounded.
+The clinician side keeps the same paper and ink but reads as a case folder: a tabbed family file whose week grid is a ruled ledger, with the exceptions (a refusal, or distress at 4 or 5) highlighted so they are seen first. Density rises on the clinician's laptop; the vocabulary, marks and colours do not change.
+
+The system refuses the wellness-tracker default: no emoji tiles, no KPI grids, no gradient buttons, no scores or streaks, no default Inter-on-white. Depth is paper on a desk, not floating cards.
 
 **Key Characteristics:**
-- Single accent color: `{colors.primary}` (#ff385c — "Rausch") carries every primary CTA, the search orb, the heart save state, and the brand wordmark. Used scarcely — most pages are 90% white + ink with one or two Rausch moments.
-- Custom variable type: `Airbnb Cereal VF`. Display weights sit at 500–700, body at 400. Modest weight is intentional — the system trusts photography for visual heft.
-- Three-product top nav: Homes, Experiences, Services — each with a hand-illustrated 32px icon and "NEW" badges (`{component.new-tag}`) on the two newer products. Active tab uses an underline rule (`{component.product-tab-active}`).
-- Pill-shaped global search bar: white surface, fully rounded (`{rounded.full}`), divided by 1px hairlines into Where / When / Who segments, terminated by a circular Rausch search orb (`{component.search-orb}`).
-- Property cards are photo-first: aspect-ratio rectangles with `{rounded.md}` corner clipping, swipeable image carousel, "Guest favorite" floating badge top-left, heart icon top-right, then 4–5 lines of meta beneath.
-- Editorial dropdowns (footer, language picker) are clean text columns over the white canvas — no card surface, no shadow.
-- The design system caps elevation at one shadow tier (`box-shadow: rgba(0,0,0,0.02) 0 0 0 1px, rgba(0,0,0,0.04) 0 2px 6px, rgba(0,0,0,0.1) 0 4px 8px`) — used on hover-floated cards and search/account dropdowns.
-- 8px base spacing system, with major sections at `{spacing.section}` (64px) — generous but not airy enough to feel editorial-magazine; the marketplace density wants more cards per scroll.
+- Ruled meal lines with the time written in a rose-ruled margin.
+- One ink colour for the parent's words and the primary action.
+- Outcomes are pen marks (tick, half circle, cross, dash) always paired with a word.
+- A handwriting face for headings and the parent's own words; a legibility-first face for everything else.
+- Square-ish 6px corners, hairline rules, shadows only on sheets that slide over the page.
+- Highlighter reserved for clinician exceptions.
 
 ## Colors
 
-### Brand & Accent
-- **Rausch** (`{colors.primary}` — #ff385c): The single brand color. Used for primary CTA backgrounds (Reserve, Continue), the search orb, the heart save state on property cards, and inline brand links. The most recognizable color in consumer travel.
-- **Rausch Active** (`{colors.primary-active}` — #e00b41): The press / pointer-down variant — slightly more saturated. Used on `{component.button-primary-active}`.
-- **Rausch Disabled** (`{colors.primary-disabled}` — #ffd1da): A pale tint used on disabled CTAs.
-- **Luxe Purple** (`{colors.luxe}` — #460479): Sub-brand accent for Airbnb Luxe. Only appears inside Luxe-branded surfaces — never in mainline marketing.
-- **Plus Magenta** (`{colors.plus}` — #92174d): Sub-brand accent for Airbnb Plus. Same scoping as Luxe — sub-product only.
+A cool notebook palette: white paper on a blue-grey desk, one ballpoint blue, one highlighter yellow, and four muted outcome colours that each travel with a mark and a word.
 
-### Surface
-- **Canvas** (`{colors.canvas}` — #ffffff): The default page floor for every public page. Airbnb does not have a dark mode on the public web.
-- **Surface Soft** (`{colors.surface-soft}` — #f7f7f7): The lightest fill — used on disabled fields, sub-nav hover backgrounds, and the inline search filter band.
-- **Surface Strong** (`{colors.surface-strong}` — #f2f2f2): Slightly heavier fill — circular icon-button surface (e.g., the breadcrumb back-arrow and listing toolbar buttons).
+### Primary
+- **Ballpoint Ink** (`ink`): the parent's written entries (food summaries on a meal line), the primary "Log" button, outline buttons ("Need help"), active tab text, links, focus rings, caret and native accent colour. Darkens to **Pressed Ink** (`ink-hover`) on hover of filled buttons.
+- **Ink Wash** (`ink-light`) and **Faded Ink** (`ink-mid`): the background and edge of the hard-moment card and the non-urgent call button; `ink-light` is also the hover fill on outline buttons and the active clinician mobile tab.
 
-### Hairlines & Borders
-- **Hairline** (`{colors.hairline}` — #dddddd): The default 1px border tone — search bar dividers, table separators, footer column splitters, card 1px borders.
-- **Hairline Soft** (`{colors.hairline-soft}` — #ebebeb): A lighter divider used on long-scrolling editorial body separators.
-- **Border Strong** (`{colors.border-strong}` — #c1c1c1): A heavier stroke used on disabled outline buttons and form input outlines after focus.
+### Secondary
+- **Highlighter** (`highlight`) with **Highlighter Ink** (`highlight-ink`) for text set on it: fills a clinician week-grid cell when a meal was refused or distress was 4 or 5, and the matching legend swatch. Also the text-selection colour.
 
-### Text
-- **Ink** (`{colors.ink}` — #222222): The dominant text color on light surfaces. Display headlines, body paragraphs, primary nav links, and most inline link text. Never pure black.
-- **Body** (`{colors.body}` — #3f3f3f): A secondary running-text color used inside long-form review and amenity copy where ink would feel too heavy.
-- **Muted** (`{colors.muted}` — #6a6a6a): Sub-titles inside city link blocks ("Cottage rentals", "Villa rentals"), inactive product-tab labels, footer category sub-labels, "View all" links.
-- **Muted Soft** (`{colors.muted-soft}` — #929292): Disabled link text. Used very sparingly.
-- **Star Rating** (`{colors.star-rating}` — #222222): The same ink token — Airbnb's star icon and "4.81" rating numbers all render in ink rather than a yellow/gold color, which is a deliberate brand choice (yellow stars feel cheap in travel context).
-- **On Primary** (`{colors.on-primary}` — #ffffff): White text on Rausch CTAs.
+### Tertiary
+Outcome colours. Each is a text/mark colour on its own pale tint.
+- **Finished** (`st-okay` on `st-okay-bg`): identical to ink; a finished meal reads as the parent's normal handwriting.
+- **Partly** (`st-some` on `st-some-bg`): an umber, also used for portion fractions ("1/2") beside a food.
+- **Refused** (`st-refused` on `st-refused-bg`): a brick red, also the solid fill of the "Call 911" button.
+- **Skipped** (`st-skipped` on `st-skipped-bg`): a graphite grey.
 
-### Semantic
-- **Error** (`{colors.primary-error-text}` — #c13515): Inline error text for form validation. Distinct from Rausch — slightly darker, more saturated red.
-- **Error Hover** (`{colors.primary-error-text-hover}` — #b32505): Darkens on link hover.
-- **Legal Link Blue** (`{colors.legal-link}` — #428bff): Inline links inside legal copy (Privacy, Terms). Only used inside the legal sub-band.
+### Neutral
+- **Desk** (`desk`): the page background behind everything, and the open parent tab (cut from the page).
+- **Paper** (`paper`): the meal-line section, sheets, cards, the clinician grid.
+- **Pale Paper** (`surface-warm`): the parent tab strip, grid header row, sheet close button.
+- **Blue Rule** (`rule`) and **Strong Rule** (`rule-strong`): hairlines between meal lines and grid rows; the stronger rule edges sections, tabs and the grid frame.
+- **Rose Margin** (`margin`): the single vertical margin line on the Today page (at 56px on phone, 96px on desktop).
+- **Graphite** (`text-dark`, `text-mid`, `text-light`): body text, secondary text and meta text. `text-mid` carries "Not written yet", times in the margin and inactive tabs.
+- **Hairline** (`border`, `border-mid`): component outlines (unselected choice buttons, nav step buttons, sheet dividers, scrollbar thumb).
 
-### Scrim
-- **Scrim** (`{colors.scrim}` — #000000 at 50% opacity): The global modal backdrop tone — date picker, login dialog, language picker. Stored as the base hex; opacity is applied at render time.
+### Named Rules
+**The One Ink Rule.** Ballpoint blue means "the parent wrote this" or "do this next". It is not decoration and not a second accent.
+
+**The Highlighter Rule.** Yellow highlighter marks clinician exceptions only: refused, or distress 4 or 5. It never appears on a parent screen as emphasis, and a legend always states what it means.
+
+**The Mark And Word Rule.** Colour is never the only signal for an outcome. Every outcome shows its pen mark and its word (Finished, Partly, Refused, Skipped), in every size, on every screen.
 
 ## Typography
 
-### Font Family
-The system runs **Airbnb Cereal VF** for everything — display, body, navigation, captions, microcopy. Fallbacks walk `Circular, -apple-system, system-ui, Roboto, "Helvetica Neue", sans-serif`. **Circular** is the historic in-house typeface still kept as the first non-variable fallback; system stacks back it up.
+**Display Font:** Shantell Sans (with Atkinson Hyperlegible Next, ui-sans-serif)
+**Body Font:** Atkinson Hyperlegible Next (with ui-sans-serif, system-ui)
 
-There is no separate display family. The variable font carries the entire scale.
+**Character:** A friendly marker hand for what a person would write on the page, set against a face designed for low-vision legibility for everything the app says. Body numerals are tabular throughout.
 
 ### Hierarchy
+- **Display** (Shantell Sans 600, 32px on phone / 34px on desktop, 1.1): the day heading ("Today", "Thursday").
+- **Headline** (Shantell Sans 600, 19-20px, 1.25): meal names on a line, clinician section titles, the app wordmark (20px phone, 22px desktop, in ink).
+- **Title** (Shantell Sans 500-600, 17-18px): bottom-sheet titles and the hard-moment card's opening line (in ink).
+- **Body** (Atkinson 400, 15px, 1.5): sentences, guidance lists, card copy. Food summaries on a meal line are 14px.
+- **Label** (Atkinson 700, 14-15px): every button and outcome chip; 16px bold for in-sheet questions.
+- **Caption** (Atkinson 500, 12-13px): margin times, tab labels (13px parent, 12px clinician mobile), grid cell text, legends. 12px is the floor.
 
-| Token | Size | Weight | Line Height | Letter Spacing | Use |
-|---|---|---|---|---|---|
-| `{typography.rating-display}` | 64px | 700 | 1.1 | -1px | Listing detail rating display ("4.81") |
-| `{typography.display-xl}` | 28px | 700 | 1.43 | 0 | Homepage h1 ("Inspiration for future getaways") |
-| `{typography.display-lg}` | 22px | 500 | 1.18 | -0.44px | Listing detail h1 ("Close to Fethiye Aliyah Bali Beach…") |
-| `{typography.display-md}` | 21px | 700 | 1.43 | 0 | Section heads inside listing detail ("What this place offers") |
-| `{typography.display-sm}` | 20px | 600 | 1.20 | -0.18px | Sub-section titles ("Things to know") |
-| `{typography.title-md}` | 16px | 600 | 1.25 | 0 | City link block titles ("Wilmington", "Athens") |
-| `{typography.title-sm}` | 16px | 500 | 1.25 | 0 | Footer column heads ("Support", "Hosting", "Airbnb") |
-| `{typography.body-md}` | 16px | 400 | 1.5 | 0 | Default running-text inside listing copy |
-| `{typography.body-sm}` | 14px | 400 | 1.43 | 0 | Card meta lines, dates, prices, distance text |
-| `{typography.caption}` | 14px | 500 | 1.29 | 0 | Search field segment labels ("Where", "When", "Who") |
-| `{typography.caption-sm}` | 13px | 400 | 1.23 | 0 | Footer legal line ("© 2026 Airbnb, Inc.") |
-| `{typography.badge}` | 11px | 600 | 1.18 | 0 | "Guest favorite" floating badge text |
-| `{typography.micro-label}` | 12px | 700 | 1.33 | 0 | Card amenity micro-labels ("Inline 6") |
-| `{typography.uppercase-tag}` | 8px | 700 | 1.25 | 0.32px (uppercase) | "NEW" badge on product nav tabs |
-| `{typography.button-md}` | 16px | 500 | 1.25 | 0 | Primary CTA button labels |
-| `{typography.button-sm}` | 14px | 500 | 1.29 | 0 | Pill button labels (category strip) |
-| `{typography.link}` | 14px | 400 | 1.43 | 0 | Inline body links |
-| `{typography.nav-link}` | 16px | 600 | 1.25 | 0 | Top product-nav labels (Homes, Experiences, Services) |
+### Named Rules
+**The Own Words Rule.** The handwriting face is for headings and the parent's own words only. Buttons, labels, guidance, clinical wording and numbers stay in Atkinson Hyperlegible Next.
 
-### Principles
-Display weights stay modest. The homepage h1 at 28px / 700 is deliberately small — it tucks under the search bar so photography and the city-link grid carry visual hierarchy. The listing-detail h1 at 22px / 500 is even quieter; the listing photo banner does the work above it.
-
-The single typographically loud moment in the entire system is the **rating display** (`{typography.rating-display}` — 64px / 700) on listing pages. That is the only place the system trusts type alone to carry hierarchy — rating numbers are a peak trust signal, so they get the loudest treatment.
-
-### Note on Font Substitutes
-If Airbnb Cereal VF and Circular are unavailable, **Inter** is the closest open-source substitute. Adjust display headlines down by ~2% in line-height to match Cereal's slightly tighter cap height; otherwise the proportions transfer cleanly.
+**The 12px Floor Rule.** No text below 12px. Inputs are 16px on viewports up to 768px so iOS does not zoom on focus.
 
 ## Layout
 
-### Spacing System
-- **Base unit:** 4px (with 2px micro-step).
-- **Tokens:** `{spacing.xxs}` 2px · `{spacing.xs}` 4px · `{spacing.sm}` 8px · `{spacing.md}` 12px · `{spacing.base}` 16px · `{spacing.lg}` 24px · `{spacing.xl}` 32px · `{spacing.xxl}` 48px · `{spacing.section}` 64px.
-- **Section padding (vertical):** `{spacing.section}` (64px) for major page bands; tighter than typical SaaS marketing (80–96px) because marketplace pages need higher card density per scroll.
-- **Card internal padding:** `{spacing.lg}` (24px) for `{component.host-card}` and `{component.reservation-card}`; `{spacing.base}` (16px) for property-card meta block; `{spacing.sm}` (8px) for caption / date-row gutters.
-- **Gutters:** `{spacing.base}` (16px) between cards in the homepage city grid; `{spacing.lg}` (24px) inside footer column gutters; `{spacing.xs}` (4px) on dense category-strip dividers.
+Phone first. The parent's Today page is a single column capped at 560px: the handwritten day heading top-left with the "Need help" outline button top-right, day-step buttons below, then the meal section. Each meal line is a three-column grid: the time in a 56px margin, the meal name and what was served, then the outcome chip or the "Skip" / "Log" buttons at the right edge in thumb reach. Lines are at least 64px tall and separated by a 1px blue rule; a rose line runs down the margin. On desktop the margin widens to 96px to hold the time picker.
 
-### Grid & Container
-- **Max content width:** ~1280px centered on the homepage and editorial pages. Listing detail pages cap closer to 1080px to keep the photo banner and reservation rail readable.
-- **City link grid (homepage footer):** 6-column grid at desktop with each cell housing a city name in `{typography.title-md}` and a category sub-label in `{typography.body-sm}` muted.
-- **Listing detail:** 2-column with photo / amenity body on the left (~64% width) and a sticky reservation card (`{component.reservation-card}`) on the right (~32%).
-- **Footer:** 3-column link list (Support / Hosting / Airbnb) at desktop, collapsing to 1-column on mobile.
+Bottom navigation is fixed and pads for the safe-area inset; page content reserves 88px beneath it. The breakpoint between phone and desktop layout is 768px. The desktop header is 60px (52px on phone) inside a 1200px container with 24px (16px) gutters. The clinician week grid is a ruled table with a 760px minimum width that scrolls horizontally inside its frame.
 
-### Whitespace Philosophy
-The system gives editorial bands 64px of vertical breathing room but compresses card grids — property and city-link cards sit just 16px apart. The contrast is intentional: the page reads as "open hero, dense marketplace below," reinforcing the marketplace nature without overwhelming the visitor at the fold.
+Spacing is small and even: 4, 6, 8, 12, 14, 16px gaps, with 18px horizontal padding inside sheets.
 
-## Elevation
+## Elevation & Depth
 
-The system has essentially **one shadow tier** plus the flat baseline.
+Flat paper on a desk. Pages, lines, cards and the grid carry no shadow; depth comes from the desk-to-paper tone step and from 1px rules. Shadows exist only on surfaces that slide over the page.
 
-- **Flat (no shadow):** Body, hero, footer, all editorial bands — 95% of surfaces.
-- **Card hover float:** `box-shadow: rgba(0, 0, 0, 0.02) 0 0 0 1px, rgba(0, 0, 0, 0.04) 0 2px 6px 0, rgba(0, 0, 0, 0.1) 0 4px 8px 0` — applied to property cards on pointer hover, the search bar at rest, and the dropdown menus (account menu, language picker, date picker). This is the single shadow definition in the entire system.
-- **Modal scrim:** `{colors.scrim}` rendered at 50% opacity — the global modal backdrop. Used on date pickers, login dialogs, language picker.
+### Shadow Vocabulary
+- **Sheet lift** (`box-shadow: 0 -8px 30px rgba(29,33,43,0.18)`): the bottom sheet, over a `rgba(29,33,43,0.35)` backdrop.
+- **Modal lift** (`box-shadow: 0 24px 64px rgba(29,33,43,0.22)`): centred dialogs.
+- **Toast lift** (`box-shadow: 0 6px 24px rgba(29,33,43,0.12)`): transient confirmations.
 
-There are no progressive elevation tiers — the system either has the one shadow or none. Depth comes from photography, the white-on-white surface separation, and rounded-corner clipping rather than from layered shadows.
+### Named Rules
+**The Sheets Only Rule.** A shadow means "this is lying on top of the page and will go away". Buttons, chips, cards and lines never carry one.
+
+## Shapes
+
+Square-ish. One radius (6px, `--radius`) covers buttons, chips, cards, inputs, call buttons and the corners of notebook tabs. Bottom sheets round only their top corners (20px). Borders are 1px for rules and frames, 1.5px for outline buttons and inputs, 2px for selected choice buttons. Parent tabs are index tabs: rounded only on the bottom corners, the open tab borderless at the top so it joins the page. Clinician desktop tabs are folder tabs: rounded only on top, the open tab's bottom edge erased into the page.
+
+Icons are drawn line icons on a 24px grid, 1.75px stroke (2.1px when active), round caps and joins, shown at 18-22px. Outcome marks are heavier pen strokes (2.5px; the half circle is a 2px ring with a filled half).
 
 ## Components
 
 ### Buttons
+Plain, written-on-paper controls with weight in the label rather than the surface.
+- **Shape:** gently squared (6px), minimum height 44px; call buttons 48px.
+- **Ink (primary):** solid ink, white bold 15px label, used for "Log" and "Message your care team". Hover goes to pressed ink.
+- **Outline:** white with a 1.5px ink (or faded-ink) border and ink label, an 18px drawn icon leading. "Need help" is this button.
+- **Text:** no border or fill; ink and underlined (offset 3px) for navigation like "Back to today", or `text-mid` for "Skip" and "Close".
+- **Urgent call:** solid brick red with white label and a phone icon ("Call 911"). The non-urgent call ("Call or text 988") is ink wash with a faded-ink edge.
+- **Clinician pill:** the shared clinician button class, 1.5px ink outline, 14px/600, ink-wash hover; the filled variant is solid ink. Its 40px minimum height is drift (see below), not the standard.
+- **Focus:** every control gets a 2px ink outline at 2px offset.
 
-**`button-primary`** — Rausch fill, white text, 8px radius, 14×24px padding, 48px height, weight 500. The most common CTA across the system: "Reserve", "Continue", "Search", account-flow primaries.
+### Outcome chip and choice
+The signature vocabulary. Stored values `okay / difficult / refused / skipped` display as **Finished / Partly / Refused / Skipped** with **tick / half circle / cross / dash**.
+- **On a meal line:** a 44px chip in the outcome's tint with a 1.5px border in the outcome colour, 16px mark plus bold 14px word. Tapping it reopens the log sheet.
+- **In the log sheet:** four equal 64px buttons, mark (20px) over word (16px bold) in the outcome colour on white; selected gets the tinted fill and a 2px outcome-colour border, with `aria-pressed`.
+- **In the clinician grid:** 14px mark plus bold word at the top of the cell.
 
-**`button-primary-active`** — The press state. Background flips to `{colors.primary-active}`. No transform, no shadow change.
+### Distress scale
+Five equal 52px buttons labelled 1 to 5, bold 17px, with "Calm" and "Very hard" captions at the ends. Selected is solid ink with white text. Optional, saves on tap.
 
-**`button-primary-disabled`** — Pale Rausch tint at #ffd1da with white text. Cursor not-allowed.
+### Meal line
+The core unit of the parent's page (see Layout). Empty lines say "Not written yet" in `text-mid`; written lines show what was served in ink. A dashed-border "Same as yesterday" repeat sits under an empty line when yesterday has entries.
 
-**`button-secondary`** — White fill with ink text and a 1px ink outline. 8px radius. Used for "Save", "Cancel", and inverse CTAs over Rausch surfaces.
+### Hard-moment card
+Appears in place under a meal that was refused or rated 4-5, settling in with the ink-settle motion. Ink-wash fill, 1px faded-ink border, 6px corners, 12px/14px padding. A handwritten 18px ink line, one 15px body sentence, then: ink "Message your care team", outline "When to get help", text "Close"; below, an emergency sentence and the two call buttons in an auto-fit grid (min 140px columns). It never judges the meal.
 
-**`button-tertiary-text`** — Plain ink text, no surface, no border. Underlined on hover. Used for "Show more" type links and modal close labels.
+### Bottom sheet
+The phone's only overlay. White, 20px top corners, a 36 by 4px grab handle, handwritten 17px title with a 32px round close button, 1px dividers above and below the scroll body, a full-width 48px "Done" in the footer. Capped at 85dvh; slides up on a spring (stiffness 380, damping 32); backdrop fades in 0.18s. Escape closes it. The help sheet holds the static warning-signs guidance: "Call 911 now if you see" and "Call your care team today if you see" lists with the call buttons.
 
-**`button-pill-rausch`** — A pill-shaped Rausch CTA used on featured cells (e.g., "Become a host" sub-CTA) — 9999px radius, 10×20px padding, 14px label.
+### Navigation
+- **Parent tab strip (phone):** five index tabs fixed to the bottom (Today, Week, Insights, Notes, Account), 58px tall, word first (13px; 700 when active) with an 18px drawn icon under it. Inactive tabs are white with strong-rule edges on pale paper; the open tab takes the desk colour and drops its top rule so it is cut from the page. No emoji.
+- **Clinician file tabs:** on desktop, folder tabs above the page (Overview, Insights, Care plan, Notes), 44px, 15px label with a leading icon, the active tab white with its bottom edge joined to the page. On phone, a white bottom bar with a 3px ink top bar and ink-wash fill on the active tab, 22px icon over a 12px word.
+- **Header:** handwritten wordmark in ink, family code on desktop.
 
-### Search Surface
+### Clinician week grid
+A ruled ledger: strong-rule frame, pale-paper sticky header row, white cells of at least 84px with 8px padding and 13px text. A flagged cell (refused, or distress 4 or 5) fills with highlighter and its distress line turns bold highlighter-ink. A legend swatch says "Highlighted: refused, or distress 4 or 5". 44px previous/next buttons step weeks.
 
-**`search-bar-pill`** — The signature global search bar. White fill, 9999px radius, 64px height, 1px hairline 1px-shadow border. Internally divided by vertical hairline rules into `{component.search-field-segment}` cells (Where / When / Who). Each segment holds an uppercase caption label above a placeholder line in `{typography.caption}`.
+### Motion
+- **Ink settle:** a newly written line or card fades from 0.35 opacity and a 1.5px blur to sharp over 0.45s on `cubic-bezier(0.16, 1, 0.3, 1)`. The one authored moment.
+- **Page change:** opacity 0.6 to 1 over 0.18s, opacity only (a transform would break fixed sheets).
+- Both are removed under `prefers-reduced-motion`, and all transitions collapse to 0.01ms.
 
-**`search-orb`** — The circular Rausch orb terminating the right edge of the search bar. 48×48px, fully rounded, white magnifying-glass icon centered. The hottest single color moment on the homepage.
+## Do's and Don'ts
 
-### Top Navigation
+### Do:
+- **Do** write meals as ruled lines on a page, with the time in the rose margin and the action at the right edge.
+- **Do** show every outcome as its pen mark plus its word (Finished, Partly, Refused, Skipped) in the outcome colour; colour is never the only signal.
+- **Do** use ballpoint ink (`ink`) for the parent's own entries and the single primary action on a view.
+- **Do** keep every touch target at least 44px tall (48px for call buttons and sheet footers, 64px for outcome choices).
+- **Do** keep text at 12px or larger, and inputs at 16px on phones.
+- **Do** use drawn line icons from the shared icon set (24px grid, 1.75px stroke), always beside a word or with an accessible name.
+- **Do** answer a hard meal in place with the hard-moment card and the care team one tap away.
+- **Do** use the 6px radius for every control and card; 20px only for the top corners of bottom sheets.
+- **Do** keep a visible 2px ink focus ring on every interactive element.
 
-**`top-nav`** — White surface, 80px height, 1px bottom hairline. The Airbnb wordmark sits flush left, the three product tabs (Homes / Experiences / Services) sit in the dead center, and account utilities (host link, language globe, account menu) sit flush right.
+### Don't:
+- **Don't** use emoji or Unicode glyphs as icons, bullets or status markers.
+- **Don't** show scores, streaks, percentages, totals or comparisons on parent screens; parents see facts and their clinician's words.
+- **Don't** use highlighter yellow for anything except clinician exceptions (refused, or distress 4 or 5), and never without its legend.
+- **Don't** set buttons, labels, guidance, clinical wording or numbers in the handwriting face; it is for headings and the parent's own words only.
+- **Don't** put shadows on buttons, chips, cards or lines; shadows belong to sheets, modals and toasts.
+- **Don't** build emoji tiles, KPI card grids, gradient buttons or purple gradients.
+- **Don't** add a second accent colour for emphasis; the outcome colours mean outcomes and nothing else.
 
-**`product-tab-active`** — Ink label in `{typography.nav-link}`, 32px hand-illustrated icon, 2px ink underline rule beneath the icon-label pair.
+## Known Drift
 
-**`product-tab-inactive`** — Muted label, illustrated icon, no underline. Becomes active on click.
+Not part of the system. The build still carries legacy code that was re-tokenized rather than rebuilt. It is listed so it is not copied.
 
-**`new-tag`** — A tiny rounded-pill badge (`{rounded.full}`) anchored top-right of an icon, carrying the uppercase "NEW" label in `{typography.uppercase-tag}` (8px / 700 with 0.32px tracking, uppercase). Used on Experiences and Services to signal recency.
-
-### Listing Cards
-
-**`property-card`** — A photo-first card. 1:1 aspect-ratio image with `{rounded.md}` corner clipping, image carousel dots overlay, "Guest favorite" floating badge top-left (`{component.guest-favorite-badge}`), and a heart icon top-right (`{component.icon-button-circle}` in default outlined state, Rausch-filled when saved). Beneath the image: 4–5 lines of meta — title (`{typography.title-md}`), distance / dates (`{typography.body-sm}` muted), and price ("$X night") right-aligned.
-
-**`property-card-photo`** — The photo plate itself, separated as a token because some surfaces (wishlist, search results) reuse just the photo without the meta block.
-
-**`experience-card`** — A taller-aspect card (4:5) for experience listings. Same `{rounded.md}` clipping, floating "NEW" badge top-left, heart top-right, and a single-line title beneath.
-
-**`guest-favorite-badge`** — White rounded pill (`{rounded.full}`) at 11px / 600 weight. Sits over the photo with the system's only shadow tier applied for elevation.
-
-### Listing Detail
-
-**`rating-display-card`** — The signature listing-detail moment. A 64px / 700 rating number ("4.81") flanked left and right by tiny laurel-wreath SVG ornaments. Beneath the rating: "Guest favorite" tagline and a row of ink stat columns. The largest typographic weight in the whole system.
-
-**`amenity-row`** — A 1-column list of amenity icons + ink labels in `{typography.body-md}`. 12px row padding, no border between rows; section is closed by a 1px hairline divider above and below.
-
-**`reviews-card`** — A 2-column grid of review excerpts. Each column holds an author row (avatar, name, date) above a 3-line excerpt with "Show more" tertiary link.
-
-**`host-card`** — A white card with `{rounded.md}` rounding and 24px padding holding a host avatar, name, "Superhost" badge, response-rate stat, and a "Contact host" `{component.button-secondary}`.
-
-**`reservation-card`** — The sticky right-rail card on listing detail pages. White surface, `{rounded.md}` rounding, 1px hairline border, 1px shadow tier elevation, 24px padding. Contains: nightly price (`{typography.display-md}` ink), date-range selector, guest-count stepper, "Reserve" primary CTA full-width, and a fee breakdown stack beneath in `{typography.body-sm}`.
-
-### Date Picker
-
-**`date-picker-day`** — A 40×40px circular cell carrying the day number in `{typography.body-sm}`. Default state is transparent fill, ink text.
-
-**`date-picker-day-selected`** — Ink fill, white text, full circle (`{rounded.full}`). Range states between two selected days carry a `{colors.surface-soft}` lozenge background that connects them.
-
-### Forms
-
-**`text-input`** — White surface, 1px hairline outline, `{rounded.sm}` 8px radius, 56px height, 14×12px padding. Stacked label above (in `{typography.caption}` muted), placeholder text in `{typography.body-md}` muted. On focus, the border thickens to 2px ink and the border color flips to `{colors.ink}` — no glow, no ring.
-
-### Footer
-
-**`footer-light`** — White surface (matches the page canvas — Airbnb has no contrast footer), 48×80px padding. Three columns of link blocks (Support / Hosting / Airbnb), separated by generous 24px gutters. Each column heads with a `{typography.title-sm}` ink label and stacks `{component.footer-link}` rows in `{typography.body-sm}` ink.
-
-**`legal-band`** — A bottom strip beneath the footer columns carrying the copyright line, language picker (globe icon + "English (US)" link), currency picker, and social icons (Facebook, X, Instagram). All text in muted `{colors.muted}` at `{typography.caption-sm}`.
-
-## Responsive Behavior
-
-| Name | Width | Key Changes |
-|---|---|---|
-| Mobile | < 744px | Top nav collapses to logo + hamburger; product tabs hide behind a sheet; search bar collapses to a single tappable pill; property cards stack 1-up; city grid 1-column; listing detail collapses reservation card to a sticky bottom bar. |
-| Tablet | 744–1128px | Top nav keeps product tabs but search bar narrows; property cards 2-up; city grid 2–3 column; reservation card stays sticky right-rail at narrower width. |
-| Desktop | 1128–1440px | Full top nav with three product tabs centered; search bar at full pill width with all 3 segments visible; property cards 4-up; city grid 6-column; listing detail 2-column with reservation rail. |
-| Wide | > 1440px | Content width caps at 1440px on listing/search pages and ~1280px on editorial; gutters absorb the rest. |
-
-### Touch Targets
-- Primary CTAs at minimum 48×48px (above WCAG AAA).
-- Search orb is 48×48px circular — the most-tapped element on the page.
-- Heart save button is 32×32px circular — borderline for AAA but compensated by a generous 12px padding inside the photo card.
-- Date-picker day cells are 40×40px circular.
-
-### Collapsing Strategy
-- Top product tabs collapse into a hamburger sheet below 744px.
-- Search bar's 3 segments collapse into a single-tap entry that opens a full-screen search overlay on mobile.
-- Property and city-link grids drop column counts cleanly at each breakpoint — never reflow rows; always reduce columns.
-- Reservation card on listing detail switches from sticky right-rail to a sticky bottom bar on mobile, carrying just the "Reserve" CTA + nightly price summary.
-
-## Known Gaps
-
-- **Hover state colors:** intentionally not documented per the global no-hover policy — Airbnb's actual `:hover` styling for property cards is a subtle elevation lift, but precise extraction is unreliable.
-- **Loading states / skeleton screens:** not visible on the extracted surfaces.
-- **Map view styling:** the search-results map uses Mapbox-tinted tiles with custom Rausch markers; not captured here.
-- **Form input error states:** error text color (`{colors.primary-error-text}`) is documented, but the full input outline + helper-text combination on validation failure was not visible in the captured surfaces.
-- **Sub-brand palettes:** Luxe (`{colors.luxe}`) and Plus (`{colors.plus}`) are documented as tokens, but their full sub-system (typography overrides, surface treatment) lives on separate sub-domains and is not captured here.
+- Most components use inline style objects rather than shared classes; only the clinician pill button, section title, digest and timeline rows are classes. Repeated values (the 44px ink and outline buttons) are duplicated per file.
+- Legacy token aliases remain in `src/index.css` (`--coral*` mapped to ink, `--peach*`, `--pink*`, `--mint*`) and are still referenced across older components (Toast, NoteComposer, AddFoodSheet, WeeklyGoals, NutritionFacts). The green `--mint` family has no role in the notebook palette.
+- The desktop FoodSidebar and ClinicianNotesSidebar internals, and the clinician Care plan and Notes pages, are re-coloured but keep their old structure, including hover and focus shadows.
+- The nutrition subcomponents (FlagChip, MicroBreakdown) still use emoji icons and Tailwind purple/red/yellow chips, and WeeklyGoals shows progress bars; none of these are system patterns.
+- Primary-button glows (`0 2px 8px rgba(35,64,142,0.28)`) in AddFoodInput, NutritionalTargets and NutritionFacts, and a glow on the WelcomeModal button, break the Sheets Only Rule.
+- Some controls sit under 44px: the clinician pill (40px), the desktop day-step buttons (40px), the meal-detail chips (36px) and the time select (40px).

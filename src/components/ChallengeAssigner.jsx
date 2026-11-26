@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import Icon from './Icon'
 
 // Clinician-facing: assign challenge foods to the viewed patient. They appear
 // pinned in the parent's add-food flow and count toward the challenge ring.
@@ -27,9 +28,9 @@ export default function ChallengeAssigner({ challenges = [], onAdd, onRemove }) 
           onKeyDown={e => { if (e.key === 'Enter') handleAdd() }}
           placeholder="e.g. Grilled cheese"
           style={{
-            flex: 1, border: '1.5px solid var(--border)', borderRadius: 10,
+            flex: 1, border: '1.5px solid var(--border)', borderRadius: 'var(--radius)',
             padding: '9px 12px', fontSize: 13, outline: 'none',
-            fontFamily: "'Outfit', sans-serif", background: 'var(--surface-warm)',
+            fontFamily: "var(--font-ui)", background: 'var(--surface-warm)',
           }}
         />
         <button
@@ -37,9 +38,9 @@ export default function ChallengeAssigner({ challenges = [], onAdd, onRemove }) 
           disabled={!input.trim()}
           style={{
             background: input.trim() ? 'var(--coral)' : 'var(--border)',
-            color: 'white', border: 'none', borderRadius: 10, padding: '9px 18px',
+            color: 'white', border: 'none', borderRadius: 'var(--radius)', padding: '9px 18px',
             fontSize: 13, fontWeight: 600, cursor: input.trim() ? 'pointer' : 'default',
-            fontFamily: "'Outfit', sans-serif",
+            fontFamily: "var(--font-ui)",
           }}
         >Assign</button>
       </div>
@@ -54,10 +55,10 @@ export default function ChallengeAssigner({ challenges = [], onAdd, onRemove }) 
             <span key={c.id} style={{
               display: 'inline-flex', alignItems: 'center', gap: 7,
               background: 'var(--pink-light)', border: '1px solid var(--pink-mid)',
-              borderRadius: 10, padding: '6px 8px 6px 12px',
+              borderRadius: 'var(--radius)', padding: '6px 8px 6px 12px',
               fontSize: 13, color: 'var(--text-dark)', fontWeight: 500,
             }}>
-              🎯 {c.name}
+              {c.name}
               <button
                 onClick={() => onRemove(c.id)}
                 aria-label={`Remove ${c.name}`}
@@ -65,7 +66,7 @@ export default function ChallengeAssigner({ challenges = [], onAdd, onRemove }) 
                   background: 'none', border: 'none', cursor: 'pointer',
                   color: 'var(--pink)', fontSize: 15, lineHeight: 1, padding: '2px 4px',
                 }}
-              >×</button>
+              ><Icon name="close" size={18} /></button>
             </span>
           ))}
         </div>

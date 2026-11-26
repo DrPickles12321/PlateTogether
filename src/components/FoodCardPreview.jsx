@@ -9,18 +9,17 @@ export default function FoodCardPreview({ name, category, floating = false }) {
   return (
     <div style={{
       background: s.bg,
-      borderRadius: 11, borderLeft: `4px solid ${s.accent}`,
+      borderRadius: 'var(--radius)', border: `1.5px solid ${s.accent}`,
       padding: '9px 15px', fontSize: 13, fontWeight: 500,
       color: 'var(--text-dark)',
       boxShadow: floating
-        ? '0 10px 28px rgba(39,23,6,0.18)'
-        : '0 2px 8px rgba(39,23,6,0.08)',
+        ? '0 10px 28px rgba(29,33,43,0.18)'
+        : '0 2px 8px rgba(29,33,43,0.08)',
       transform: floating ? 'scale(1.03)' : 'none',
       cursor: floating ? 'grabbing' : 'default',
       pointerEvents: 'none',
       display: 'inline-block', whiteSpace: 'nowrap',
-      border: `1.5px solid ${s.accent}30`,
-      fontFamily: "'Outfit', sans-serif",
+      fontFamily: "var(--font-ui)",
     }}>
       {name}
     </div>

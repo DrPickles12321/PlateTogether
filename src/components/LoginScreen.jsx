@@ -10,12 +10,9 @@ import { useIsMobile } from '../hooks/useIsMobile'
 import ModeChooser from './ModeChooser'
 
 const INPUT_STYLE = {
-  width: '100%', padding: '12px 14px', borderRadius: 12,
-  border: '1.5px solid var(--border)',
-  background: 'white', fontSize: 14, color: 'var(--text-dark)',
-  fontFamily: "'Outfit', sans-serif",
-  outline: 'none', boxSizing: 'border-box',
-  transition: 'border-color 0.15s, box-shadow 0.15s',
+  width: '100%', minHeight: 48, padding: '10px 14px', borderRadius: 'var(--radius)',
+  border: '1.5px solid var(--border-mid)', background: 'white', fontSize: 16, color: 'var(--text-dark)',
+  boxSizing: 'border-box',
 }
 
 export default function LoginScreen() {
@@ -34,14 +31,14 @@ export default function LoginScreen() {
 
   async function handleSubmit(e) {
     e.preventDefault()
-    if (!role) { setError('Please select a role first.'); return }
+    if (mode === 'register' && !role) { setError('Choose Parent or Clinician first.'); return }
     if (mode === 'register' && !consented) { setError('Please agree to the terms to create an account.'); return }
     clearLoginError()
     setError('')
     setLoading(true)
     try {
       if (mode === 'signin') {
-        setPendingRole(role)
+        // The stored role decides where an existing account lands, so sign-in does not ask for it.
         await signInWithEmailAndPassword(auth, email, password)
       } else {
         // Remember the chosen role so AuthContext can use it immediately — the
@@ -69,21 +66,15 @@ export default function LoginScreen() {
     }
   }
 
-  function focusRing(e) { e.target.style.borderColor = 'var(--coral)'; e.target.style.boxShadow = '0 0 0 3px rgba(184,85,53,0.12)' }
-  function blurRing(e)  { e.target.style.borderColor = 'var(--border)'; e.target.style.boxShadow = 'none' }
+  const labelStyle = { fontSize: 15, fontWeight: 700, color: 'var(--text-dark)', display: 'block', marginBottom: 6 }
 
   const heading = (
-    <div style={{ marginBottom: 28 }}>
-      <h2 className="font-lora" style={{
-        fontSize: isMobile ? 28 : 32, fontWeight: 500, color: 'var(--text-dark)',
-        letterSpacing: '-0.3px', marginBottom: 8, lineHeight: 1.15,
-      }}>
-        {mode === 'signin' ? 'Welcome back' : 'Create account'}
+    <div style={{ marginBottom: 22 }}>
+      <h2 className="font-hand" style={{ fontSize: 28, fontWeight: 600, color: 'var(--text-dark)', lineHeight: 1.15, marginBottom: 6 }}>
+        {mode === 'signin' ? 'Welcome back' : 'Start a notebook'}
       </h2>
-      <p style={{ fontSize: 14, color: 'var(--text-mid)', lineHeight: 1.6 }}>
-        {mode === 'signin'
-          ? 'Sign in to continue to Plate Together.'
-          : 'Set up your account to get started.'}
+      <p style={{ fontSize: 15, color: 'var(--text-mid)', lineHeight: 1.5 }}>
+        {mode === 'signin' ? 'Sign in to your notebook.' : 'Set up your account to get started.'}
       </p>
     </div>
   )
@@ -92,182 +83,116 @@ export default function LoginScreen() {
     <>
       <ModeChooser />
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-        {/* Role toggle */}
-        <div>
-          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-mid)', letterSpacing: '0.5px', textTransform: 'uppercase', display: 'block', marginBottom: 8 }}>
-            I am a
-          </label>
-          <div style={{ display: 'flex', gap: 10 }}>
-            {['parent', 'clinician'].map(r => (
-              <button
-                key={r}
-                type="button"
-                onClick={() => { setRole(r); clearLoginError(); setError('') }}
-                style={{
-                  flex: 1, padding: '11px 0', borderRadius: 12, border: '1.5px solid',
-                  cursor: 'pointer', fontSize: 14, fontWeight: 600, minHeight: 46,
-                  fontFamily: "'Outfit', sans-serif",
-                  transition: 'all 0.15s',
-                  borderColor: role === r ? (r === 'parent' ? 'var(--coral)' : 'var(--mint)') : 'var(--border)',
-                  background: role === r
-                    ? (r === 'parent'
-                      ? 'linear-gradient(135deg, var(--coral) 0%, var(--pink) 100%)'
-                      : 'linear-gradient(135deg, var(--mint) 0%, #306050 100%)')
-                    : 'white',
-                  color: role === r ? 'white' : 'var(--text-mid)',
-                  boxShadow: role === r
-                    ? (r === 'parent' ? '0 2px 8px rgba(184,85,53,0.28)' : '0 2px 8px rgba(72,122,103,0.28)')
-                    : 'none',
-                }}
-              >
-                {r === 'parent' ? '👨‍👩‍👧 Parent' : '👩‍⚕️ Clinician'}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Email */}
-        <div>
-          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-mid)', letterSpacing: '0.5px', textTransform: 'uppercase', display: 'block', marginBottom: 6 }}>
-            Email
-          </label>
-          <input
-            type="email"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            required
-            placeholder="you@example.com"
-            style={INPUT_STYLE}
-            onFocus={focusRing}
-            onBlur={blurRing}
-          />
-        </div>
-
-        {/* Password */}
-        <div>
-          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-mid)', letterSpacing: '0.5px', textTransform: 'uppercase', display: 'block', marginBottom: 6 }}>
-            Password
-          </label>
-          <input
-            type="password"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            required
-            placeholder="••••••••"
-            style={INPUT_STYLE}
-            onFocus={focusRing}
-            onBlur={blurRing}
-          />
-        </div>
-
-        {/* Consent — required to create an account */}
         {mode === 'register' && (
-          <label style={{ display: 'flex', gap: 10, alignItems: 'flex-start', cursor: 'pointer', background: 'var(--surface-warm)', border: '1px solid var(--border)', borderRadius: 12, padding: '12px 14px' }}>
+          <fieldset style={{ border: 'none', padding: 0, margin: 0 }}>
+            <legend style={labelStyle}>I am a</legend>
+            <div style={{ display: 'flex', gap: 8 }}>
+              {[['parent', 'Parent or carer'], ['clinician', 'Clinician']].map(([r, text]) => (
+                <button
+                  key={r}
+                  type="button"
+                  aria-pressed={role === r}
+                  onClick={() => { setRole(r); clearLoginError(); setError('') }}
+                  style={{
+                    flex: 1, minHeight: 48, borderRadius: 'var(--radius)', cursor: 'pointer', fontSize: 15, fontWeight: 700,
+                    border: `1.5px solid ${role === r ? 'var(--ink)' : 'var(--border-mid)'}`,
+                    background: role === r ? 'var(--ink)' : 'white', color: role === r ? 'white' : 'var(--text-dark)',
+                  }}
+                >{text}</button>
+              ))}
+            </div>
+          </fieldset>
+        )}
+
+        <div>
+          <label htmlFor="login-email" style={labelStyle}>Email</label>
+          <input id="login-email" type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} required style={INPUT_STYLE} />
+        </div>
+
+        <div>
+          <label htmlFor="login-password" style={labelStyle}>Password</label>
+          <input
+            id="login-password" type="password" value={password} onChange={e => setPassword(e.target.value)} required
+            autoComplete={mode === 'signin' ? 'current-password' : 'new-password'} style={INPUT_STYLE}
+          />
+          {mode === 'register' && <p style={{ fontSize: 13, color: 'var(--text-mid)', marginTop: 6 }}>At least 6 characters.</p>}
+        </div>
+
+        {mode === 'register' && (
+          <label style={{ display: 'flex', gap: 10, alignItems: 'flex-start', cursor: 'pointer', borderTop: '1px solid var(--rule)', paddingTop: 14 }}>
             <input
               type="checkbox"
               checked={consented}
               onChange={e => { setConsented(e.target.checked); setError('') }}
-              style={{ marginTop: 2, width: 18, height: 18, flexShrink: 0, accentColor: 'var(--coral)', cursor: 'pointer' }}
+              style={{ marginTop: 3, width: 20, height: 20, flexShrink: 0, cursor: 'pointer' }}
             />
-            <span style={{ fontSize: 12.5, color: 'var(--text-mid)', lineHeight: 1.55 }}>
+            <span style={{ fontSize: 14, color: 'var(--text-mid)', lineHeight: 1.55 }}>
               I agree to Plate Together storing meal and wellbeing information to support recovery.
               {role === 'parent'
                 ? ' If this account is for a child, I confirm I am their parent or guardian and consent on their behalf.'
                 : ' I will only access a family’s data with their consent (via their family code).'}
-              {' '}This app is a support tool, <strong>not a medical device or emergency service</strong> — in a crisis, call 988 or 911.
+              {' '}This app is a support tool, <strong>not a medical device or emergency service</strong>. In a crisis, call 988 or 911.
             </span>
           </label>
         )}
 
-        {/* Error */}
         {displayError && (
-          <div style={{
-            background: '#FEF0EE', border: '1.5px solid #F5C4B4',
-            borderRadius: 10, padding: '12px 14px',
-            fontSize: 13, color: 'var(--coral)', lineHeight: 1.5,
-            fontWeight: 500,
-            boxShadow: '0 2px 8px rgba(184,85,53,0.12)',
-            display: 'flex', alignItems: 'flex-start', gap: 8,
+          <div role="alert" style={{
+            background: 'var(--st-refused-bg)', border: '1px solid var(--pink-mid)', borderRadius: 'var(--radius)',
+            padding: '12px 14px', fontSize: 15, color: 'var(--st-refused)', lineHeight: 1.5, fontWeight: 600,
           }}>
-            <span style={{ flexShrink: 0, fontSize: 15 }}>⚠️</span>
             {displayError}
           </div>
         )}
 
-        {/* Submit */}
         <button
           type="submit"
           disabled={loading || (mode === 'register' && !consented)}
           style={{
-            width: '100%', padding: '14px 0', borderRadius: 13, border: 'none',
-            background: loading || (mode === 'register' && !consented)
-              ? 'rgba(232,115,90,0.5)'
-              : 'linear-gradient(135deg, var(--coral) 0%, var(--pink) 100%)',
-            color: 'white', fontSize: 15, fontWeight: 600, minHeight: 50,
-            fontFamily: "'Outfit', sans-serif",
-            cursor: loading ? 'not-allowed' : 'pointer',
-            boxShadow: loading ? 'none' : '0 4px 14px rgba(184,85,53,0.32)',
-            transition: 'all 0.15s',
-            marginTop: 4,
+            width: '100%', minHeight: 50, borderRadius: 'var(--radius)', border: 'none', marginTop: 4,
+            background: 'var(--ink)', color: 'white', fontSize: 16, fontWeight: 700,
+            cursor: loading || (mode === 'register' && !consented) ? 'not-allowed' : 'pointer',
+            opacity: loading || (mode === 'register' && !consented) ? 0.55 : 1,
           }}
         >
           {loading
             ? (mode === 'signin' ? 'Signing in…' : 'Creating account…')
-            : (mode === 'signin' ? 'Sign In' : 'Create Account')}
+            : (mode === 'signin' ? 'Sign in' : 'Create account')}
         </button>
       </form>
 
-      {/* Mode toggle */}
-      <p style={{ textAlign: 'center', fontSize: 13, color: 'var(--text-mid)', marginTop: 20 }}>
+      <p style={{ textAlign: 'center', fontSize: 15, color: 'var(--text-mid)', marginTop: 18 }}>
         {mode === 'signin' ? "Don't have an account? " : 'Already have an account? '}
         <button
           type="button"
           onClick={() => { setMode(mode === 'signin' ? 'register' : 'signin'); setError(''); clearLoginError() }}
-          style={{
-            background: 'none', border: 'none', cursor: 'pointer',
-            color: 'var(--coral)', fontWeight: 600, fontSize: 13,
-            fontFamily: "'Outfit', sans-serif", padding: 0,
-          }}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ink)', fontWeight: 700, fontSize: 15, padding: '10px 4px', textDecoration: 'underline', textUnderlineOffset: 3 }}
         >
-          {mode === 'signin' ? 'Create account' : 'Sign in'}
+          {mode === 'signin' ? 'Create one' : 'Sign in'}
         </button>
       </p>
     </>
   )
 
-  // ── Mobile: single column, compact brand header over a form card ──
+  // The cover label of a composition notebook: the name written in, ruled line under it.
+  const coverLabel = (
+    <div style={{
+      background: 'white', borderRadius: 'var(--radius)', padding: '18px 22px 14px', maxWidth: 360,
+      boxShadow: '0 2px 6px rgba(0,0,0,0.18)',
+    }}>
+      <h1 className="font-hand" style={{ fontSize: isMobile ? 34 : 44, fontWeight: 600, color: 'var(--ink)', lineHeight: 1.05 }}>Plate Together</h1>
+      <p style={{ fontSize: 15, color: 'var(--text-mid)', lineHeight: 1.5, marginTop: 8, paddingTop: 8, borderTop: '1px solid var(--rule)' }}>
+        A meal notebook for families in eating disorder recovery, shared with their care team.
+      </p>
+    </div>
+  )
+
   if (isMobile) {
     return (
-      <div style={{
-        minHeight: '100svh',
-        background: 'radial-gradient(circle at 80% 0%, rgba(184,85,53,0.10) 0%, transparent 45%), radial-gradient(circle at 0% 100%, rgba(72,122,103,0.10) 0%, transparent 45%), #F3ECE2',
-        display: 'flex', flexDirection: 'column', justifyContent: 'center',
-        padding: '32px 20px calc(28px + env(safe-area-inset-bottom))',
-        boxSizing: 'border-box',
-      }}>
-        <div style={{ width: '100%', maxWidth: 400, margin: '0 auto' }}>
-          {/* Brand */}
-          <div style={{ textAlign: 'center', marginBottom: 26 }}>
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              width: 60, height: 60, borderRadius: 18, fontSize: 28,
-              background: 'linear-gradient(135deg, var(--coral) 0%, var(--pink) 100%)',
-              boxShadow: '0 6px 18px rgba(184,85,53,0.32)', marginBottom: 16,
-            }}>🍽️</div>
-            <h1 className="font-lora" style={{ fontSize: 32, fontWeight: 500, color: 'var(--text-dark)', letterSpacing: '-0.3px', lineHeight: 1.05, marginBottom: 8 }}>
-              Plate Together
-            </h1>
-            <p style={{ fontSize: 13.5, color: 'var(--text-mid)', lineHeight: 1.55, maxWidth: 280, margin: '0 auto' }}>
-              Shared meal support for families navigating eating disorder recovery.
-            </p>
-          </div>
-
-          {/* Form card */}
-          <div style={{
-            background: 'white', borderRadius: 22, padding: '26px 22px',
-            border: '1px solid var(--border)',
-            boxShadow: '0 8px 30px rgba(39,23,6,0.08)',
-          }}>
+      <div style={{ minHeight: '100svh', background: 'var(--desk)', boxSizing: 'border-box', padding: '24px 16px calc(24px + env(safe-area-inset-bottom))' }}>
+        <div style={{ width: '100%', maxWidth: 420, margin: '0 auto' }}>
+          <div style={{ background: 'var(--ink)', borderRadius: 'var(--radius)', padding: 18, marginBottom: 18 }}>{coverLabel}</div>
+          <div style={{ background: 'white', borderRadius: 'var(--radius)', padding: '22px 18px', border: '1px solid var(--rule-strong)' }}>
             {heading}
             {formBlock}
           </div>
@@ -276,100 +201,18 @@ export default function LoginScreen() {
     )
   }
 
-  // ── Desktop: split brand / form panels ──
   return (
-    <div style={{
-      minHeight: '100svh',
-      display: 'flex',
-      overflow: 'hidden',
-    }}>
-      {/* Left brand panel */}
-      <div style={{
-        flex: '0 0 42%',
-        background: 'linear-gradient(155deg, #271706 0%, #3E200C 55%, #2A1808 100%)',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        padding: '72px 56px',
-        position: 'relative',
-        overflow: 'hidden',
-      }}>
-        <div style={{
-          position: 'absolute', width: 480, height: 480, borderRadius: '50%',
-          top: -160, right: -160,
-          background: 'radial-gradient(circle, rgba(184,85,53,0.22) 0%, transparent 65%)',
-          pointerEvents: 'none',
-        }} />
-        <div style={{
-          position: 'absolute', width: 360, height: 360, borderRadius: '50%',
-          bottom: -100, left: -100,
-          background: 'radial-gradient(circle, rgba(72,122,103,0.18) 0%, transparent 65%)',
-          pointerEvents: 'none',
-        }} />
-
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            width: 54, height: 54, borderRadius: 17,
-            background: 'rgba(184,85,53,0.28)',
-            border: '1px solid rgba(184,85,53,0.38)',
-            fontSize: 26, marginBottom: 32,
-          }}>🍽️</div>
-
-          <h1 className="font-lora" style={{
-            fontSize: 50, fontWeight: 400, lineHeight: 1.08,
-            color: '#F5EAD8', letterSpacing: '-0.5px', marginBottom: 22,
-          }}>
-            Plate<br />Together
-          </h1>
-
-          <p style={{
-            fontSize: 16, color: 'rgba(245,234,216,0.60)',
-            lineHeight: 1.75, maxWidth: 270, marginBottom: 52,
-          }}>
-            Shared meal support for families navigating eating disorder recovery.
-          </p>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {[
-              { icon: '📅', text: 'Plan meals together, week by week' },
-              { icon: '✏️', text: 'Log how each meal honestly went' },
-              { icon: '👩‍⚕️', text: 'Stay in sync with your care team' },
-            ].map(item => (
-              <div key={item.text} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                <span style={{
-                  width: 34, height: 34, borderRadius: 10, fontSize: 15,
-                  background: 'rgba(255,255,255,0.07)',
-                  border: '1px solid rgba(255,255,255,0.10)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  flexShrink: 0,
-                }}>{item.icon}</span>
-                <span style={{ fontSize: 14, color: 'rgba(245,234,216,0.65)', lineHeight: 1.45 }}>
-                  {item.text}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
+    <div style={{ minHeight: '100svh', display: 'flex' }}>
+      <div style={{ flex: '0 0 42%', background: 'var(--ink)', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '72px 56px' }}>
+        {coverLabel}
+        <ul style={{ margin: '32px 0 0', padding: 0, listStyle: 'none', display: 'grid', gap: 12, maxWidth: 360 }}>
+          {['Write down each meal in seconds', 'Get help after a hard meal', 'Share the week with your care team'].map(text => (
+            <li key={text} style={{ fontSize: 16, color: 'rgba(255,255,255,0.92)', lineHeight: 1.45 }}>{text}</li>
+          ))}
+        </ul>
       </div>
-
-      {/* Right form panel */}
-      <div style={{
-        flex: 1,
-        background: '#F3ECE2',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '48px 40px',
-        position: 'relative',
-      }}>
-        <div style={{
-          position: 'absolute', inset: 0,
-          backgroundImage: 'radial-gradient(circle at 75% 15%, rgba(184,85,53,0.07) 0%, transparent 48%), radial-gradient(circle at 25% 85%, rgba(72,122,103,0.07) 0%, transparent 48%)',
-          pointerEvents: 'none',
-        }} />
-
-        <div style={{ width: '100%', maxWidth: 380, position: 'relative' }}>
+      <div style={{ flex: 1, background: 'var(--desk)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 40px' }}>
+        <div style={{ width: '100%', maxWidth: 400, background: 'white', borderRadius: 'var(--radius)', padding: '32px 28px', border: '1px solid var(--rule-strong)' }}>
           {heading}
           {formBlock}
         </div>

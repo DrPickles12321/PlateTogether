@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import Icon from './Icon'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -28,7 +29,7 @@ export default function BottomSheet({ open, onClose, title, children, footer }) 
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.18 }}
-            style={{ position: 'fixed', inset: 0, zIndex: 60, background: 'rgba(39,23,6,0.35)' }}
+            style={{ position: 'fixed', inset: 0, zIndex: 60, background: 'rgba(29,33,43,0.35)' }}
           />
           <motion.div
             key="sheet"
@@ -42,7 +43,7 @@ export default function BottomSheet({ open, onClose, title, children, footer }) 
             style={{
               position: 'fixed', left: 0, right: 0, bottom: 0, zIndex: 61,
               background: 'white', borderRadius: '20px 20px 0 0',
-              boxShadow: '0 -8px 30px rgba(39,23,6,0.18)',
+              boxShadow: '0 -8px 30px rgba(29,33,43,0.18)',
               maxHeight: '85dvh', display: 'flex', flexDirection: 'column',
               paddingBottom: 'env(safe-area-inset-bottom)',
             }}
@@ -69,7 +70,7 @@ export default function BottomSheet({ open, onClose, title, children, footer }) 
                     fontSize: 18, cursor: 'pointer', display: 'flex',
                     alignItems: 'center', justifyContent: 'center', flexShrink: 0,
                   }}
-                >×</button>
+                ><Icon name="close" size={18} /></button>
               </div>
             )}
 

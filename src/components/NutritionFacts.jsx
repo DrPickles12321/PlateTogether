@@ -59,11 +59,11 @@ export default function NutritionFacts({ food, onSave, onReset }) {
   }
 
   return (
-    <div style={{ fontFamily: "'Outfit', sans-serif" }}>
+    <div style={{ fontFamily: "var(--font-ui)" }}>
       {/* Source + serving + group */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
         <span style={{
-          fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20,
+          fontSize: 13, fontWeight: 600, padding: '3px 10px', borderRadius: 20,
           background: source === 'manual' ? 'var(--mint-light)' : source === 'usda' ? 'var(--coral-light)' : 'var(--surface-warm)',
           color: source === 'manual' ? 'var(--mint)' : source === 'usda' ? 'var(--coral)' : 'var(--text-light)',
           border: `1px solid ${source === 'manual' ? 'var(--mint-mid)' : source === 'usda' ? 'var(--coral-mid)' : 'var(--border)'}`,
@@ -71,7 +71,7 @@ export default function NutritionFacts({ food, onSave, onReset }) {
           {source === 'manual' ? 'Manually entered' : source === 'usda' ? 'From USDA' : 'No data'}
         </span>
         <span style={{
-          fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20,
+          fontSize: 13, fontWeight: 600, padding: '3px 10px', borderRadius: 20,
           marginLeft: 'auto', background: 'var(--peach-light)', color: 'var(--peach)',
           border: '1px solid var(--peach-mid)',
         }}>{GROUP_LABEL[group] || 'Mixed'}</span>
@@ -102,9 +102,9 @@ export default function NutritionFacts({ food, onSave, onReset }) {
                   value={draft[f.key]}
                   onChange={e => setDraft(d => ({ ...d, [f.key]: e.target.value }))}
                   style={{
-                    width: 84, textAlign: 'right', padding: '7px 10px', borderRadius: 9,
+                    width: 84, textAlign: 'right', padding: '7px 10px', borderRadius: 'var(--radius)',
                     border: '1.5px solid var(--border)', fontSize: 14, color: 'var(--text-dark)',
-                    fontFamily: "'Outfit', sans-serif", outline: 'none', boxSizing: 'border-box',
+                    fontFamily: "var(--font-ui)", outline: 'none', boxSizing: 'border-box',
                   }}
                   onFocus={e => e.target.style.borderColor = 'var(--coral)'}
                   onBlur={e => e.target.style.borderColor = 'var(--border)'}
@@ -152,7 +152,7 @@ export default function NutritionFacts({ food, onSave, onReset }) {
         )}
       </div>
 
-      <p style={{ fontSize: 11, color: 'var(--text-light)', lineHeight: 1.5, marginTop: 16 }}>
+      <p style={{ fontSize: 13, color: 'var(--text-light)', lineHeight: 1.5, marginTop: 16 }}>
         Numbers are for planning only — not a substitute for medical advice.
       </p>
     </div>
@@ -161,11 +161,11 @@ export default function NutritionFacts({ food, onSave, onReset }) {
 
 function btnStyle(primary) {
   return {
-    padding: '9px 18px', fontSize: 13, fontWeight: 600, borderRadius: 11,
-    cursor: 'pointer', fontFamily: "'Outfit', sans-serif", minHeight: 40,
+    padding: '9px 18px', fontSize: 13, fontWeight: 600, borderRadius: 'var(--radius)',
+    cursor: 'pointer', fontFamily: "var(--font-ui)", minHeight: 40,
     border: primary ? 'none' : '1.5px solid var(--border)',
-    background: primary ? 'linear-gradient(135deg, var(--coral) 0%, var(--pink) 100%)' : 'white',
+    background: primary ? 'var(--ink)' : 'white',
     color: primary ? 'white' : 'var(--text-mid)',
-    boxShadow: primary ? '0 2px 8px rgba(184,85,53,0.28)' : 'none',
+    boxShadow: primary ? '0 2px 8px rgba(35,64,142,0.28)' : 'none',
   }
 }

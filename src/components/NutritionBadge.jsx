@@ -14,26 +14,21 @@ export default function NutritionBadge({ foodName, food, mode = 'parent' }) {
   const flags = info.an_relevant_flags
   const level = info.energy_density
 
-  // No USDA or manual values: say so instead of showing a made-up number.
-  if (!info.hasData) {
-    return (
-      <div className="flex flex-wrap gap-1 mt-1">
-        <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-gray-100 text-gray-500">No data</span>
-      </div>
-    )
-  }
+  // No USDA or manual values: show nothing rather than a made-up number (or a "No data" label
+  // repeated under every food, which buried the meals in the clinician grid).
+  if (!info.hasData) return null
 
   if (mode === 'parent') {
     return (
       <div className="flex flex-wrap gap-1 mt-1">
-        <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${ENERGY_COLOR[level]}`}>
+        <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${ENERGY_COLOR[level]}`}>
           {info.calories} kcal · {ENERGY_LABEL[level]}
         </span>
         {flags.slice(0, 2).map(flag => {
           const cfg = FLAG_CONFIG[flag]
           if (!cfg) return null
           return (
-            <span key={flag} className="text-[10px]" title={cfg.label} aria-label={cfg.label}>
+            <span key={flag} className="text-xs" title={cfg.label} aria-label={cfg.label}>
               {cfg.icon}
             </span>
           )
@@ -46,14 +41,14 @@ export default function NutritionBadge({ foodName, food, mode = 'parent' }) {
   return (
     <div className="relative mt-1" onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
       <div className="flex flex-wrap gap-1">
-        <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium cursor-default ${ENERGY_COLOR[level]}`}>
+        <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium cursor-default ${ENERGY_COLOR[level]}`}>
           {info.calories} kcal
         </span>
         {flags.slice(0, 2).map(flag => {
           const cfg = FLAG_CONFIG[flag]
           if (!cfg) return null
           return (
-            <span key={flag} className="text-[10px]" title={cfg.label}>{cfg.icon}</span>
+            <span key={flag} className="text-xs" title={cfg.label}>{cfg.icon}</span>
           )
         })}
       </div>
@@ -73,14 +68,14 @@ export default function NutritionBadge({ foodName, food, mode = 'parent' }) {
               {flags.map(flag => {
                 const cfg = FLAG_CONFIG[flag]
                 return cfg ? (
-                  <span key={flag} className={`px-1.5 py-0.5 rounded-full text-[10px] font-medium ${cfg.color}`}>
+                  <span key={flag} className={`px-1.5 py-0.5 rounded-full text-xs font-medium ${cfg.color}`}>
                     {cfg.icon} {cfg.label}
                   </span>
                 ) : null
               })}
             </div>
           )}
-          <div className="text-[10px] text-gray-400 mt-2 italic">Estimated · {info.serving_description}</div>
+          <div className="text-xs text-gray-400 mt-2 italic">Estimated · {info.serving_description}</div>
         </div>
       )}
     </div>

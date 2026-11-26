@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useCallback } from 'react'
+import { Fragment, useEffect, useState, useMemo } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors, useDroppable } from '@dnd-kit/core'
 import FoodSidebar from '../components/FoodSidebar'
@@ -6,15 +6,58 @@ import FoodCardPreview from '../components/FoodCardPreview'
 import SupplementChecklist from '../components/SupplementChecklist'
 import AddFoodSheet from '../components/AddFoodSheet'
 import { useIsMobile } from '../hooks/useIsMobile'
-import { lookupNutrition } from '../lib/nutritionService'
-import { useNutritionalTargets } from '../contexts/NutritionalTargetsContext'
 import { useFirebaseData } from '../contexts/FirebaseDataContext'
 import { getWeekDates, localIsoDate } from '../lib/constants'
 import DistressScale from '../components/DistressScale'
 import QuickLogSheet from '../components/QuickLogSheet'
-import WarningSignsCard from '../components/WarningSignsCard'
-import { useAppMode } from '../hooks/useAppMode'
-import { OUTCOMES, STATUS_TO_OUTCOME, sameAsYesterday, recentFoods } from '../lib/quickLog'
+import HelpSheet from '../components/HelpSheet'
+import HardMomentCard from '../components/HardMomentCard'
+import Icon, { OutcomeMark } from '../components/Icon'
+import { sameAsYesterday, recentFoods } from '../lib/quickLog'
+import { OUTCOME_META, OUTCOME_ORDER, needsSupport, outcomeLabel } from '../lib/outcomes'
+import { hardMealNote } from '../lib/supportCopy'
+
+// Width of the notebook margin on the Today page: meal times sit here, left of the rose line.
+const MARGIN = 56
+// The desktop page has room for the time picker in its margin.
+const DESK_MARGIN = 96
+
+const weekNavBtn = {
+  width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center',
+  borderRadius: 'var(--radius)', border: '1px solid var(--border-mid)', background: 'white',
+  color: 'var(--text-dark)', cursor: 'pointer',
+}
+
+function shortDate(iso) {
+  return new Date(iso + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+}
+
+function NeedHelpButton({ onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        display: 'inline-flex', alignItems: 'center', gap: 8, minHeight: 44, padding: '8px 14px', flexShrink: 0,
+        borderRadius: 'var(--radius)', border: '1.5px solid var(--ink)', background: 'white',
+        color: 'var(--ink)', fontSize: 15, fontWeight: 700, cursor: 'pointer',
+      }}
+    ><Icon name="help" size={18} />Need help</button>
+  )
+}
+
+function DayStepButton({ dir, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      aria-label={dir < 0 ? 'Previous day' : 'Next day'}
+      style={{
+        width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        borderRadius: 'var(--radius)', border: '1px solid var(--border-mid)', background: 'white',
+        color: 'var(--text-dark)', cursor: 'pointer',
+      }}
+    ><Icon name={dir < 0 ? 'left' : 'right'} size={20} /></button>
+  )
+}
 
 const DAYS = [
   { key: 'mon', label: 'Mon' },
@@ -34,17 +77,10 @@ const DEFAULT_MEAL_TIMES = {
 }
 
 const MEALS = [
-  { key: 'breakfast', label: 'Breakfast', icon: '☀️', color: 'var(--coral)', bg: 'var(--coral-light)' },
-  { key: 'lunch',     label: 'Lunch',     icon: '🥗', color: 'var(--peach)', bg: 'var(--peach-light)' },
-  { key: 'snack',     label: 'Snack',     icon: '🍎', color: 'var(--pink)',  bg: 'var(--pink-light)' },
-  { key: 'dinner',    label: 'Dinner',    icon: '🌙', color: 'var(--mint)',  bg: 'var(--mint-light)' },
-]
-
-const STATUS_OPTIONS = [
-  { key: 'okay',      emoji: '😌', label: 'Ok',   color: '#2d9e5f', bg: '#eaf7f0', border: '#a8ddc0' },
-  { key: 'difficult', emoji: '😰', label: 'Hard', color: '#c9860a', bg: '#fef8e7', border: '#f5d07a' },
-  { key: 'refused',   emoji: '🙅', label: 'No',   color: '#d63f3f', bg: '#fdeaea', border: '#f5a8a8' },
-  { key: 'skipped',   emoji: '⊘',  label: 'Skip', color: '#8a7568', bg: '#f1ece3', border: '#ddd0bd' },
+  { key: 'breakfast', label: 'Breakfast', color: 'var(--coral)', bg: 'var(--coral-light)' },
+  { key: 'lunch',     label: 'Lunch',     color: 'var(--peach)', bg: 'var(--peach-light)' },
+  { key: 'snack',     label: 'Snack',     color: 'var(--pink)',  bg: 'var(--pink-light)' },
+  { key: 'dinner',    label: 'Dinner',    color: 'var(--mint)',  bg: 'var(--mint-light)' },
 ]
 
 // How much of the food was eaten. Stored as a fraction on the meal item so the
@@ -56,12 +92,6 @@ const PORTION_OPTIONS = [
   { value: 1,    label: 'All' },
 ]
 export const PORTION_LABEL = { 0.25: '¼', 0.5: '½', 0.75: '¾', 1: 'all' }
-
-const RING_NUTRIENTS = [
-  { key: 'protein',       label: 'Protein', color: '#E8735A', darkColor: '#C25A3F', getVal: info => info.protein_g || 0 },
-  { key: 'carbs',         label: 'Carbs',   color: '#F5A623', darkColor: '#D08B15', getVal: info => info.carbs_g || 0 },
-  { key: 'fruitsVeggies', label: 'F&V',     color: '#7BC67E', darkColor: '#5AA85D', getVal: info => info.plate_zone === 'produce' ? 80 : 0 },
-]
 
 const EMPTY_MEAL_ITEMS = { breakfast: [], lunch: [], snack: [], dinner: [] }
 
@@ -120,18 +150,18 @@ function DropZone({ mealType, items, onRemove, onFoodClick, selectedFoodIndex, i
     <div
       ref={setNodeRef}
       style={{
-        flex: 1, minHeight: 48, borderRadius: 12,
+        flex: 1, minHeight: 48, borderRadius: 'var(--radius)',
         border: items.length === 0
-          ? `1.5px dashed ${isOver ? 'var(--coral)' : isSkipped ? '#ddd0bd' : '#d4a0a5'}`
-          : '1.5px solid var(--border-mid)',
-        background: isOver ? 'var(--coral-light)' : items.length > 0 ? 'var(--surface-warm)' : isSkipped ? '#f7f3ec' : 'transparent',
+          ? `1.5px dashed ${isOver ? 'var(--coral)' : isSkipped ? 'var(--border)' : 'var(--pink-mid)'}`
+          : '1.5px solid transparent',
+        background: isOver ? 'var(--coral-light)' : isSkipped ? 'var(--surface-warm)' : 'transparent',
         padding: items.length > 0 ? '8px 10px' : '0 14px',
         display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 6,
         transition: 'all 0.15s',
       }}
     >
       {items.length === 0 ? (
-        <span style={{ fontSize: 12, color: isOver ? 'var(--coral)' : isSkipped ? '#8a7568' : '#b08a8e' }}>
+        <span style={{ fontSize: 12, color: isOver ? 'var(--coral)' : isSkipped ? 'var(--text-light)' : 'var(--text-light)' }}>
           {isOver ? 'Drop here ↓' : isSkipped ? '⊘ Skipped — no food eaten' : '+ drag a food here'}
         </span>
       ) : (
@@ -145,24 +175,23 @@ function DropZone({ mealType, items, onRemove, onFoodClick, selectedFoodIndex, i
                 background: 'white', border: '1px solid var(--border-mid)',
                 borderRadius: 8, padding: '4px 8px 4px 10px',
                 fontSize: 13, fontWeight: 500, color: 'var(--text-dark)',
-                boxShadow: '0 1px 3px rgba(39,23,6,0.06)',
                 cursor: 'pointer',
-                outline: selectedFoodIndex === i ? '2px solid #E8735A' : 'none',
+                outline: selectedFoodIndex === i ? '2px solid var(--ink)' : 'none',
                 outlineOffset: 1,
               }}
             >
               {food.status && (
                 <span style={{
                   width: 7, height: 7, borderRadius: '50%', flexShrink: 0,
-                  background: food.status === 'okay' ? '#2d9e5f'
-                    : food.status === 'difficult' ? '#c9860a'
-                    : '#d63f3f',
+                  background: food.status === 'okay' ? 'var(--mint)'
+                    : food.status === 'difficult' ? 'var(--st-some)'
+                    : 'var(--st-refused)',
                   display: 'inline-block',
                 }} />
               )}
               {food.name}
               {food.portion != null && food.portion < 1 && (
-                <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--peach)', flexShrink: 0 }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--peach)', flexShrink: 0 }}>
                   {PORTION_LABEL[food.portion]}
                 </span>
               )}
@@ -174,7 +203,7 @@ function DropZone({ mealType, items, onRemove, onFoodClick, selectedFoodIndex, i
                   padding: '0 2px', display: 'flex', alignItems: 'center',
                   fontFamily: 'inherit',
                 }}
-              >×</button>
+              ><Icon name="close" size={18} /></button>
             </span>
           ))}
           {isOver && (
@@ -238,22 +267,10 @@ function MealCard({ meal, items, onRemove, latestLog, onQuickLog, time, onTimeCh
   }
 
   return (
-    <div style={{
-      background: 'white', borderRadius: 18,
-      border: '1.5px solid var(--border)',
-      boxShadow: '0 2px 12px rgba(39,23,6,0.06)',
-    }}>
-      {/* Header */}
-      <div style={{
-        background: meal.bg, padding: '12px 18px',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        borderBottom: '1px solid var(--border)',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-          <span style={{ fontSize: 17 }}>{meal.icon}</span>
-          <span style={{ fontWeight: 600, fontSize: 14, color: meal.color }}>{meal.label}</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.88)', borderRadius: 10, padding: '5px 8px' }}>
+    // One ruled line of the day's page: the time sits in the margin, the meal is written to its right.
+    <div style={{ display: 'grid', gridTemplateColumns: `${DESK_MARGIN}px 1fr`, borderBottom: '1px solid var(--rule)' }}>
+      <div style={{ padding: '14px 8px', display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', alignContent: 'flex-start', gap: 4, maxWidth: 110 }}>
           {(() => {
             const { hour, minute, period } = pendingTime
             const setPeriod = nextPeriod => {
@@ -263,22 +280,22 @@ function MealCard({ meal, items, onRemove, latestLog, onQuickLog, time, onTimeCh
             }
             return (
               <>
-                <input type="text" inputMode="numeric" value={hour}
+                <input type="text" inputMode="numeric" value={hour} aria-label={`${meal.label} hour`}
                   onChange={e => handleHourChange(e.target.value)} onBlur={handleHourBlur}
-                  style={{ width: 24, border: 'none', background: 'transparent', color: meal.color, fontSize: 12, fontWeight: 700, textAlign: 'center', outline: 'none' }}
+                  style={{ width: 24, border: 'none', background: 'transparent', color: 'var(--text-dark)', fontSize: 14, fontWeight: 600, textAlign: 'center' }}
                 />
-                <span style={{ color: meal.color, fontSize: 12, fontWeight: 700 }}>:</span>
-                <input type="text" inputMode="numeric" value={minute}
+                <span style={{ color: 'var(--text-dark)', fontSize: 14, fontWeight: 600 }}>:</span>
+                <input type="text" inputMode="numeric" value={minute} aria-label={`${meal.label} minutes`}
                   onChange={e => handleMinuteChange(e.target.value)} onBlur={handleMinuteBlur}
-                  style={{ width: 28, border: 'none', background: 'transparent', color: meal.color, fontSize: 12, fontWeight: 700, textAlign: 'center', outline: 'none' }}
+                  style={{ width: 28, border: 'none', background: 'transparent', color: 'var(--text-dark)', fontSize: 14, fontWeight: 600, textAlign: 'center' }}
                 />
                 <div style={{ display: 'flex', gap: 4, marginLeft: 4 }}>
                   {['AM', 'PM'].map(option => (
-                    <button key={option} type="button" onClick={() => setPeriod(option)} style={{
-                      borderRadius: 8, border: 'none', padding: '4px 6px',
-                      background: period === option ? meal.color : 'rgba(255,255,255,0.7)',
-                      color: period === option ? 'white' : meal.color,
-                      fontSize: 10, fontWeight: 700, cursor: 'pointer',
+                    <button key={option} type="button" onClick={() => setPeriod(option)} aria-pressed={period === option} style={{
+                      borderRadius: 4, border: 'none', padding: '4px 7px',
+                      background: period === option ? 'var(--ink)' : 'transparent',
+                      color: period === option ? 'white' : 'var(--text-mid)',
+                      fontSize: 12, fontWeight: 700, cursor: 'pointer',
                     }}>{option}</button>
                   ))}
                 </div>
@@ -288,9 +305,9 @@ function MealCard({ meal, items, onRemove, latestLog, onQuickLog, time, onTimeCh
         </div>
       </div>
 
-      {/* Body */}
-      <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+      <div style={{ minWidth: 0, padding: '12px 16px 14px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <h3 className="font-hand" style={{ fontWeight: 600, fontSize: 20, color: 'var(--text-dark)' }}>{meal.label}</h3>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
           <DropZone
             mealType={meal.key}
             items={items}
@@ -299,32 +316,32 @@ function MealCard({ meal, items, onRemove, latestLog, onQuickLog, time, onTimeCh
             selectedFoodIndex={selectedFoodIndex}
             isSkipped={loggedStatus === 'skipped'}
           />
-          <div style={{ display: 'flex', gap: 6, flexShrink: 0, paddingTop: items.length > 1 ? 4 : 0 }}>
-            {STATUS_OPTIONS.map(opt => {
-              const isSkip = opt.key === 'skipped'
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            {OUTCOME_ORDER.map(key => {
+              const opt = OUTCOME_META[key]
+              const isSkip = key === 'skipped'
               const enabled = isSkip ? !hasItems : hasItems
-              const selected = loggedStatus === opt.key
+              const selected = loggedStatus === key
               return (
                 <button
-                  key={opt.key}
-                  onClick={() => enabled && onQuickLog(selected ? null : opt.key)}
+                  key={key}
+                  onClick={() => enabled && onQuickLog(selected ? null : key)}
                   disabled={!enabled}
-                  title={isSkip ? "Mark this meal as skipped — nothing was eaten" : undefined}
+                  aria-pressed={selected}
+                  title={!enabled ? (isSkip ? 'Remove the foods to mark this meal skipped' : 'Add what was served first') : undefined}
                   style={{
-                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
-                    padding: '7px 11px', borderRadius: 10,
-                    border: `1.5px solid ${selected ? opt.color : opt.border}`,
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
+                    padding: '7px 6px', borderRadius: 'var(--radius)', minWidth: 58, minHeight: 52,
+                    border: `1.5px solid ${selected ? opt.color : 'var(--border-mid)'}`,
                     background: selected ? opt.bg : 'white',
-                    cursor: enabled ? 'pointer' : 'default',
-                    opacity: enabled ? 1 : 0.38,
-                    transition: 'all 0.15s', minWidth: 50,
-                    fontFamily: "'Outfit', sans-serif",
+                    color: enabled ? opt.color : 'var(--text-light)',
+                    cursor: enabled ? 'pointer' : 'not-allowed',
+                    opacity: enabled ? 1 : 0.55,
+                    fontSize: 13, fontWeight: 700,
                   }}
                 >
-                  <span style={{ fontSize: 18 }}>{opt.emoji}</span>
-                  <span style={{ fontSize: 10, fontWeight: 500, color: selected ? opt.color : '#999' }}>
-                    {opt.label}
-                  </span>
+                  <OutcomeMark mark={opt.mark} size={16} color="currentColor" />
+                  {opt.label}
                 </button>
               )
             })}
@@ -343,7 +360,7 @@ function MealCard({ meal, items, onRemove, latestLog, onQuickLog, time, onTimeCh
               marginTop: 6,
               background: 'var(--surface-warm)',
               border: '1px solid var(--border-mid)',
-              borderRadius: 10,
+              borderRadius: 'var(--radius)',
               padding: '7px 10px',
               display: 'flex',
               alignItems: 'center',
@@ -351,37 +368,32 @@ function MealCard({ meal, items, onRemove, latestLog, onQuickLog, time, onTimeCh
               flexWrap: 'wrap',
             }}
           >
-            <span style={{ fontSize: 11, color: 'var(--text-light)', alignSelf: 'center', marginRight: 4 }}>
+            <span style={{ fontSize: 13, color: 'var(--text-light)', alignSelf: 'center', marginRight: 4 }}>
               {items[selectedFoodIndex]?.name}:
             </span>
-            {[
-              { key: 'okay',      emoji: '😌', label: 'Ok',   color: '#2d9e5f' },
-              { key: 'difficult', emoji: '😰', label: 'Hard', color: '#c9860a' },
-              { key: 'refused',   emoji: '🙅', label: 'No',   color: '#d63f3f' },
-            ].map(opt => {
-              const isSelected = items[selectedFoodIndex]?.status === opt.key
+            {['okay', 'difficult', 'refused'].map(key => {
+              const opt = OUTCOME_META[key]
+              const isSelected = items[selectedFoodIndex]?.status === key
               return (
                 <button
-                  key={opt.key}
-                  onClick={() => onFoodStatusSet?.(meal.key, selectedFoodIndex, isSelected ? null : opt.key)}
+                  key={key}
+                  onClick={() => onFoodStatusSet?.(meal.key, selectedFoodIndex, isSelected ? null : key)}
+                  aria-pressed={isSelected}
                   style={{
-                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1,
-                    padding: '5px 9px', borderRadius: 8, border: 'none',
-                    background: isSelected ? (
-                      opt.key === 'okay' ? '#eaf7f0' : opt.key === 'difficult' ? '#fef8e7' : '#fdeaea'
-                    ) : 'white',
-                    cursor: 'pointer',
-                    outline: isSelected ? `2px solid ${opt.color}` : 'none',
-                    fontFamily: "'Outfit', sans-serif",
+                    display: 'inline-flex', alignItems: 'center', gap: 5, minHeight: 36,
+                    padding: '5px 10px', borderRadius: 'var(--radius)',
+                    border: `1.5px solid ${isSelected ? opt.color : 'var(--border-mid)'}`,
+                    background: isSelected ? opt.bg : 'white', color: opt.color,
+                    cursor: 'pointer', fontSize: 13, fontWeight: 700,
                   }}
                 >
-                  <span style={{ fontSize: 16 }}>{opt.emoji}</span>
-                  <span style={{ fontSize: 9, fontWeight: 600, color: opt.color }}>{opt.label}</span>
+                  <OutcomeMark mark={opt.mark} size={14} color="currentColor" />
+                  {opt.label}
                 </button>
               )
             })}
             <span style={{ width: 1, height: 22, background: 'var(--border)', margin: '0 3px', alignSelf: 'center' }} />
-            <span style={{ fontSize: 10, color: 'var(--text-light)', alignSelf: 'center', marginRight: 1 }}>ate</span>
+            <span style={{ fontSize: 12, color: 'var(--text-light)', alignSelf: 'center', marginRight: 1 }}>ate</span>
             {PORTION_OPTIONS.map(p => {
               const sel = items[selectedFoodIndex]?.portion === p.value
               return (
@@ -391,7 +403,7 @@ function MealCard({ meal, items, onRemove, latestLog, onQuickLog, time, onTimeCh
                   onClick={() => onFoodPortionSet?.(meal.key, selectedFoodIndex, sel ? null : p.value)}
                   style={{
                     minWidth: 28, padding: '6px 7px', borderRadius: 8, border: 'none',
-                    background: sel ? '#efe7db' : 'white', outline: sel ? '2px solid var(--peach)' : 'none',
+                    background: sel ? 'var(--border)' : 'white', outline: sel ? '2px solid var(--peach)' : 'none',
                     cursor: 'pointer', fontSize: 13, fontWeight: 700,
                     color: sel ? 'var(--peach)' : 'var(--text-mid)', fontFamily: 'inherit',
                   }}
@@ -405,7 +417,7 @@ function MealCard({ meal, items, onRemove, latestLog, onQuickLog, time, onTimeCh
                 color: 'var(--text-light)', fontSize: 16, alignSelf: 'center',
                 padding: '0 2px', fontFamily: 'inherit',
               }}
-            >×</button>
+            ><Icon name="close" size={18} /></button>
           </div>
         )}
       </div>
@@ -425,242 +437,198 @@ function MobileMealCard({
   const loggedStatus = latestLog?.status || null
   const hasItems = items.length > 0
   const isSkipped = loggedStatus === 'skipped'
-  const statusMeta = STATUS_OPTIONS.find(o => o.key === loggedStatus)
+  const outcome = OUTCOME_META[loggedStatus]
   const { hour, minute, period } = parseTimeValue(time)
-  const timeLabel = `${hour}:${minute} ${period}`
+  const timeLabel = `${hour}:${minute}`
   const foodSummary = items.map(f => f.name).join(', ')
-  const logLabel = isSkipped
-    ? 'Skipped'
-    : OUTCOMES.find(o => o.key === STATUS_TO_OUTCOME[loggedStatus])?.label || statusMeta?.label || ''
-
-  function handleSkipTap(e) {
-    e.stopPropagation()
-    onQuickLog(isSkipped ? null : 'skipped')
-  }
+  const bodyId = `meal-${meal.key}-details`
 
   return (
-    <div style={{
-      background: 'white', borderRadius: 16,
-      border: '1.5px solid var(--border)',
-      boxShadow: '0 2px 10px rgba(39,23,6,0.05)',
-      overflow: 'hidden',
-    }}>
-      {/* Collapsed row — tap anywhere (except Skip) to expand/collapse */}
-      <div
-        role="button"
-        tabIndex={0}
-        onClick={onToggleExpand}
-        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggleExpand() } }}
-        style={{
-          width: '100%', display: 'flex', alignItems: 'center', gap: 10,
-          padding: 14, minHeight: 56, cursor: 'pointer', boxSizing: 'border-box',
-          fontFamily: "'Outfit', sans-serif",
-        }}
-      >
-        <span style={{
-          width: 34, height: 34, borderRadius: 10, background: meal.bg,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 16, flexShrink: 0,
-        }}>{meal.icon}</span>
+    <div style={{ borderBottom: '1px solid var(--rule)' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: `${MARGIN}px 1fr auto`, alignItems: 'center', minHeight: 64 }}>
+        <span style={{ fontSize: 13, color: 'var(--text-mid)', textAlign: 'center', lineHeight: 1.2 }}>
+          {timeLabel}<br /><span style={{ fontSize: 13 }}>{period}</span>
+        </span>
 
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontWeight: 600, fontSize: 13, color: meal.color }}>{meal.label}</div>
-          {hasItems ? (
-            <div style={{
-              fontSize: 12, color: 'var(--text-light)', marginTop: 1,
-              whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-            }}>{foodSummary}</div>
-          ) : isSkipped ? (
-            <div style={{ fontSize: 12, color: 'var(--text-light)', marginTop: 1 }}>⊘ Skipped</div>
+        <button
+          onClick={onToggleExpand}
+          aria-expanded={expanded}
+          aria-controls={bodyId}
+          style={{
+            all: 'unset', boxSizing: 'border-box', cursor: 'pointer', padding: '12px 10px 12px 14px',
+            minWidth: 0, minHeight: 64, display: 'flex', flexDirection: 'column', justifyContent: 'center',
+          }}
+        >
+          <span className="font-hand" style={{ fontSize: 19, fontWeight: 600, color: 'var(--text-dark)', lineHeight: 1.25 }}>{meal.label}</span>
+          <span style={{
+            fontSize: 14, color: hasItems ? 'var(--ink)' : 'var(--text-mid)', marginTop: 2,
+            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+          }}>
+            {hasItems ? foodSummary : isSkipped ? 'Skipped' : 'Not written yet'}
+          </span>
+        </button>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, paddingRight: 12 }}>
+          {loggedStatus ? (
+            <button
+              onClick={onOpenLog}
+              aria-label={`${meal.label}: ${outcome?.label}. Change`}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6, minHeight: 44, padding: '6px 12px',
+                borderRadius: 'var(--radius)', border: `1.5px solid ${outcome?.color}`, background: outcome?.bg,
+                color: outcome?.color, fontSize: 14, fontWeight: 700, cursor: 'pointer',
+              }}
+            ><OutcomeMark mark={outcome?.mark} size={16} color={outcome?.color} />{outcome?.label}</button>
           ) : (
-            <div style={{ fontSize: 12, color: '#b08a8e', marginTop: 1 }}>{loggedStatus ? timeLabel : `${timeLabel} · not logged`}</div>
+            <>
+              {!hasItems && (
+                <button
+                  onClick={() => onQuickLog('skipped')}
+                  aria-label={`Skip ${meal.label}`}
+                  style={{
+                    minHeight: 44, minWidth: 44, padding: '6px 10px', borderRadius: 'var(--radius)',
+                    border: 'none', background: 'none', color: 'var(--text-mid)', fontSize: 14,
+                    fontWeight: 600, cursor: 'pointer',
+                  }}
+                >Skip</button>
+              )}
+              <button
+                onClick={onOpenLog}
+                aria-label={`Log ${meal.label}`}
+                style={{
+                  minHeight: 44, padding: '6px 18px', borderRadius: 'var(--radius)', border: 'none',
+                  background: 'var(--ink)', color: 'white', fontSize: 15, fontWeight: 700, cursor: 'pointer',
+                }}
+              >Log</button>
+            </>
           )}
         </div>
-
-        {loggedStatus ? (
-          <button
-            onClick={e => { e.stopPropagation(); onOpenLog() }}
-            aria-label={`${meal.label} logged as ${logLabel}. Change`}
-            style={{
-              fontSize: 12, fontWeight: 600, color: statusMeta?.color, background: statusMeta?.bg,
-              border: `1.5px solid ${statusMeta?.border}`, borderRadius: 20,
-              padding: '6px 12px', flexShrink: 0, minHeight: 36, cursor: 'pointer',
-              fontFamily: "'Outfit', sans-serif",
-            }}
-          >{logLabel}</button>
-        ) : (
-          <>
-            <button
-              onClick={e => { e.stopPropagation(); onOpenLog() }}
-              style={{
-                fontSize: 13, fontWeight: 700, color: 'white', background: meal.color,
-                border: 'none', borderRadius: 20, padding: '8px 16px', flexShrink: 0,
-                minHeight: 40, cursor: 'pointer', fontFamily: "'Outfit', sans-serif",
-              }}
-            >Log</button>
-            {!hasItems && (
-              <button
-                onClick={handleSkipTap}
-                style={{
-                  fontSize: 11, fontWeight: 600, color: '#8a7568',
-                  border: '1.5px solid #ddd0bd', borderRadius: 20, background: 'white',
-                  padding: '6px 10px', flexShrink: 0, minHeight: 40, cursor: 'pointer',
-                  fontFamily: "'Outfit', sans-serif",
-                }}
-              >Skip</button>
-            )}
-          </>
-        )}
-
-        <span style={{
-          fontSize: 14, color: 'var(--text-light)', flexShrink: 0,
-          transform: expanded ? 'rotate(90deg)' : 'none', transition: 'transform 0.15s',
-        }}>›</span>
       </div>
 
-      {/* One-tap repeat of yesterday's meal, shown without expanding the card */}
+      {/* One-tap repeat of yesterday's meal, shown without expanding */}
       {!hasItems && !isSkipped && yesterdayItems.length > 0 && (
-        <div style={{ padding: '0 14px 12px' }}>
+        <div style={{ padding: `0 12px 12px ${MARGIN + 14}px` }}>
           <button
             onClick={() => onAddItems(yesterdayItems)}
             style={{
-              width: '100%', minHeight: 44, borderRadius: 12, textAlign: 'left',
-              border: `1.5px dashed ${meal.color}`, background: meal.bg, color: meal.color,
-              padding: '8px 12px', fontSize: 13, fontWeight: 600, cursor: 'pointer',
-              fontFamily: "'Outfit', sans-serif", overflow: 'hidden',
-              textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+              width: '100%', minHeight: 44, display: 'flex', alignItems: 'center', gap: 8, textAlign: 'left',
+              borderRadius: 'var(--radius)', border: '1.5px dashed var(--ink-mid)', background: 'white',
+              color: 'var(--ink)', padding: '8px 12px', fontSize: 14, fontWeight: 600, cursor: 'pointer',
             }}
-          >Same as yesterday:{yesterdayItems.map(f => f.name).join(', ')}</button>
+          >
+            <Icon name="repeat" size={18} />
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              Same as yesterday: {yesterdayItems.map(f => f.name).join(', ')}
+            </span>
+          </button>
         </div>
       )}
 
-      {/* Expanded body */}
       {expanded && (
-        <div style={{ padding: '0 14px 16px', borderTop: '1px solid var(--border)' }} onClick={e => e.stopPropagation()}>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px 0 2px' }}>
+        <div id={bodyId} style={{ padding: `4px 12px 18px ${MARGIN + 14}px` }}>
+          <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 14, color: 'var(--text-mid)', marginBottom: 12 }}>
+            <Icon name="clock" size={18} />
+            Time
             <input
               type="time"
               value={time}
               onChange={e => e.target.value && onTimeChange(meal.key, e.target.value)}
               style={{
-                border: 'none', background: meal.bg, borderRadius: 10,
-                padding: '7px 10px', fontSize: 13, fontWeight: 600, color: meal.color,
-                fontFamily: "'Outfit', sans-serif",
+                minHeight: 40, border: '1.5px solid var(--border-mid)', background: 'white', borderRadius: 'var(--radius)',
+                padding: '6px 10px', fontSize: 16, color: 'var(--text-dark)',
               }}
             />
-          </div>
+          </label>
 
-          {/* Food chips */}
+          <h4 style={sectionLabel}>What was served</h4>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
             {items.length === 0 ? (
-              <span style={{ fontSize: 12, color: 'var(--text-light)', padding: '4px 0' }}>
-                No foods yet — tap "+ Add food" below.
-              </span>
-            ) : items.map((food, i) => (
-              <span
-                key={i}
-                onClick={() => onFoodClick(i)}
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 5,
-                  background: 'var(--surface-warm)', border: '1px solid var(--border-mid)',
-                  borderRadius: 10, padding: '8px 6px 8px 12px', fontSize: 13,
-                  fontWeight: 500, color: 'var(--text-dark)', cursor: 'pointer',
-                  outline: selectedFoodIndex === i ? '2px solid #E8735A' : 'none',
-                  outlineOffset: 1, minHeight: 40,
-                }}
-              >
-                {food.status && (
-                  <span style={{
-                    width: 7, height: 7, borderRadius: '50%', flexShrink: 0,
-                    background: food.status === 'okay' ? '#2d9e5f'
-                      : food.status === 'difficult' ? '#c9860a' : '#d63f3f',
-                  }} />
-                )}
-                {food.name}
-                {food.portion != null && food.portion < 1 && (
-                  <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--peach)', flexShrink: 0 }}>
-                    {PORTION_LABEL[food.portion]}
-                  </span>
-                )}
-                <button
-                  onClick={e => { e.stopPropagation(); onRemove(i) }}
-                  aria-label={`Remove ${food.name}`}
-                  style={{
-                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                    background: 'none', border: 'none', cursor: 'pointer',
-                    color: 'var(--text-light)', fontSize: 18, lineHeight: 1,
-                    padding: 0, fontFamily: 'inherit', minWidth: 32, minHeight: 32,
-                  }}
-                >×</button>
-              </span>
-            ))}
+              <span style={{ fontSize: 14, color: 'var(--text-mid)', padding: '4px 0' }}>Nothing written yet.</span>
+            ) : items.map((food, i) => {
+              const fm = OUTCOME_META[food.status]
+              return (
+                <span key={i} style={{
+                  display: 'inline-flex', alignItems: 'center', borderRadius: 'var(--radius)',
+                  border: '1px solid var(--border-mid)', background: 'white',
+                  outline: selectedFoodIndex === i ? '2px solid var(--ink)' : 'none', outlineOffset: 1,
+                }}>
+                  <button
+                    onClick={() => onFoodClick(i)}
+                    aria-pressed={selectedFoodIndex === i}
+                    aria-label={`${food.name}${fm ? `, ${fm.label}` : ''}. Set how much was eaten`}
+                    style={{
+                      all: 'unset', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6,
+                      minHeight: 44, padding: '0 4px 0 12px', fontSize: 15, color: 'var(--text-dark)',
+                    }}
+                  >
+                    {fm && <OutcomeMark mark={fm.mark} size={14} color={fm.color} />}
+                    {food.name}
+                    {food.portion != null && food.portion < 1 && (
+                      <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--st-some)' }}>{PORTION_LABEL[food.portion]}</span>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => onRemove(i)}
+                    aria-label={`Remove ${food.name}`}
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: 44, minHeight: 44,
+                      background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-mid)', padding: 0,
+                    }}
+                  ><Icon name="close" size={16} /></button>
+                </span>
+              )
+            })}
           </div>
 
-          {/* Per-food status */}
           {selectedFoodIndex != null && items[selectedFoodIndex] && (
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap',
-              background: 'var(--surface-warm)', border: '1px solid var(--border-mid)',
-              borderRadius: 10, padding: '8px 10px', marginBottom: 10,
-            }}>
-              <span style={{ fontSize: 11, color: 'var(--text-light)', marginRight: 2 }}>
-                {items[selectedFoodIndex].name}:
-              </span>
-              {[
-                { key: 'okay',      label: 'Ok',   color: '#2d9e5f' },
-                { key: 'difficult', label: 'Hard', color: '#c9860a' },
-                { key: 'refused',   label: 'No',   color: '#d63f3f' },
-              ].map(opt => {
-                const isSelected = items[selectedFoodIndex]?.status === opt.key
-                return (
-                  <button
-                    key={opt.key}
-                    onClick={() => onFoodStatusSet(meal.key, selectedFoodIndex, isSelected ? null : opt.key)}
-                    style={{
-                      padding: '11px 16px', borderRadius: 10, border: 'none',
-                      outline: isSelected ? `2px solid ${opt.color}` : '1px solid var(--border)',
-                      background: isSelected ? 'white' : 'white',
-                      color: opt.color, fontSize: 13, fontWeight: 600,
-                      cursor: 'pointer', minHeight: 44, fontFamily: "'Outfit', sans-serif",
-                    }}
-                  >{opt.label}</button>
-                )
-              })}
-              <span style={{ flexBasis: '100%', height: 0 }} />
-              <span style={{ fontSize: 11, color: 'var(--text-light)', marginRight: 2 }}>Ate:</span>
-              {PORTION_OPTIONS.map(p => {
-                const sel = items[selectedFoodIndex]?.portion === p.value
-                return (
-                  <button
-                    key={p.value}
-                    onClick={() => onFoodPortionSet?.(meal.key, selectedFoodIndex, sel ? null : p.value)}
-                    style={{
-                      minWidth: 44, padding: '11px 12px', borderRadius: 10, border: 'none',
-                      outline: sel ? '2px solid var(--peach)' : '1px solid var(--border)',
-                      background: 'white', color: sel ? 'var(--peach)' : 'var(--text-mid)',
-                      fontSize: 14, fontWeight: 700, cursor: 'pointer', minHeight: 44,
-                      fontFamily: "'Outfit', sans-serif",
-                    }}
-                  >{p.label}</button>
-                )
-              })}
+            <div style={{ background: 'var(--surface-warm)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '10px 12px', marginBottom: 12 }}>
+              <div style={{ fontSize: 14, color: 'var(--text-mid)', marginBottom: 8 }}>{items[selectedFoodIndex].name}</div>
+              <div role="group" aria-label="How it went" style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
+                {['okay', 'difficult', 'refused'].map(key => {
+                  const m = OUTCOME_META[key]
+                  const isSelected = items[selectedFoodIndex]?.status === key
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => onFoodStatusSet(meal.key, selectedFoodIndex, isSelected ? null : key)}
+                      aria-pressed={isSelected}
+                      style={choice(isSelected, m.color, m.bg)}
+                    ><OutcomeMark mark={m.mark} size={14} color={m.color} />{m.label}</button>
+                  )
+                })}
+              </div>
+              <div role="group" aria-label="How much was eaten" style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+                <span style={{ fontSize: 14, color: 'var(--text-mid)', marginRight: 2 }}>Ate</span>
+                {PORTION_OPTIONS.map(p => {
+                  const sel = items[selectedFoodIndex]?.portion === p.value
+                  return (
+                    <button
+                      key={p.value}
+                      onClick={() => onFoodPortionSet?.(meal.key, selectedFoodIndex, sel ? null : p.value)}
+                      aria-pressed={sel}
+                      style={{ ...choice(sel, 'var(--ink)', 'var(--ink-light)'), minWidth: 48, justifyContent: 'center' }}
+                    >{p.label}</button>
+                  )
+                })}
+              </div>
             </div>
           )}
 
           {recentList.length > 0 && (
             <div style={{ marginBottom: 10 }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-light)', letterSpacing: '0.7px', textTransform: 'uppercase', marginBottom: 6 }}>Recent</div>
+              <h4 style={sectionLabel}>Recent</h4>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                 {recentList.map(food => (
                   <button
                     key={food.id || food.name}
                     onClick={() => onAddItems([food])}
+                    aria-label={`Add ${food.name}`}
                     style={{
-                      minHeight: 40, padding: '8px 12px', borderRadius: 20, fontSize: 13, fontWeight: 500,
-                      border: '1px solid var(--border-mid)', background: 'white', color: 'var(--text-dark)',
-                      cursor: 'pointer', fontFamily: "'Outfit', sans-serif",
+                      display: 'inline-flex', alignItems: 'center', gap: 4, minHeight: 44, padding: '6px 12px',
+                      borderRadius: 'var(--radius)', fontSize: 15, border: '1px solid var(--border-mid)',
+                      background: 'white', color: 'var(--text-dark)', cursor: 'pointer',
                     }}
-                  >+ {food.name}</button>
+                  ><Icon name="plus" size={14} />{food.name}</button>
                 ))}
               </div>
             </div>
@@ -669,42 +637,43 @@ function MobileMealCard({
           <button
             onClick={onOpenAddFood}
             style={{
-              width: '100%', padding: 12, borderRadius: 12,
-              border: `1.5px dashed ${meal.color}`, background: 'none',
-              color: meal.color, fontSize: 13, fontWeight: 600, cursor: 'pointer',
-              minHeight: 44, marginBottom: 12, fontFamily: "'Outfit', sans-serif",
+              width: '100%', minHeight: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              borderRadius: 'var(--radius)', border: '1.5px dashed var(--ink-mid)', background: 'white',
+              color: 'var(--ink)', fontSize: 15, fontWeight: 700, cursor: 'pointer', marginBottom: 16,
             }}
-          >+ Add food</button>
+          ><Icon name="plus" size={18} />Add food</button>
 
-          <div style={{ display: 'flex', gap: 6 }}>
-            {STATUS_OPTIONS.map(opt => {
-              const isSkip = opt.key === 'skipped'
+          <h4 style={sectionLabel}>How it went</h4>
+          <div role="group" aria-label={`How ${meal.label} went`} style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
+            {OUTCOME_ORDER.map(key => {
+              const m = OUTCOME_META[key]
+              const isSkip = key === 'skipped'
               const enabled = isSkip ? !hasItems : hasItems
-              const selected = loggedStatus === opt.key
+              const selected = loggedStatus === key
               return (
                 <button
-                  key={opt.key}
-                  onClick={() => enabled && onQuickLog(selected ? null : opt.key)}
+                  key={key}
+                  onClick={() => enabled && onQuickLog(selected ? null : key)}
                   disabled={!enabled}
+                  aria-pressed={selected}
                   style={{
-                    flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
-                    padding: '9px 4px', borderRadius: 11, minHeight: 48,
-                    border: `1.5px solid ${selected ? opt.color : opt.border}`,
-                    background: selected ? opt.bg : 'white',
-                    cursor: enabled ? 'pointer' : 'default',
-                    opacity: enabled ? 1 : 0.38,
-                    fontFamily: "'Outfit', sans-serif",
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4,
+                    minHeight: 56, borderRadius: 'var(--radius)',
+                    border: `1.5px solid ${selected ? m.color : 'var(--border-mid)'}`,
+                    background: selected ? m.bg : 'white', color: enabled ? m.color : 'var(--text-light)',
+                    cursor: enabled ? 'pointer' : 'not-allowed', opacity: enabled ? 1 : 0.55,
+                    fontSize: 14, fontWeight: 700,
                   }}
-                >
-                  <span style={{ fontSize: 17 }}>{opt.emoji}</span>
-                  <span style={{ fontSize: 10, fontWeight: 500, color: selected ? opt.color : '#999' }}>{opt.label}</span>
-                </button>
+                ><OutcomeMark mark={m.mark} size={18} color="currentColor" />{m.label}</button>
               )
             })}
           </div>
+          {!hasItems && (
+            <p style={{ fontSize: 13, color: 'var(--text-mid)', marginTop: 6 }}>Add what was served to mark how it went.</p>
+          )}
 
           {loggedStatus && loggedStatus !== 'skipped' && (
-            <div style={{ marginTop: 10 }}>
+            <div style={{ marginTop: 14 }}>
               <DistressScale distress={distress} onSet={onDistressSet} compact />
             </div>
           )}
@@ -712,6 +681,17 @@ function MobileMealCard({
       )}
     </div>
   )
+}
+
+const sectionLabel = { fontSize: 14, fontWeight: 700, color: 'var(--text-dark)', margin: '0 0 8px' }
+
+function choice(selected, color, bg) {
+  return {
+    display: 'inline-flex', alignItems: 'center', gap: 6, minHeight: 44, padding: '6px 12px',
+    borderRadius: 'var(--radius)', fontSize: 15, fontWeight: 600, cursor: 'pointer',
+    border: `1.5px solid ${selected ? color : 'var(--border-mid)'}`,
+    background: selected ? bg : 'white', color: selected ? color : 'var(--text-dark)',
+  }
 }
 
 // ─── Mobile supplements: collapsible "N of M" row ────────────────────────────
@@ -741,15 +721,15 @@ function MobileSupplements({ checkedSupplements, onToggleChecked, prescribedSupp
         onClick={() => setOpen(o => !o)}
         style={{
           width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '12px 14px', minHeight: 48, borderRadius: 14,
+          padding: '12px 14px', minHeight: 48, borderRadius: 'var(--radius)',
           background: 'white', border: '1.5px solid var(--border)',
-          cursor: 'pointer', fontFamily: "'Outfit', sans-serif",
+          cursor: 'pointer', fontFamily: "var(--font-ui)",
         }}
       >
         <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--coral)' }}>
           Supplements · {done} of {total}
         </span>
-        <span style={{ fontSize: 13, color: 'var(--text-light)' }}>{open ? '▲' : '▼'}</span>
+        <Icon name={open ? 'up' : 'down'} size={16} style={{ color: 'var(--text-mid)' }} />
       </button>
       {open && (
         <div style={{ marginTop: 8 }}>
@@ -765,51 +745,6 @@ function MobileSupplements({ checkedSupplements, onToggleChecked, prescribedSupp
 }
 
 // ─── Progress ring ────────────────────────────────────────────────────────────
-
-function ProgressRing({ value, target, color, darkColor, label }) {
-  const size = 80
-  const strokeWidth = 7
-  const radius = (size - strokeWidth) / 2
-  const circumference = 2 * Math.PI * radius
-  const pct = Math.min(value / Math.max(target, 1), 1)
-  const offset = circumference * (1 - pct)
-  const met = value >= target
-
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-      <div style={{ position: 'relative', width: size, height: size }}>
-        <svg width={size} height={size}>
-          <circle cx={size / 2} cy={size / 2} r={radius}
-            fill="none" stroke="#E0E0E0" strokeWidth={strokeWidth} />
-          <circle cx={size / 2} cy={size / 2} r={radius}
-            fill="none"
-            stroke={met ? darkColor : color}
-            strokeWidth={strokeWidth}
-            strokeLinecap="round"
-            strokeDasharray={circumference}
-            strokeDashoffset={offset}
-            transform={`rotate(-90 ${size / 2} ${size / 2})`}
-            style={{ transition: 'stroke-dashoffset 0.4s ease' }}
-          />
-        </svg>
-        <div style={{
-          position: 'absolute', inset: 0,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 13, fontWeight: 700,
-          color: met ? darkColor : 'var(--text-mid)',
-        }}>
-          {value}g
-        </div>
-      </div>
-      <div style={{ textAlign: 'center' }}>
-        <div style={{ fontSize: 12, color: 'var(--text-light)', fontWeight: 500 }}>{label}</div>
-        {met && <div style={{ fontSize: 11, color: darkColor, fontWeight: 700, marginTop: 1 }}>✓</div>}
-      </div>
-    </div>
-  )
-}
-
-// ─── Parent note section ──────────────────────────────────────────────────────
 
 export function ParentNoteSection({ note, selectedDate, onSave, onDelete }) {
   const [body, setBody] = useState(note?.body || '')
@@ -849,20 +784,11 @@ export function ParentNoteSection({ note, selectedDate, onSave, onDelete }) {
 
   return (
     <div style={{ marginTop: 24, position: 'relative', paddingTop: 14 }}>
-      {/* Tape label */}
-      <div style={{
-        position: 'absolute', top: 0, left: '50%',
-        transform: 'translateX(-50%) rotate(-1deg)',
-        background: '#e8dcc8', borderRadius: 4,
-        width: 64, height: 14,
-        zIndex: 1, boxShadow: '0 1px 3px rgba(0,0,0,0.10)',
-      }} />
 
       {/* Notebook card */}
       <div style={{
         background: 'white', border: '1px solid var(--border)',
-        borderRadius: 16, overflow: 'hidden',
-        boxShadow: '0 2px 12px rgba(39,23,6,0.06)',
+        borderRadius: 'var(--radius)', overflow: 'hidden',
       }}>
         {/* Header */}
         <div style={{
@@ -875,26 +801,26 @@ export function ParentNoteSection({ note, selectedDate, onSave, onDelete }) {
           </span>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {isRead && (
-              <span style={{ fontSize: 11, color: 'var(--mint)', fontWeight: 500 }}>✓ Clinician read</span>
+              <span style={{ fontSize: 13, color: 'var(--mint)', fontWeight: 500 }}><Icon name="tick" size={15} style={{ display: 'inline-block', verticalAlign: '-3px', marginRight: 4 }} />Clinician read</span>
             )}
             {onDelete && note?.id && (
               confirmDelete ? (
-                <span style={{ fontSize: 11, color: 'var(--text-light)', whiteSpace: 'nowrap' }}>
+                <span style={{ fontSize: 13, color: 'var(--text-light)', whiteSpace: 'nowrap' }}>
                   Delete this note?{' '}
                   <button
                     onClick={handleDelete}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--pink)', fontWeight: 700, fontSize: 11, padding: 0, fontFamily: 'inherit' }}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--pink)', fontWeight: 700, fontSize: 13, padding: 0, fontFamily: 'inherit' }}
                   >Yes</button>
                   {' / '}
                   <button
                     onClick={() => setConfirmDelete(false)}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-light)', fontSize: 11, padding: 0, fontFamily: 'inherit' }}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-light)', fontSize: 13, padding: 0, fontFamily: 'inherit' }}
                   >Cancel</button>
                 </span>
               ) : (
                 <button
                   onClick={() => setConfirmDelete(true)}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-light)', fontSize: 11, padding: 0, fontFamily: 'inherit' }}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-light)', fontSize: 13, padding: 0, fontFamily: 'inherit' }}
                 >Delete note</button>
               )
             )}
@@ -903,11 +829,11 @@ export function ParentNoteSection({ note, selectedDate, onSave, onDelete }) {
 
         {/* Ruled writing area */}
         <div style={{
-          backgroundImage: 'repeating-linear-gradient(transparent, transparent 27px, #e8e0d4 27px, #e8e0d4 28px)',
+          backgroundImage: 'repeating-linear-gradient(transparent, transparent 27px, var(--border) 27px, var(--border) 28px)',
           backgroundSize: '100% 28px', backgroundPositionY: '4px',
           display: 'flex',
         }}>
-          <div style={{ width: 2, background: '#f4b8b8', flexShrink: 0, marginLeft: 20, marginRight: 12 }} />
+          <div style={{ width: 1, background: 'var(--margin)', flexShrink: 0, marginLeft: 20, marginRight: 12 }} />
           <div style={{ flex: 1, padding: '10px 16px 10px 0' }}>
             <textarea
               value={body}
@@ -932,25 +858,25 @@ export function ParentNoteSection({ note, selectedDate, onSave, onDelete }) {
           padding: '8px 20px 12px',
           borderTop: '1px solid var(--border)',
         }}>
-          <span style={{ fontSize: 11, color: 'var(--text-light)' }}>{body.length} / 1000</span>
+          <span style={{ fontSize: 13, color: 'var(--text-light)' }}>{body.length} / 1000</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {saveStatus === 'saved' && !isDirty && (
-              <span style={{ fontSize: 11, color: 'var(--mint)', fontWeight: 500 }}>✓ Saved</span>
+              <span style={{ fontSize: 13, color: 'var(--mint)', fontWeight: 500 }}><Icon name="tick" size={15} style={{ display: 'inline-block', verticalAlign: '-3px', marginRight: 4 }} />Saved</span>
             )}
             {saveStatus === 'error' && (
-              <span style={{ fontSize: 11, color: 'var(--pink)', fontWeight: 500 }}>Failed to save</span>
+              <span style={{ fontSize: 13, color: 'var(--pink)', fontWeight: 500 }}>Failed to save</span>
             )}
             <button
               onClick={handleSave}
               disabled={!isDirty || isSaving}
               style={{
-                background: !isDirty || isSaving ? 'rgba(184,85,53,0.15)' : 'linear-gradient(135deg, var(--coral) 0%, var(--pink) 100%)',
+                background: !isDirty || isSaving ? 'rgba(35,64,142,0.15)' : 'var(--ink)',
                 color: !isDirty || isSaving ? 'var(--text-light)' : 'white',
                 border: 'none', borderRadius: 20, padding: '6px 18px',
                 fontSize: 12, fontWeight: 600,
                 cursor: (!isDirty || isSaving) ? 'default' : 'pointer',
                 fontFamily: "'Lato', sans-serif", transition: 'all 0.15s',
-                boxShadow: !isDirty || isSaving ? 'none' : '0 2px 8px rgba(184,85,53,0.28)',
+
               }}
             >
               {isSaving ? 'Saving…' : note?.id ? 'Update note' : 'Save note'}
@@ -963,57 +889,6 @@ export function ParentNoteSection({ note, selectedDate, onSave, onDelete }) {
 }
 
 // ─── Daily progress panel ─────────────────────────────────────────────────────
-
-function DailyProgressPanel({ mealItems }) {
-  const { targets } = useNutritionalTargets()
-
-  const totals = useMemo(() => {
-    const all = Object.values(mealItems).flat()
-    const sums = { protein: 0, carbs: 0, fruitsVeggies: 0 }
-    for (const food of all) {
-      const info = lookupNutrition(food)
-      for (const n of RING_NUTRIENTS) sums[n.key] += n.getVal(info)
-    }
-    return {
-      protein:       Math.round(sums.protein),
-      carbs:         Math.round(sums.carbs),
-      fruitsVeggies: Math.round(sums.fruitsVeggies),
-    }
-  }, [mealItems])
-
-  const metCount = RING_NUTRIENTS.filter(n => totals[n.key] >= targets[n.key]).length
-
-  return (
-    <div style={{
-      marginTop: 24,
-      background: 'white', borderRadius: 16,
-      border: '1.5px solid var(--border)',
-      boxShadow: '0 2px 12px rgba(39,23,6,0.06)',
-      padding: '20px 24px',
-    }}>
-      <div style={{ marginBottom: 18 }}>
-        <div style={{ fontWeight: 700, fontSize: 15, color: '#E8735A' }}>Daily Progress</div>
-        <div style={{ fontSize: 12, color: 'var(--text-light)', marginTop: 2 }}>
-          {metCount} of 3 goals met
-        </div>
-      </div>
-      <div style={{ display: 'flex', justifyContent: 'center', gap: 40 }}>
-        {RING_NUTRIENTS.map(n => (
-          <ProgressRing
-            key={n.key}
-            value={totals[n.key]}
-            target={targets[n.key]}
-            color={n.color}
-            darkColor={n.darkColor}
-            label={n.label}
-          />
-        ))}
-      </div>
-    </div>
-  )
-}
-
-// ─── Clinician notes sidebar ──────────────────────────────────────────────────
 
 export function ClinicianNotesSidebar({
   clinicianNotes, clinicianNotesRead, markClinicianNoteRead, savedClinicianNotes, saveClinicianNote, unsaveClinicianNote, clearAllSavedNotes,
@@ -1054,19 +929,10 @@ export function ClinicianNotesSidebar({
 
   return (
     <div style={{ marginBottom: 22, position: 'relative', paddingTop: 14 }}>
-      {/* Tape */}
-      <div style={{
-        position: 'absolute', top: 0, left: '50%',
-        transform: 'translateX(-50%) rotate(-1deg)',
-        background: '#e8dcc8', borderRadius: 4,
-        width: 64, height: 14,
-        zIndex: 1, boxShadow: '0 1px 3px rgba(0,0,0,0.10)',
-      }} />
 
       <div style={{
         background: 'white', border: '1px solid var(--border)',
-        borderRadius: 14, overflow: 'hidden',
-        boxShadow: '0 2px 8px rgba(39,23,6,0.06)',
+        borderRadius: 'var(--radius)', overflow: 'hidden',
       }}>
         <div style={{ padding: '10px 12px 6px' }}>
           <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--coral)', fontFamily: "'Lato', sans-serif" }}>
@@ -1076,37 +942,37 @@ export function ClinicianNotesSidebar({
 
         {/* Ruled area */}
         <div style={{
-          backgroundImage: 'repeating-linear-gradient(transparent, transparent 27px, #e8e0d4 27px, #e8e0d4 28px)',
+          backgroundImage: 'repeating-linear-gradient(transparent, transparent 27px, var(--border) 27px, var(--border) 28px)',
           backgroundSize: '100% 28px', backgroundPositionY: '4px',
           display: 'flex', minHeight: 84,
         }}>
-          <div style={{ width: 2, background: '#f4b8b8', flexShrink: 0, marginLeft: 10, marginRight: 8 }} />
+          <div style={{ width: 1, background: 'var(--margin)', flexShrink: 0, marginLeft: 10, marginRight: 8 }} />
           <div style={{ flex: 1, padding: '8px 10px 8px 0' }}>
             {!latest ? (
               <div style={{ display: 'flex', gap: 5, alignItems: 'flex-start' }}>
-                <span style={{ color: 'rgba(184,85,53,0.3)', fontSize: 14, lineHeight: '28px' }}>○</span>
+                <span style={{ color: 'rgba(35,64,142,0.3)', fontSize: 14, lineHeight: '28px' }}><Icon name="dot" size={14} style={{ marginTop: 6 }} /></span>
                 <p style={{ margin: 0, fontSize: 12, color: 'var(--text-light)', fontStyle: 'italic', lineHeight: '28px' }}>No notes yet.</p>
               </div>
             ) : (
               <>
                 {isUpdated && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
-                    <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#F59E0B', flexShrink: 0, display: 'block' }} />
-                    <span style={{ fontSize: 9, fontWeight: 700, color: '#D97706', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Updated</span>
+                    <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--st-some)', flexShrink: 0, display: 'block' }} />
+                    <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--st-some)' }}>Updated</span>
                   </div>
                 )}
                 {!isRead && !isUpdated && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
-                    <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#F59E0B', flexShrink: 0, display: 'block' }} />
-                    <span style={{ fontSize: 9, fontWeight: 700, color: '#D97706', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Unread</span>
+                    <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--st-some)', flexShrink: 0, display: 'block' }} />
+                    <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--st-some)' }}>Unread</span>
                   </div>
                 )}
                 <div style={{ display: 'flex', gap: 5, alignItems: 'flex-start' }}>
-                  <span style={{ color: 'var(--coral)', fontSize: 14, lineHeight: '28px', flexShrink: 0 }}>○</span>
+                  <span style={{ color: 'var(--coral)', fontSize: 14, lineHeight: '28px', flexShrink: 0 }}><Icon name="dot" size={14} style={{ marginTop: 6 }} /></span>
                   <p style={{ margin: 0, fontSize: 12, color: 'var(--text-mid)', lineHeight: '28px' }}>{latest.body}</p>
                 </div>
                 {latest.created_at && (
-                  <p style={{ margin: '4px 0 0', fontSize: 10, color: 'var(--text-light)' }}>
+                  <p style={{ margin: '4px 0 0', fontSize: 12, color: 'var(--text-light)' }}>
                     {new Date(latest.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                   </p>
                 )}
@@ -1122,16 +988,16 @@ export function ClinicianNotesSidebar({
             display: 'flex', flexWrap: 'wrap', gap: 5, alignItems: 'center',
           }}>
             {isRead && !isUpdated ? (
-              <span style={{ fontSize: 10, color: 'var(--mint)', fontWeight: 500 }}>✓ Read</span>
+              <span style={{ fontSize: 12, color: 'var(--mint)', fontWeight: 500 }}><Icon name="tick" size={15} style={{ display: 'inline-block', verticalAlign: '-3px', marginRight: 4 }} />Read</span>
             ) : (
               <button
                 onClick={() => markClinicianNoteRead?.(latest)}
                 style={{
                   background: 'none', border: '1px solid var(--border-mid)',
-                  borderRadius: 20, padding: '3px 9px', fontSize: 10, fontWeight: 600,
-                  color: isUpdated ? '#D97706' : 'var(--coral)', cursor: 'pointer',
+                  borderRadius: 20, padding: '3px 9px', fontSize: 12, fontWeight: 600,
+                  color: isUpdated ? 'var(--st-some)' : 'var(--coral)', cursor: 'pointer',
                   fontFamily: "'Lato', sans-serif",
-                  borderColor: isUpdated ? '#FBB54A' : 'var(--border-mid)',
+                  borderColor: isUpdated ? 'var(--st-some)' : 'var(--border-mid)',
                 }}
               >Mark as read</button>
             )}
@@ -1140,23 +1006,23 @@ export function ClinicianNotesSidebar({
               style={{
                 background: isSaved ? 'var(--peach-light)' : 'none',
                 border: `1px solid ${isSaved ? 'var(--peach-mid)' : 'var(--border-mid)'}`,
-                borderRadius: 20, padding: '3px 9px', fontSize: 10, fontWeight: 600,
+                borderRadius: 20, padding: '3px 9px', fontSize: 12, fontWeight: 600,
                 color: isSaved ? 'var(--peach)' : 'var(--text-light)', cursor: 'pointer',
                 fontFamily: "'Lato', sans-serif",
               }}
-            >{isSaved ? '🔖 Saved' : 'Save 🔖'}</button>
+            >{isSaved ? 'Saved' : 'Save'}</button>
             {onHideNote && (
               confirmHideLatest ? (
-                <span style={{ fontSize: 10, color: 'var(--text-light)', whiteSpace: 'nowrap' }}>
+                <span style={{ fontSize: 12, color: 'var(--text-light)', whiteSpace: 'nowrap' }}>
                   Hide?{' '}
                   <button
                     onClick={() => { onHideNote(latest.id); setConfirmHideLatest(false) }}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--pink)', fontWeight: 700, fontSize: 10, padding: 0, fontFamily: 'inherit' }}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--pink)', fontWeight: 700, fontSize: 12, padding: 0, fontFamily: 'inherit' }}
                   >Yes</button>
                   {' / '}
                   <button
                     onClick={() => setConfirmHideLatest(false)}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-light)', fontSize: 10, padding: 0, fontFamily: 'inherit' }}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-light)', fontSize: 12, padding: 0, fontFamily: 'inherit' }}
                   >Cancel</button>
                 </span>
               ) : (
@@ -1165,7 +1031,7 @@ export function ClinicianNotesSidebar({
                   title="Remove from this list"
                   style={{
                     background: 'none', border: '1px solid var(--border-mid)',
-                    borderRadius: 20, padding: '3px 9px', fontSize: 10, fontWeight: 600,
+                    borderRadius: 20, padding: '3px 9px', fontSize: 12, fontWeight: 600,
                     color: 'var(--text-light)', cursor: 'pointer', fontFamily: "'Lato', sans-serif",
                   }}
                 >Hide</button>
@@ -1186,24 +1052,24 @@ export function ClinicianNotesSidebar({
               opacity: savedClinicianNotes.length > 0 ? 1 : 0.4,
             }}
           >
-            <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--peach)' }}>📌 {savedClinicianNotes.length} saved</span>
+            <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--peach)' }}>{savedClinicianNotes.length} saved</span>
             {savedClinicianNotes.length > 0 && (
-              <span style={{ fontSize: 10, color: 'var(--text-light)' }}>{showSaved ? '▲' : '▼'}</span>
+              <Icon name={showSaved ? 'up' : 'down'} size={16} style={{ color: 'var(--text-mid)' }} />
             )}
           </button>
           {showSaved && savedClinicianNotes.length > 0 && (
             <div style={{ borderTop: '1px solid var(--border)' }}>
               {[...savedClinicianNotes].reverse().map((note, i) => (
                 <div key={`${note.id}-${i}`} style={{
-                  backgroundImage: 'repeating-linear-gradient(transparent, transparent 27px, #e8e0d4 27px, #e8e0d4 28px)',
+                  backgroundImage: 'repeating-linear-gradient(transparent, transparent 27px, var(--border) 27px, var(--border) 28px)',
                   backgroundSize: '100% 28px', backgroundPositionY: '4px',
                   display: 'flex', borderBottom: '1px solid var(--border)',
                   position: 'relative',
                 }}>
-                  <div style={{ width: 2, background: '#f4b8b8', flexShrink: 0, marginLeft: 8, marginRight: 6 }} />
+                  <div style={{ width: 1, background: 'var(--margin)', flexShrink: 0, marginLeft: 8, marginRight: 6 }} />
                   <div style={{ flex: 1, padding: '7px 28px 7px 0' }}>
-                    <p style={{ margin: '0 0 3px', fontSize: 11, color: 'var(--text-mid)', lineHeight: '28px' }}>{note.body}</p>
-                    <span style={{ fontSize: 9, color: 'var(--text-light)' }}>
+                    <p style={{ margin: '0 0 3px', fontSize: 13, color: 'var(--text-mid)', lineHeight: '28px' }}>{note.body}</p>
+                    <span style={{ fontSize: 12, color: 'var(--text-light)' }}>
                       {new Date(note.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                     </span>
                   </div>
@@ -1217,22 +1083,22 @@ export function ClinicianNotesSidebar({
                       color: 'var(--text-light)', fontSize: 14, lineHeight: 1, padding: 0,
                       fontFamily: 'inherit', transition: 'color 0.15s',
                     }}
-                  >×</button>
+                  ><Icon name="close" size={18} /></button>
                 </div>
               ))}
               {/* Clear all */}
               <div style={{ padding: '7px 12px', display: 'flex', justifyContent: 'flex-end' }}>
                 {confirmClear ? (
-                  <span style={{ fontSize: 10, color: 'var(--text-mid)', fontFamily: "'Lato', sans-serif" }}>
+                  <span style={{ fontSize: 12, color: 'var(--text-mid)', fontFamily: "'Lato', sans-serif" }}>
                     Sure?{' '}
                     <button
                       onClick={() => { clearAllSavedNotes?.(); setShowSaved(false); setConfirmClear(false) }}
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--pink)', fontSize: 10, fontWeight: 600, padding: 0, fontFamily: 'inherit' }}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--pink)', fontSize: 12, fontWeight: 600, padding: 0, fontFamily: 'inherit' }}
                     >Yes</button>
                     {' / '}
                     <button
                       onClick={() => setConfirmClear(false)}
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-light)', fontSize: 10, padding: 0, fontFamily: 'inherit' }}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-light)', fontSize: 12, padding: 0, fontFamily: 'inherit' }}
                     >Cancel</button>
                   </span>
                 ) : (
@@ -1242,7 +1108,7 @@ export function ClinicianNotesSidebar({
                     onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-light)' }}
                     style={{
                       background: 'none', border: 'none', cursor: 'pointer',
-                      fontSize: 10, color: 'var(--text-light)', padding: 0,
+                      fontSize: 12, color: 'var(--text-light)', padding: 0,
                       fontFamily: "'Lato', sans-serif", transition: 'color 0.15s',
                     }}
                   >Clear all saved</button>
@@ -1263,8 +1129,8 @@ export function ClinicianNotesSidebar({
                 cursor: 'pointer', fontFamily: "'Lato', sans-serif",
               }}
             >
-              <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-mid)' }}>History ({olderNotes.filter(n => !hiddenNoteIds.includes(n.id)).length})</span>
-              <span style={{ fontSize: 10, color: 'var(--text-light)' }}>{showAll ? '▲' : '▼'}</span>
+              <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-mid)' }}>History ({olderNotes.filter(n => !hiddenNoteIds.includes(n.id)).length})</span>
+              <Icon name={showAll ? 'up' : 'down'} size={16} style={{ color: 'var(--text-mid)' }} />
             </button>
             {showAll && (
               <div style={{ borderTop: '1px solid var(--border)' }}>
@@ -1291,11 +1157,11 @@ export function ClinicianNotesSidebar({
                           color: 'var(--text-light)', fontSize: 14, lineHeight: 1, padding: 0,
                           fontFamily: 'inherit',
                         }}
-                      >×</button>
-                      <div style={{ fontSize: 9, color: 'var(--text-light)', marginBottom: 3 }}>
+                      ><Icon name="close" size={18} /></button>
+                      <div style={{ fontSize: 12, color: 'var(--text-light)', marginBottom: 3 }}>
                         {new Date(note.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                       </div>
-                      <p style={{ margin: 0, fontSize: 11, color: 'var(--text-mid)', lineHeight: 1.5 }}>
+                      <p style={{ margin: 0, fontSize: 13, color: 'var(--text-mid)', lineHeight: 1.5 }}>
                         {isExpanded ? note.body : preview}
                       </p>
                     </div>
@@ -1317,8 +1183,8 @@ export function ClinicianNotesSidebar({
                 cursor: 'pointer', fontFamily: "'Lato', sans-serif",
               }}
             >
-              <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-light)' }}>Removed ({removedNotes.length})</span>
-              <span style={{ fontSize: 10, color: 'var(--text-light)' }}>{showHidden ? '▲' : '▼'}</span>
+              <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-light)' }}>Removed ({removedNotes.length})</span>
+              <Icon name={showHidden ? 'up' : 'down'} size={16} style={{ color: 'var(--text-mid)' }} />
             </button>
             {showHidden && (
               <div style={{ borderTop: '1px solid var(--border)' }}>
@@ -1327,14 +1193,14 @@ export function ClinicianNotesSidebar({
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8,
                     padding: '8px 12px', borderBottom: '1px solid var(--border)',
                   }}>
-                    <p style={{ margin: 0, fontSize: 11, color: 'var(--text-light)', lineHeight: 1.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <p style={{ margin: 0, fontSize: 13, color: 'var(--text-light)', lineHeight: 1.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {note.body}
                     </p>
                     <button
                       onClick={() => onUnhideNote?.(note.id)}
                       style={{
                         flexShrink: 0, background: 'none', border: '1px solid var(--border-mid)',
-                        borderRadius: 20, padding: '3px 9px', fontSize: 10, fontWeight: 600,
+                        borderRadius: 20, padding: '3px 9px', fontSize: 12, fontWeight: 600,
                         color: 'var(--mint)', cursor: 'pointer', fontFamily: "'Lato', sans-serif",
                       }}
                     >Restore</button>
@@ -1359,8 +1225,24 @@ export default function DailyView() {
   const [expandedMeal, setExpandedMeal] = useState(null)
   const [addFoodSheetMeal, setAddFoodSheetMeal] = useState(null)
   const [quickLogMealKey, setQuickLogMealKey] = useState(null)
+  const [helpOpen, setHelpOpen] = useState(false)
+  const [helpNote, setHelpNote] = useState('')
+  const [dismissedSupport, setDismissedSupport] = useState(() => new Set())
   const isMobile = useIsMobile()
-  const { hideNutritionNumbers } = useAppMode()
+
+  function openHelp(note) {
+    setHelpNote(note)
+    setHelpOpen(true)
+  }
+
+  function dismissSupport(key) {
+    setDismissedSupport(prev => new Set(prev).add(key))
+  }
+
+  function goToToday() {
+    setWeekOffset(0)
+    setSelectedDay(getTodayKey())
+  }
 
   const {
     quickLogMeal,
@@ -1420,21 +1302,6 @@ export default function DailyView() {
   }
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }))
-
-  // Weekly status counts from Firebase mealStatuses, scoped to the selected week
-  const weeklyStatusCounts = useMemo(() => {
-    let okay = 0, difficult = 0, refused = 0, skipped = 0
-    for (const dateIso of Object.values(weekDates)) {
-      const dateStatuses = mealStatuses[dateIso] || {}
-      for (const status of Object.values(dateStatuses)) {
-        if (status === 'okay') okay++
-        else if (status === 'difficult') difficult++
-        else if (status === 'refused') refused++
-        else if (status === 'skipped') skipped++
-      }
-    }
-    return { okay, difficult, refused, skipped }
-  }, [mealStatuses, weekDates])
 
   function addFoodToMeal(mealType, food) {
     setMealItemsForDay(prev => ({ ...prev, [mealType]: [...prev[mealType], food] }))
@@ -1500,124 +1367,95 @@ export default function DailyView() {
 
   if (isMobile) {
     const dateObj = new Date(selectedDate + 'T12:00:00')
-    const dayLabel = selectedDate === TODAY_ISO
-      ? 'Today'
-      : dateObj.toLocaleDateString('en-US', { weekday: 'long' })
-    const dateLabel = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    const isToday = selectedDate === TODAY_ISO
+    const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' })
+    const dateLabel = dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })
 
     return (
       <>
-        <div style={{ padding: '12px 14px 32px', maxWidth: 480, margin: '0 auto', width: '100%' }}>
-
-          {/* Compact day header */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-            <button
-              onClick={() => stepDay(-1)}
-              aria-label="Previous day"
-              style={{
-                width: 40, height: 40, borderRadius: '50%', border: 'none',
-                background: 'white', boxShadow: '0 1px 4px rgba(39,23,6,0.08)',
-                color: 'var(--text-light)', fontSize: 18, cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-              }}
-            >‹</button>
-            <div style={{ textAlign: 'center' }}>
-              <div className="font-lora" style={{ fontSize: 17, fontWeight: 500, color: 'var(--text-dark)' }}>{dayLabel}</div>
-              <div style={{ fontSize: 11, color: 'var(--text-light)' }}>{dateLabel}</div>
+        <div style={{ maxWidth: 560, margin: '0 auto', width: '100%', padding: '4px 0 32px' }}>
+          <header style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, padding: '12px 16px 4px' }}>
+            <div style={{ minWidth: 0 }}>
+              <h1 className="font-hand" style={{ fontSize: 32, fontWeight: 600, lineHeight: 1.1 }}>{isToday ? 'Today' : dayName}</h1>
+              <p style={{ fontSize: 15, color: 'var(--text-mid)', marginTop: 4 }}>{isToday ? `${dayName}, ${dateLabel}` : dateLabel}</p>
             </div>
-            <button
-              onClick={() => stepDay(1)}
-              aria-label="Next day"
-              style={{
-                width: 40, height: 40, borderRadius: '50%', border: 'none',
-                background: 'white', boxShadow: '0 1px 4px rgba(39,23,6,0.08)',
-                color: 'var(--text-light)', fontSize: 18, cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-              }}
-            >›</button>
-          </div>
+            <NeedHelpButton onClick={() => openHelp('')} />
+          </header>
 
-          {/* Meal cards */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <nav aria-label="Change day" style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px 10px' }}>
+            <DayStepButton dir={-1} onClick={() => stepDay(-1)} />
+            <DayStepButton dir={1} onClick={() => stepDay(1)} />
+            {!isToday && (
+              <button onClick={goToToday} style={{
+                minHeight: 44, padding: '6px 12px', border: 'none', background: 'none', color: 'var(--ink)',
+                fontSize: 15, fontWeight: 700, cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: 3,
+              }}>Back to today</button>
+            )}
+          </nav>
+
+          <section aria-label="Meals" style={{
+            background: 'white', borderTop: '1px solid var(--rule-strong)', borderBottom: '1px solid var(--rule-strong)',
+            backgroundImage: `linear-gradient(to right, transparent ${MARGIN - 1}px, var(--margin) ${MARGIN - 1}px, var(--margin) ${MARGIN}px, transparent ${MARGIN}px)`,
+          }}>
             {MEALS.map(meal => {
               const localStatus = (mealStatuses[selectedDate] || {})[meal.key] ?? null
               const latestLog = localStatus ? { status: localStatus } : null
+              const distress = mealDistress?.[selectedDate]?.[meal.key] || null
+              const supportKey = `${selectedDate}-${meal.key}`
+              const showSupport = !dismissedSupport.has(supportKey) && needsSupport({ status: localStatus, distress })
               return (
-                <MobileMealCard
-                  key={meal.key}
-                  meal={meal}
-                  items={mealItems[meal.key]}
-                  latestLog={latestLog}
-                  onQuickLog={status => handleQuickLog(meal.key, status)}
-                  time={mealTimes[meal.key]}
-                  onTimeChange={(mealType, value) => updateMealTime(selectedDate, mealType, value)}
-                  distress={mealDistress?.[selectedDate]?.[meal.key] || null}
-                  onDistressSet={patch => setMealDistress(selectedDate, meal.key, patch)}
-                  expanded={expandedMeal === meal.key}
-                  onToggleExpand={() => setExpandedMeal(prev => prev === meal.key ? null : meal.key)}
-                  onOpenAddFood={() => setAddFoodSheetMeal(meal.key)}
-                  onRemove={index => removeItem(meal.key, index)}
-                  selectedFoodIndex={selectedFood?.mealType === meal.key ? selectedFood.index : null}
-                  onFoodClick={index => setSelectedFood(
-                    selectedFood?.mealType === meal.key && selectedFood?.index === index
-                      ? null
-                      : { mealType: meal.key, index }
+                <Fragment key={meal.key}>
+                  <MobileMealCard
+                    meal={meal}
+                    items={mealItems[meal.key]}
+                    latestLog={latestLog}
+                    onQuickLog={status => handleQuickLog(meal.key, status)}
+                    time={mealTimes[meal.key]}
+                    onTimeChange={(mealType, value) => updateMealTime(selectedDate, mealType, value)}
+                    distress={distress}
+                    onDistressSet={patch => setMealDistress(selectedDate, meal.key, patch)}
+                    expanded={expandedMeal === meal.key}
+                    onToggleExpand={() => setExpandedMeal(prev => prev === meal.key ? null : meal.key)}
+                    onOpenAddFood={() => setAddFoodSheetMeal(meal.key)}
+                    onRemove={index => removeItem(meal.key, index)}
+                    selectedFoodIndex={selectedFood?.mealType === meal.key ? selectedFood.index : null}
+                    onFoodClick={index => setSelectedFood(
+                      selectedFood?.mealType === meal.key && selectedFood?.index === index
+                        ? null
+                        : { mealType: meal.key, index }
+                    )}
+                    onFoodStatusSet={setFoodStatus}
+                    onFoodPortionSet={setFoodPortion}
+                    onOpenLog={() => setQuickLogMealKey(meal.key)}
+                    yesterdayItems={sameAsYesterday(allMealItems, selectedDate, meal.key)}
+                    recentList={recentFoods(allMealItems, { date: selectedDate, mealType: meal.key, exclude: mealItems[meal.key] })}
+                    onAddItems={foods => addFoodsToMeal(meal.key, foods)}
+                  />
+                  {showSupport && (
+                    <div style={{ padding: `8px 10px 12px ${MARGIN + 8}px`, borderBottom: '1px solid var(--rule)' }}>
+                      <HardMomentCard
+                        onMessage={() => openHelp(hardMealNote({ mealLabel: meal.label, dateLabel: shortDate(selectedDate), outcomeLabel: outcomeLabel(localStatus) }))}
+                        onHelp={() => openHelp('')}
+                        onDismiss={() => dismissSupport(supportKey)}
+                      />
+                    </div>
                   )}
-                  onFoodStatusSet={setFoodStatus}
-                  onFoodPortionSet={setFoodPortion}
-                  onOpenLog={() => setQuickLogMealKey(meal.key)}
-                  yesterdayItems={sameAsYesterday(allMealItems, selectedDate, meal.key)}
-                  recentList={recentFoods(allMealItems, { date: selectedDate, mealType: meal.key, exclude: mealItems[meal.key] })}
-                  onAddItems={foods => addFoodsToMeal(meal.key, foods)}
-                />
+                </Fragment>
               )
             })}
+          </section>
+
+          <div style={{ padding: '0 16px' }}>
+            <MobileSupplements
+              checkedSupplements={checkedSupplements}
+              onToggleChecked={handleToggleSupplement}
+              prescribedSupplements={prescribedSupplements}
+            />
+
+            <p style={{ fontSize: 13, color: 'var(--text-mid)', lineHeight: 1.55, marginTop: 28, maxWidth: '60ch' }}>
+              Plate Together helps families and their care team plan meals. It is not a substitute for medical advice.
+            </p>
           </div>
-
-          <MobileSupplements
-            checkedSupplements={checkedSupplements}
-            onToggleChecked={handleToggleSupplement}
-            prescribedSupplements={prescribedSupplements}
-          />
-
-          {/* Daily progress rings */}
-          {!hideNutritionNumbers && <DailyProgressPanel mealItems={mealItems} />}
-          {hideNutritionNumbers && <WarningSignsCard />}
-
-          {/* Notes live in their own tab on mobile — see NotesView */}
-
-          <div style={{ marginTop: 18 }}>
-            <div style={{
-              fontSize: 10, fontWeight: 700, color: 'var(--text-light)',
-              letterSpacing: '0.7px', textTransform: 'uppercase', marginBottom: 9,
-            }}>
-              {weekOffset === 0 ? 'This Week' : weekOffset === -1 ? 'Last Week' : weekOffset === 1 ? 'Next Week' : 'Selected Week'}
-            </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-              {[
-                { label: 'Okay',      count: weeklyStatusCounts.okay,      color: '#2d9e5f', bg: '#eaf7f0', border: '#a8ddc0' },
-                { label: 'Difficult', count: weeklyStatusCounts.difficult, color: '#c9860a', bg: '#fef8e7', border: '#f5d07a' },
-                { label: 'Refused',   count: weeklyStatusCounts.refused,   color: '#d63f3f', bg: '#fdeaea', border: '#f5a8a8' },
-                { label: 'Skipped',   count: weeklyStatusCounts.skipped,   color: '#8a7568', bg: '#f1ece3', border: '#ddd0bd' },
-              ].map(s => (
-                <div key={s.label} style={{
-                  flex: '1 1 calc(50% - 4px)', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                  padding: '8px 11px', borderRadius: 10, background: s.bg,
-                  border: `1px solid ${s.border}`, boxSizing: 'border-box',
-                }}>
-                  <span style={{ fontSize: 12, color: s.color, fontWeight: 500 }}>{s.label}</span>
-                  <span style={{ fontSize: 16, fontWeight: 700, color: s.color }}>{s.count}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <p style={{
-            fontSize: 11, color: 'var(--text-light)', lineHeight: 1.6,
-            borderTop: '1px solid var(--border)', paddingTop: 18, marginTop: 24,
-          }}>
-            This tool supports meal planning between families and their care team. Not a substitute for medical advice.
-          </p>
         </div>
 
         <AddFoodSheet
@@ -1641,6 +1479,8 @@ export default function DailyView() {
           }}
           onClose={() => setQuickLogMealKey(null)}
         />
+
+        <HelpSheet key={helpNote} open={helpOpen} defaultNote={helpNote} onClose={() => setHelpOpen(false)} />
       </>
     )
   }
@@ -1666,107 +1506,104 @@ export default function DailyView() {
         {/* Center */}
         <main style={{ flex: 1, padding: '24px 28px', overflowY: 'auto' }}>
 
-          {/* Day selector */}
-          <div style={{ marginBottom: 24 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-              <button
-                onClick={() => setWeekOffset(o => o - 1)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-light)', fontSize: 18, padding: '0 4px', fontFamily: 'inherit' }}
-              >‹</button>
-              <span style={{ fontSize: 12, color: weekOffset === 0 ? 'var(--coral)' : 'var(--text-light)', fontWeight: 600 }}>
-                {weekOffset === 0 ? 'This week' : weekOffset === -1 ? 'Last week' : weekOffset === 1 ? 'Next week' : (() => {
-                  const mon = weekDates['mon']
-                  const sun = weekDates['sun']
-                  return `${new Date(mon + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${new Date(sun + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
-                })()}
-                {weekOffset !== 0 && (
-                  <button
-                    onClick={() => setWeekOffset(0)}
-                    style={{ marginLeft: 8, background: 'none', border: '1px solid var(--border-mid)', borderRadius: 6, cursor: 'pointer', color: 'var(--coral)', fontSize: 10, fontWeight: 600, padding: '2px 7px', fontFamily: 'inherit' }}
-                  >Today</button>
-                )}
-              </span>
-              <button
-                onClick={() => setWeekOffset(o => o + 1)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-light)', fontSize: 18, padding: '0 4px', fontFamily: 'inherit' }}
-              >›</button>
+          {/* Day heading and day selector */}
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, marginBottom: 14 }}>
+            <div>
+              <h1 className="font-hand" style={{ fontSize: 34, fontWeight: 600, lineHeight: 1.1 }}>
+                {selectedDate === TODAY_ISO ? 'Today' : new Date(selectedDate + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long' })}
+              </h1>
+              <p style={{ fontSize: 15, color: 'var(--text-mid)', marginTop: 4 }}>
+                {new Date(selectedDate + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+              </p>
             </div>
-            <div style={{
-              display: 'flex', gap: 4, background: 'white',
-              borderRadius: 16, padding: 4,
-              border: '1.5px solid var(--border)',
-              boxShadow: '0 2px 8px rgba(39,23,6,0.05)',
-            }}>
+            <NeedHelpButton onClick={() => openHelp('')} />
+          </div>
+
+          <div style={{ marginBottom: 22 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              <button onClick={() => setWeekOffset(o => o - 1)} aria-label="Previous week" style={weekNavBtn}><Icon name="left" size={18} /></button>
+              <span style={{ fontSize: 14, color: 'var(--text-dark)', fontWeight: 600 }}>
+                {weekOffset === 0 ? 'This week' : weekOffset === -1 ? 'Last week' : weekOffset === 1 ? 'Next week' : `${shortDate(weekDates.mon)} – ${shortDate(weekDates.sun)}`}
+              </span>
+              <button onClick={() => setWeekOffset(o => o + 1)} aria-label="Next week" style={weekNavBtn}><Icon name="right" size={18} /></button>
+              {weekOffset !== 0 && (
+                <button onClick={goToToday} style={{ border: 'none', background: 'none', color: 'var(--ink)', fontSize: 14, fontWeight: 700, cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: 3 }}>Back to today</button>
+              )}
+            </div>
+            <div role="tablist" aria-label="Day" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', borderTop: '1px solid var(--rule-strong)', borderBottom: '1px solid var(--rule-strong)', background: 'white' }}>
               {DAYS.map(day => {
                 const dateIso = weekDates[day.key]
                 const isToday = dateIso === TODAY_ISO
                 const isSelected = day.key === selectedDay
                 const dateObj = new Date(dateIso + 'T12:00:00')
-                const dateLabel = `${dateObj.getMonth() + 1}/${dateObj.getDate()}`
                 return (
                   <button
                     key={day.key}
+                    role="tab"
+                    aria-selected={isSelected}
                     onClick={() => setSelectedDay(day.key)}
                     style={{
-                      flex: 1, padding: '7px 4px', borderRadius: 12, border: 'none',
-                      background: isSelected
-                        ? 'linear-gradient(135deg, var(--coral) 0%, var(--pink) 100%)'
-                        : 'transparent',
-                      color: isSelected ? 'white' : isToday ? 'var(--coral)' : 'var(--text-light)',
-                      fontWeight: isSelected ? 600 : isToday ? 600 : 400,
-                      fontSize: 11, cursor: 'pointer', transition: 'all 0.15s',
-                      boxShadow: isSelected ? '0 2px 8px rgba(184,85,53,0.3)' : 'none',
-                      fontFamily: "'Lato', sans-serif",
+                      padding: '8px 4px', minHeight: 52, border: 'none', cursor: 'pointer',
+                      borderBottom: isSelected ? '3px solid var(--ink)' : '3px solid transparent',
+                      background: isSelected ? 'var(--ink-light)' : 'transparent',
+                      color: isSelected ? 'var(--ink)' : 'var(--text-dark)',
+                      fontWeight: isSelected || isToday ? 700 : 500, fontSize: 14,
                       display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
                     }}
                   >
-                    <span>{day.label}</span>
-                    <span style={{ fontSize: 10, opacity: isSelected ? 0.85 : 0.7 }}>{dateLabel}</span>
-                    {isToday && !isSelected && (
-                      <span style={{
-                        width: 3, height: 3, borderRadius: '50%',
-                        background: 'var(--coral)', display: 'block',
-                      }} />
-                    )}
+                    <span>{day.label}{isToday ? ' (today)' : ''}</span>
+                    <span style={{ fontSize: 13, color: 'var(--text-mid)', fontWeight: 400 }}>{dateObj.getDate()}</span>
                   </button>
                 )
               })}
             </div>
           </div>
 
-          {/* Meal cards */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {/* Meal lines */}
+          <section aria-label="Meals" style={{
+            background: 'white', border: '1px solid var(--rule-strong)', borderRadius: 'var(--radius)', overflow: 'hidden',
+            backgroundImage: `linear-gradient(to right, transparent ${DESK_MARGIN - 1}px, var(--margin) ${DESK_MARGIN - 1}px, var(--margin) ${DESK_MARGIN}px, transparent ${DESK_MARGIN}px)`,
+          }}>
             {MEALS.map(meal => {
               const localStatus = (mealStatuses[selectedDate] || {})[meal.key] ?? null
               const latestLog = localStatus ? { status: localStatus } : null
+              const distress = mealDistress?.[selectedDate]?.[meal.key] || null
+              const supportKey = `${selectedDate}-${meal.key}`
+              const showSupport = !dismissedSupport.has(supportKey) && needsSupport({ status: localStatus, distress })
               return (
-                <MealCard
-                  key={meal.key}
-                  meal={meal}
-                  items={mealItems[meal.key]}
-                  onRemove={index => removeItem(meal.key, index)}
-                  latestLog={latestLog}
-                  onQuickLog={status => handleQuickLog(meal.key, status)}
-                  time={mealTimes[meal.key]}
-                  onTimeChange={(mealType, value) => updateMealTime(selectedDate, mealType, value)}
-                  distress={mealDistress?.[selectedDate]?.[meal.key] || null}
-                  onDistressSet={patch => setMealDistress(selectedDate, meal.key, patch)}
-                  selectedFoodIndex={selectedFood?.mealType === meal.key ? selectedFood.index : null}
-                  onFoodClick={index => setSelectedFood(
-                    selectedFood?.mealType === meal.key && selectedFood?.index === index
-                      ? null
-                      : { mealType: meal.key, index }
+                <Fragment key={meal.key}>
+                  <MealCard
+                    meal={meal}
+                    items={mealItems[meal.key]}
+                    onRemove={index => removeItem(meal.key, index)}
+                    latestLog={latestLog}
+                    onQuickLog={status => handleQuickLog(meal.key, status)}
+                    time={mealTimes[meal.key]}
+                    onTimeChange={(mealType, value) => updateMealTime(selectedDate, mealType, value)}
+                    distress={distress}
+                    onDistressSet={patch => setMealDistress(selectedDate, meal.key, patch)}
+                    selectedFoodIndex={selectedFood?.mealType === meal.key ? selectedFood.index : null}
+                    onFoodClick={index => setSelectedFood(
+                      selectedFood?.mealType === meal.key && selectedFood?.index === index
+                        ? null
+                        : { mealType: meal.key, index }
+                    )}
+                    onFoodStatusSet={setFoodStatus}
+                    onFoodPortionSet={setFoodPortion}
+                  />
+                  {showSupport && (
+                    <div style={{ padding: `10px 16px 14px ${DESK_MARGIN + 16}px`, borderBottom: '1px solid var(--rule)' }}>
+                      <HardMomentCard
+                        onMessage={() => openHelp(hardMealNote({ mealLabel: meal.label, dateLabel: shortDate(selectedDate), outcomeLabel: outcomeLabel(localStatus) }))}
+                        onHelp={() => openHelp('')}
+                        onDismiss={() => dismissSupport(supportKey)}
+                      />
+                    </div>
                   )}
-                  onFoodStatusSet={setFoodStatus}
-                  onFoodPortionSet={setFoodPortion}
-                />
+                </Fragment>
               )
             })}
-          </div>
-
-          {/* Daily progress rings */}
-          {!hideNutritionNumbers && <DailyProgressPanel mealItems={mealItems} />}
-          {hideNutritionNumbers && <WarningSignsCard />}
+          </section>
 
           {/* Parent note for this day */}
           <ParentNoteSection
@@ -1780,10 +1617,10 @@ export default function DailyView() {
           />
 
           <p style={{
-            fontSize: 11, color: 'var(--text-light)', lineHeight: 1.6,
-            borderTop: '1px solid var(--border)', paddingTop: 18, marginTop: 28,
+            fontSize: 13, color: 'var(--text-mid)', lineHeight: 1.55, maxWidth: '60ch',
+            borderTop: '1px solid var(--rule)', paddingTop: 18, marginTop: 28,
           }}>
-            This tool supports meal planning between families and their care team. Not a substitute for medical advice.
+            Plate Together helps families and their care team plan meals. It is not a substitute for medical advice.
           </p>
         </main>
 
@@ -1793,18 +1630,6 @@ export default function DailyView() {
           borderLeft: '1px solid var(--border)',
           padding: '24px 18px', overflowY: 'auto', background: 'white',
         }}>
-          <div style={{ textAlign: 'center', marginBottom: 22 }}>
-            <div style={{
-              width: 44, height: 44, borderRadius: '50%',
-              background: 'linear-gradient(135deg, var(--coral) 0%, var(--pink) 100%)',
-              margin: '0 auto 10px',
-              display: 'flex', alignItems: 'center',
-              justifyContent: 'center', color: 'white', fontWeight: 700, fontSize: 16,
-              boxShadow: '0 3px 10px rgba(184,85,53,0.28)',
-            }}>P</div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-dark)' }}>Parent</div>
-          </div>
-
           <ClinicianNotesSidebar
             clinicianNotes={clinicianNotes}
             clinicianNotesRead={clinicianNotesRead}
@@ -1818,30 +1643,6 @@ export default function DailyView() {
             onUnhideNote={unhideClinicianNote}
           />
 
-          <div>
-            <div style={{
-              fontSize: 10, fontWeight: 700, color: 'var(--text-light)',
-              letterSpacing: '0.7px', textTransform: 'uppercase', marginBottom: 9,
-            }}>
-              {weekOffset === 0 ? 'This Week' : weekOffset === -1 ? 'Last Week' : weekOffset === 1 ? 'Next Week' : 'Selected Week'}
-            </div>
-            {[
-              { label: 'Okay',      count: weeklyStatusCounts.okay,      color: '#2d9e5f', bg: '#eaf7f0', border: '#a8ddc0' },
-              { label: 'Difficult', count: weeklyStatusCounts.difficult, color: '#c9860a', bg: '#fef8e7', border: '#f5d07a' },
-              { label: 'Refused',   count: weeklyStatusCounts.refused,   color: '#d63f3f', bg: '#fdeaea', border: '#f5a8a8' },
-              { label: 'Skipped',   count: weeklyStatusCounts.skipped,   color: '#8a7568', bg: '#f1ece3', border: '#ddd0bd' },
-            ].map(s => (
-              <div key={s.label} style={{
-                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                padding: '8px 11px', borderRadius: 10, background: s.bg,
-                marginBottom: 7, border: `1px solid ${s.border}`,
-              }}>
-                <span style={{ fontSize: 12, color: s.color, fontWeight: 500 }}>{s.label}</span>
-                <span style={{ fontSize: 16, fontWeight: 700, color: s.color }}>{s.count}</span>
-              </div>
-            ))}
-          </div>
-
           <div style={{ marginTop: 22 }}>
             <SupplementChecklist
               checkedSupplements={checkedSupplements}
@@ -1852,7 +1653,9 @@ export default function DailyView() {
         </aside>
       </div>
 
-      <DragOverlay modifiers={[snapCenterToCursor]} dropAnimation={{ duration: 180, easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)' }}>
+      <HelpSheet key={helpNote} open={helpOpen} defaultNote={helpNote} onClose={() => setHelpOpen(false)} />
+
+      <DragOverlay modifiers={[snapCenterToCursor]} dropAnimation={{ duration: 180, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' }}>
         {activeDrag ? <FoodCardPreview name={activeDrag.name} category={activeDrag.category} floating /> : null}
       </DragOverlay>
     </DndContext>

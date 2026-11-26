@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import NutritionBadge from './NutritionBadge'
-import ChevronButton from './ChevronButton'
+import Icon, { OutcomeMark } from './Icon'
 import { localIsoDate } from '../lib/constants'
+import { OUTCOME_META, needsSupport } from '../lib/outcomes'
 
 const DAYS = [
   { key: 'mon', label: 'Mon' },
@@ -16,17 +17,16 @@ const DAYS = [
 const MEAL_TYPES = [
   { key: 'breakfast', label: 'Breakfast' },
   { key: 'lunch',     label: 'Lunch' },
-  { key: 'dinner',    label: 'Dinner' },
   { key: 'snack',     label: 'Snack' },
+  { key: 'dinner',    label: 'Dinner' },
 ]
 
 const PORTION_FRACTION = { 0.25: '¼', 0.5: '½', 0.75: '¾', 1: 'all' }
-
-const SLOT_BASE = 'border rounded-lg p-2 min-h-[80px] transition-colors duration-150 relative'
-const STATUS_DOT = { okay: 'bg-green-500', difficult: 'bg-yellow-500', refused: 'bg-red-500', skipped: 'bg-stone-400' }
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
-
 const TODAY_ISO = localIsoDate()
+const COLS = '108px repeat(7, minmax(0, 1fr))'
+// Ruled table: every cell draws its right and bottom rule; the table draws the top and left.
+const CELL_RULES = { borderRight: '1px solid var(--rule-strong)', borderBottom: '1px solid var(--rule-strong)' }
 
 function getWeekDates(offset = 0) {
   const today = new Date()
@@ -40,54 +40,56 @@ function getWeekDates(offset = 0) {
   })
 }
 
-function StatusBadge({ log }) {
-  if (!log) return null
-  return (
-    <span
-      className={`absolute top-1 right-1 w-3 h-3 rounded-full ${STATUS_DOT[log.status] || ''}`}
-      aria-label={`Last logged as ${log.status}`}
-      title={`${log.status}${log.note ? ': ' + log.note : ''}`}
-    />
-  )
+function distressText(distress) {
+  if (!distress) return null
+  const parts = []
+  if (distress.pre) parts.push(`before ${distress.pre}`)
+  if (distress.post) parts.push(`after ${distress.post}`)
+  return parts.length ? `Distress ${parts.join(', ')}` : null
 }
 
-function ClinicianMealSlot({ items = [], latestLog, isWeekend }) {
-  const filled = items.length > 0
-  const isSkipped = !filled && latestLog?.status === 'skipped'
+// One cell of the family's file. The outcome is always shown when one was logged, even with no
+// foods, and a refusal or distress of 4-5 is highlighted so the clinician sees it first.
+function ClinicianMealSlot({ items = [], status, distress, isFuture }) {
+  const outcome = OUTCOME_META[status]
+  const flagged = needsSupport({ status, distress })
+  const dText = distressText(distress)
+  const empty = !outcome && items.length === 0
+
   return (
-    <div
-      className={`${SLOT_BASE} cursor-default bg-white
-        ${filled ? 'border-gray-200' : 'border-dashed border-gray-200'}
-      `}
-    >
-      {filled ? (
-        <div className="space-y-1 pr-4">
-          {items.map((food, i) => (
-            <div key={i}>
-              <span className="text-xs text-gray-900 leading-tight break-words block">
-                {food.name}
-                {food.portion != null && food.portion < 1 && (
-                  <span className="ml-1 font-semibold" style={{ color: 'var(--peach)' }}>· {PORTION_FRACTION[food.portion]}</span>
-                )}
-              </span>
-              <NutritionBadge foodName={food.name} food={food} mode="clinician" />
-            </div>
-          ))}
-          {latestLog && <StatusBadge log={latestLog} />}
+    <div style={{
+      minHeight: 84, height: '100%', padding: 8, boxSizing: 'border-box',
+      background: flagged ? 'var(--highlight)' : 'white',
+      fontSize: 13, color: 'var(--text-dark)',
+    }}>
+      {outcome && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontWeight: 700, color: outcome.color, marginBottom: 4 }}>
+          <OutcomeMark mark={outcome.mark} size={14} color={outcome.color} />
+          {outcome.label}
         </div>
-      ) : isSkipped ? (
-        <div className="flex items-center justify-center h-full text-stone-400 text-xs pt-4">
-          Skipped
-          <StatusBadge log={latestLog} />
+      )}
+      {items.map((food, i) => (
+        <div key={i} style={{ lineHeight: 1.35, overflowWrap: 'anywhere' }}>
+          {food.name}
+          {food.portion != null && food.portion < 1 && (
+            <span style={{ marginLeft: 4, fontWeight: 700, color: 'var(--st-some)' }}>{PORTION_FRACTION[food.portion]}</span>
+          )}
+          <NutritionBadge foodName={food.name} food={food} mode="clinician" />
         </div>
-      ) : (
-        <div className="flex items-center justify-center h-full text-gray-300 text-xs pt-4">—</div>
+      ))}
+      {dText && (
+        <div style={{ marginTop: 4, fontSize: 12, fontWeight: flagged ? 700 : 500, color: flagged ? 'var(--highlight-ink)' : 'var(--text-mid)' }}>{dText}</div>
+      )}
+      {empty && (
+        <div style={{ color: 'var(--text-mid)', fontSize: 12, paddingTop: 22, textAlign: 'center' }}>
+          {isFuture ? '' : 'Not logged'}
+        </div>
       )}
     </div>
   )
 }
 
-export default function WeeklyGrid({ onDayClick, parentNotes = [], onMarkNoteRead, parentMealItems = {}, mealStatuses = {} }) {
+export default function WeeklyGrid({ onDayClick, parentNotes = [], onMarkNoteRead, parentMealItems = {}, mealStatuses = {}, mealDistress = {} }) {
   const [weekOffset, setWeekOffset] = useState(0)
   const weekDates = getWeekDates(weekOffset)
 
@@ -96,109 +98,107 @@ export default function WeeklyGrid({ onDayClick, parentNotes = [], onMarkNoteRea
     : weekOffset === 1 ? 'Next week'
     : `${MONTHS[weekDates[0].getMonth()]} ${weekDates[0].getDate()} – ${MONTHS[weekDates[6].getMonth()]} ${weekDates[6].getDate()}`
 
+  const navBtn = {
+    width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
+    borderRadius: 'var(--radius)', border: '1px solid var(--border-mid)', background: 'white',
+    color: 'var(--text-dark)', cursor: 'pointer',
+  }
+
   return (
-    <div className="flex-1 overflow-auto p-4">
-      {/* Week navigation */}
-      <div className="flex items-center justify-between mb-3 px-1">
-        <ChevronButton dir="left" size={40} onClick={() => setWeekOffset(o => o - 1)} />
-        <span className="text-sm font-semibold flex items-center gap-2" style={{ color: weekOffset === 0 ? '#E8735A' : '#6b7280' }}>
-          {weekLabel}
-          {weekOffset !== 0 && (
-            <button
-              onClick={() => setWeekOffset(0)}
-              className="text-xs font-semibold px-2 py-0.5 rounded border border-gray-300 text-orange-500 hover:bg-orange-50 transition-colors"
-            >Today</button>
-          )}
+    <div style={{ padding: 16 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 12 }}>
+        <button onClick={() => setWeekOffset(o => o - 1)} aria-label="Previous week" style={navBtn}><Icon name="left" /></button>
+        <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-dark)', minWidth: 96, textAlign: 'center' }}>{weekLabel}</span>
+        <button onClick={() => setWeekOffset(o => o + 1)} aria-label="Next week" style={navBtn}><Icon name="right" /></button>
+        {weekOffset !== 0 && (
+          <button onClick={() => setWeekOffset(0)} style={{ border: 'none', background: 'none', color: 'var(--ink)', fontSize: 14, fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: 3, cursor: 'pointer', minHeight: 44 }}>
+            This week
+          </button>
+        )}
+        <span style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--text-mid)' }}>
+          <span style={{ width: 14, height: 14, background: 'var(--highlight)' }} />
+          Highlighted: refused, or distress 4 or 5
         </span>
-        <ChevronButton dir="right" size={40} onClick={() => setWeekOffset(o => o + 1)} />
       </div>
 
-      <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
-        <div className="min-w-[720px]">
-          {/* Sticky day header with dates */}
-          <div className="grid grid-cols-[100px_repeat(7,1fr)] gap-2 mb-2 sticky top-0 bg-white z-10 pb-2">
-            <div />
+      <div style={{ overflowX: 'auto' }}>
+        <div role="table" aria-label="Meals this week" style={{ minWidth: 760, borderTop: '1px solid var(--rule-strong)', borderLeft: '1px solid var(--rule-strong)', background: 'white' }}>
+          <div role="row" style={{ display: 'grid', gridTemplateColumns: COLS, position: 'sticky', top: 0, background: 'var(--surface-warm)', zIndex: 1 }}>
+            <div role="columnheader" style={CELL_RULES} />
             {DAYS.map((day, i) => {
               const d = weekDates[i]
               const dateIso = localIsoDate(d)
               const isToday = dateIso === TODAY_ISO
-              const dateStr = `${MONTHS[d.getMonth()]} ${d.getDate()}`
-              const clickable = !!onDayClick
+              const content = (
+                <>
+                  <span style={{ display: 'block', fontWeight: 700 }}>{day.label}{isToday ? ' (today)' : ''}</span>
+                  <span style={{ display: 'block', fontSize: 13, color: 'var(--text-mid)' }}>{MONTHS[d.getMonth()]} {d.getDate()}</span>
+                </>
+              )
               return (
-                <div
-                  key={day.key}
-                  onClick={clickable ? () => onDayClick(day.key, dateIso) : undefined}
-                  className={[
-                    'text-center py-2 rounded transition-colors',
-                    isToday ? 'bg-orange-50 text-orange-600' : 'text-gray-600',
-                    clickable ? 'cursor-pointer hover:bg-indigo-50 hover:text-indigo-800' : '',
-                  ].join(' ')}
-                  title={clickable ? `View ${day.label} nutrition` : undefined}
-                >
-                  <div className={`text-xs font-semibold uppercase tracking-wide ${isToday ? 'text-orange-500' : ''}`}>{day.label}</div>
-                  <div className={`text-xs mt-0.5 ${isToday ? 'text-orange-400 font-medium' : 'text-gray-400'}`}>{dateStr}</div>
-                  {isToday && <div className="w-1.5 h-1.5 rounded-full bg-orange-400 mx-auto mt-0.5" />}
-                  {clickable && !isToday && <div className="text-[9px] text-indigo-400 mt-0.5">tap for nutrition</div>}
+                <div role="columnheader" key={day.key} style={{ ...CELL_RULES, textAlign: 'center', padding: 4 }}>
+                  {onDayClick ? (
+                    <button
+                      onClick={() => onDayClick(day.key, dateIso)}
+                      aria-label={`${day.label} ${MONTHS[d.getMonth()]} ${d.getDate()}: open nutrition summary`}
+                      style={{
+                        width: '100%', minHeight: 52, padding: '6px 2px', borderRadius: 'var(--radius)', cursor: 'pointer',
+                        border: isToday ? '1.5px solid var(--ink)' : '1px solid transparent',
+                        background: isToday ? 'var(--ink-light)' : 'transparent', color: isToday ? 'var(--ink)' : 'var(--text-dark)',
+                        fontSize: 14,
+                      }}
+                    >{content}</button>
+                  ) : <div style={{ padding: '6px 2px', fontSize: 14 }}>{content}</div>}
                 </div>
               )
             })}
           </div>
 
-          {/* Meal rows */}
           {MEAL_TYPES.map(meal => (
-            <div key={meal.key} className="grid grid-cols-[100px_repeat(7,1fr)] gap-2 mb-2">
-              <div className="flex items-center text-sm font-medium text-gray-700">
+            <div role="row" key={meal.key} style={{ display: 'grid', gridTemplateColumns: COLS }}>
+              <div role="rowheader" className="font-hand" style={{ ...CELL_RULES, padding: '0 10px', display: 'flex', alignItems: 'center', fontSize: 17, fontWeight: 600, color: 'var(--text-dark)' }}>
                 {meal.label}
               </div>
               {DAYS.map((day, i) => {
                 const dateIso = localIsoDate(weekDates[i])
-                const items = (parentMealItems[dateIso] || {})[meal.key] || []
-                const status = (mealStatuses[dateIso] || {})[meal.key] || null
                 return (
-                  <ClinicianMealSlot
-                    key={`${day.key}-${meal.key}`}
-                    items={items}
-                    latestLog={status ? { status } : null}
-                    isWeekend={day.isWeekend}
-                  />
+                  <div role="cell" key={`${day.key}-${meal.key}`} style={CELL_RULES}>
+                    <ClinicianMealSlot
+                      items={(parentMealItems[dateIso] || {})[meal.key] || []}
+                      status={(mealStatuses[dateIso] || {})[meal.key] || null}
+                      distress={(mealDistress[dateIso] || {})[meal.key] || null}
+                      isFuture={dateIso > TODAY_ISO}
+                    />
+                  </div>
                 )
               })}
             </div>
           ))}
 
-          {/* Parent notes row */}
-          <div className="grid grid-cols-[100px_repeat(7,1fr)] gap-2 mb-2 mt-1">
-            <div className="flex items-center text-sm font-medium text-gray-700">
-              Parent Notes
+          <div role="row" style={{ display: 'grid', gridTemplateColumns: COLS }}>
+            <div role="rowheader" className="font-hand" style={{ ...CELL_RULES, padding: '0 10px', display: 'flex', alignItems: 'center', fontSize: 17, fontWeight: 600 }}>
+              Parent notes
             </div>
             {DAYS.map((day, i) => {
               const dateIso = localIsoDate(weekDates[i])
               const note = parentNotes.find(n => n.date === dateIso)
               const isUnread = note && !note.read_at
               return (
-                <div
-                  key={day.key}
-                  onClick={() => isUnread && onMarkNoteRead?.(note.id)}
-                  title={note ? (isUnread ? 'Click to mark as read' : 'Already read') : undefined}
-                  className={[
-                    'rounded-lg p-2 border min-h-[64px] transition-colors',
-                    note
-                      ? isUnread
-                        ? 'bg-amber-50 border-amber-300 cursor-pointer hover:bg-amber-100'
-                        : 'bg-gray-50 border-gray-200 cursor-default'
-                      : 'border-dashed border-gray-200 cursor-default',
-                  ].join(' ')}
-                >
-                  {note ? (
-                    <div>
-                      <p className="text-xs text-gray-700 leading-snug line-clamp-3">{note.body}</p>
-                      {isUnread
-                        ? <span className="text-[9px] text-amber-500 mt-1 block font-semibold">● unread — click to mark read</span>
-                        : <span className="text-[9px] text-green-500 mt-1 block">✓ read</span>
-                      }
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-center h-full text-gray-300 text-xs pt-3">—</div>
+                <div role="cell" key={day.key} style={{
+                  ...CELL_RULES, minHeight: 68, padding: 8, boxSizing: 'border-box', fontSize: 13,
+                  background: isUnread ? 'var(--ink-light)' : 'white',
+                }}>
+                  {note && (
+                    <>
+                      <p className="font-hand" style={{ color: 'var(--ink)', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{note.body}</p>
+                      {isUnread ? (
+                        <button onClick={() => onMarkNoteRead?.(note.id)} style={{ marginTop: 6, minHeight: 32, padding: '2px 0', border: 'none', background: 'none', color: 'var(--ink)', fontSize: 13, fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: 3, cursor: 'pointer' }}>
+                          Mark as read
+                        </button>
+                      ) : (
+                        <span style={{ display: 'block', marginTop: 6, fontSize: 12, color: 'var(--text-mid)' }}>Read</span>
+                      )}
+                    </>
                   )}
                 </div>
               )

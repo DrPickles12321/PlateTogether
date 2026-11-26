@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import Icon from './Icon'
 import { useDraggable } from '@dnd-kit/core'
 import { useFirebaseData } from '../contexts/FirebaseDataContext'
 import { useAppMode } from '../hooks/useAppMode'
@@ -24,7 +25,6 @@ function FoodCard({ food, onDelete, onChangeCategory }) {
   const { hideNutritionNumbers } = useAppMode()
   const menuRef = useRef(null)
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: food.id, data: { food } })
-  const cat = CATEGORIES.find(c => c.key === food.category) || CATEGORIES[0]
 
   useEffect(() => {
     function onClick(e) { if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false) }
@@ -44,13 +44,11 @@ function FoodCard({ food, onDelete, onChangeCategory }) {
           ...style,
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           background: 'white', border: '1.5px solid var(--border)',
-          borderLeft: `3px solid ${cat.color}`,
-          borderRadius: 11, padding: '8px 10px', marginBottom: 5,
-          boxShadow: '0 1px 5px rgba(39,23,6,0.05)',
+          borderRadius: 'var(--radius)', padding: '8px 10px', marginBottom: 5,
           transition: isDragging ? 'none' : 'box-shadow 0.15s',
         }}
-        onMouseEnter={e => { if (!isDragging) e.currentTarget.style.boxShadow = '0 3px 10px rgba(39,23,6,0.09)' }}
-        onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 1px 5px rgba(39,23,6,0.05)' }}
+        onMouseEnter={e => { if (!isDragging) e.currentTarget.style.boxShadow = '0 3px 10px rgba(29,33,43,0.09)' }}
+        onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 1px 5px rgba(29,33,43,0.05)' }}
       >
         <span
           {...listeners}
@@ -72,7 +70,7 @@ function FoodCard({ food, onDelete, onChangeCategory }) {
             }}
             onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-warm)'}
             onMouseLeave={e => e.currentTarget.style.background = 'none'}
-          >⋮</button>
+          ><Icon name="more" size={18} /></button>
           <button
             onClick={() => setConfirmDelete(true)}
             style={{
@@ -82,13 +80,12 @@ function FoodCard({ food, onDelete, onChangeCategory }) {
             }}
             onMouseEnter={e => e.currentTarget.style.color = 'var(--pink)'}
             onMouseLeave={e => e.currentTarget.style.color = 'var(--border-mid)'}
-          >×</button>
+          ><Icon name="close" size={18} /></button>
 
           {menuOpen && (
             <div style={{
               position: 'absolute', right: 0, top: '100%', marginTop: 5, zIndex: 50,
-              background: 'white', border: '1.5px solid var(--border)', borderRadius: 14,
-              boxShadow: '0 8px 28px rgba(39,23,6,0.12)', overflow: 'hidden', minWidth: 168,
+              background: 'white', border: '1.5px solid var(--border)', borderRadius: 'var(--radius)', overflow: 'hidden', minWidth: 168,
             }}>
               {!hideNutritionNumbers && (
                 <>
@@ -97,7 +94,7 @@ function FoodCard({ food, onDelete, onChangeCategory }) {
                     style={{
                       width: '100%', textAlign: 'left', padding: '10px 14px', fontSize: 13,
                       background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-dark)',
-                      display: 'block', fontFamily: "'Outfit', sans-serif",
+                      display: 'block', fontFamily: "var(--font-ui)",
                     }}
                     onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-warm)'}
                     onMouseLeave={e => e.currentTarget.style.background = 'none'}
@@ -112,7 +109,7 @@ function FoodCard({ food, onDelete, onChangeCategory }) {
                   style={{
                     width: '100%', textAlign: 'left', padding: '10px 14px', fontSize: 13,
                     background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-dark)',
-                    display: 'block', fontFamily: "'Outfit', sans-serif",
+                    display: 'block', fontFamily: "var(--font-ui)",
                   }}
                   onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-warm)'}
                   onMouseLeave={e => e.currentTarget.style.background = 'none'}
@@ -124,7 +121,7 @@ function FoodCard({ food, onDelete, onChangeCategory }) {
                 style={{
                   width: '100%', textAlign: 'left', padding: '10px 14px', fontSize: 13,
                   background: 'none', border: 'none', cursor: 'pointer', color: 'var(--pink)',
-                  display: 'block', fontFamily: "'Outfit', sans-serif",
+                  display: 'block', fontFamily: "var(--font-ui)",
                 }}
                 onMouseEnter={e => e.currentTarget.style.background = 'var(--pink-light)'}
                 onMouseLeave={e => e.currentTarget.style.background = 'none'}
@@ -138,12 +135,12 @@ function FoodCard({ food, onDelete, onChangeCategory }) {
         <div style={{
           position: 'fixed', inset: 0, zIndex: 50,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          background: 'rgba(39,23,6,0.3)',
+          background: 'rgba(29,33,43,0.3)',
         }}>
           <div style={{
             background: 'white', borderRadius: 22, padding: '28px',
             maxWidth: 360, margin: '0 16px',
-            boxShadow: '0 20px 60px rgba(39,23,6,0.18)',
+            boxShadow: '0 20px 60px rgba(29,33,43,0.18)',
             border: '1.5px solid var(--border)',
           }}>
             <p style={{ fontSize: 14, color: 'var(--text-mid)', marginBottom: 22, lineHeight: 1.6 }}>
@@ -153,17 +150,17 @@ function FoodCard({ food, onDelete, onChangeCategory }) {
               <button
                 onClick={() => setConfirmDelete(false)}
                 style={{
-                  padding: '9px 18px', fontSize: 13, borderRadius: 11,
+                  padding: '9px 18px', fontSize: 13, borderRadius: 'var(--radius)',
                   border: '1.5px solid var(--border)', background: 'white',
-                  cursor: 'pointer', color: 'var(--text-mid)', fontFamily: "'Outfit', sans-serif",
+                  cursor: 'pointer', color: 'var(--text-mid)', fontFamily: "var(--font-ui)",
                 }}
               >Cancel</button>
               <button
                 onClick={() => { onDelete(food); setConfirmDelete(false) }}
                 style={{
-                  padding: '9px 18px', fontSize: 13, borderRadius: 11,
+                  padding: '9px 18px', fontSize: 13, borderRadius: 'var(--radius)',
                   border: 'none', background: 'var(--pink)', color: 'white',
-                  cursor: 'pointer', fontWeight: 600, fontFamily: "'Outfit', sans-serif",
+                  cursor: 'pointer', fontWeight: 600, fontFamily: "var(--font-ui)",
                 }}
               >Remove</button>
             </div>
@@ -190,21 +187,21 @@ function Section({ config, foods, onDelete, onChangeCategory }) {
         onClick={() => setCollapsed(c => !c)}
         style={{
           width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '9px 12px', borderRadius: 12,
+          padding: '9px 12px', borderRadius: 'var(--radius)',
           background: config.bg, border: `1.5px solid ${config.border}`,
           cursor: 'pointer', marginBottom: collapsed ? 0 : 8,
-          fontFamily: "'Outfit', sans-serif",
+          fontFamily: "var(--font-ui)",
         }}
       >
         <span style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 600, color: config.color }}>
           <span style={{ width: 8, height: 8, borderRadius: '50%', background: config.color, display: 'inline-block' }} />
           {config.label}
           <span style={{
-            fontSize: 11, fontWeight: 600, color: config.color, opacity: 0.75,
+            fontSize: 13, fontWeight: 600, color: config.color, opacity: 0.75,
             background: 'white', borderRadius: 6, padding: '1px 7px',
           }}>{foods.length}</span>
         </span>
-        <span style={{ color: config.color, fontSize: 13, opacity: 0.6 }}>{collapsed ? '▸' : '▾'}</span>
+        <Icon name={collapsed ? 'right' : 'down'} size={16} style={{ color: 'var(--text-mid)' }} />
       </button>
 
       {!collapsed && (
@@ -238,7 +235,7 @@ function SuggestRow({ name, buttonSize, dotSize, onAdd, extra }) {
     <div style={{
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       background: 'white', border: '1.5px solid var(--border)',
-      borderRadius: 11, padding: '8px 10px', gap: 8,
+      borderRadius: 'var(--radius)', padding: '8px 10px', gap: 8,
     }}>
       <span style={{ fontSize: 13, color: 'var(--text-dark)', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</span>
       <div style={{ display: 'flex', gap: 5, flexShrink: 0 }}>
@@ -308,18 +305,18 @@ export function SuggestedFoods({ onAdd, existingNames, buttonSize = 22, assigned
         onChange={e => setQuery(e.target.value)}
         placeholder="Search foods…"
         style={{
-          width: '100%', border: '1.5px solid var(--border)', borderRadius: 11,
+          width: '100%', border: '1.5px solid var(--border)', borderRadius: 'var(--radius)',
           padding: '9px 12px', fontSize: 13, color: 'var(--text-dark)', outline: 'none',
-          boxSizing: 'border-box', fontFamily: "'Outfit', sans-serif",
+          boxSizing: 'border-box', fontFamily: "var(--font-ui)",
           background: 'var(--surface-warm)', marginBottom: 12,
           transition: 'border-color 0.15s, box-shadow 0.15s',
         }}
-        onFocus={e => { e.target.style.borderColor = 'var(--coral)'; e.target.style.boxShadow = '0 0 0 3px rgba(184,85,53,0.1)' }}
+        onFocus={e => { e.target.style.borderColor = 'var(--coral)'; e.target.style.boxShadow = '0 0 0 3px rgba(35,64,142,0.1)' }}
         onBlur={e => { e.target.style.borderColor = 'var(--border)'; e.target.style.boxShadow = 'none' }}
       />
 
       {!q && (
-        <p style={{ fontSize: 11, color: 'var(--text-light)', lineHeight: 1.5, marginBottom: 10 }}>
+        <p style={{ fontSize: 13, color: 'var(--text-light)', lineHeight: 1.5, marginBottom: 10 }}>
           Pick how each food feels — familiar, working on, or a challenge.
         </p>
       )}
@@ -332,15 +329,15 @@ export function SuggestedFoods({ onAdd, existingNames, buttonSize = 22, assigned
         if (pinned.length === 0) return null
         return (
           <div style={{ marginBottom: 14 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--pink)', letterSpacing: '0.4px', textTransform: 'uppercase', marginBottom: 7 }}>
-              🎯 From your clinician
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--pink)', marginBottom: 7 }}>
+              From your clinician
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
               {pinned.map(c => (
                 <div key={c.id} style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                   background: 'var(--pink-light)', border: '1.5px solid var(--pink-mid)',
-                  borderRadius: 11, padding: '8px 10px', gap: 8,
+                  borderRadius: 'var(--radius)', padding: '8px 10px', gap: 8,
                 }}>
                   <span style={{ fontSize: 13, color: 'var(--text-dark)', fontWeight: 600, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {c.name}
@@ -349,10 +346,10 @@ export function SuggestedFoods({ onAdd, existingNames, buttonSize = 22, assigned
                     onClick={() => onAdd({ name: c.name, category: 'challenge' })}
                     aria-label={`Add challenge food ${c.name}`}
                     style={{
-                      border: 'none', borderRadius: 9, padding: '6px 12px',
+                      border: 'none', borderRadius: 'var(--radius)', padding: '6px 12px',
                       background: 'var(--pink)', color: 'white', fontSize: 12, fontWeight: 600,
                       cursor: 'pointer', flexShrink: 0, minHeight: Math.max(buttonSize, 28),
-                      fontFamily: "'Outfit', sans-serif",
+                      fontFamily: "var(--font-ui)",
                     }}
                   >+ Add</button>
                 </div>
@@ -372,7 +369,7 @@ export function SuggestedFoods({ onAdd, existingNames, buttonSize = 22, assigned
 
       {showMore && (
         <div style={{ marginBottom: 14 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-light)', letterSpacing: '0.4px', textTransform: 'uppercase', marginBottom: 7 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-light)', marginBottom: 7 }}>
             More foods{searching ? ' · searching…' : ''}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
@@ -418,19 +415,19 @@ export default function FoodSidebar() {
 
       <div style={{
         display: 'flex', gap: 4, background: 'var(--surface-warm)',
-        borderRadius: 12, padding: 3, marginBottom: 14,
+        borderRadius: 'var(--radius)', padding: 3, marginBottom: 14,
       }}>
         {[{ key: 'mine', label: 'My List' }, { key: 'suggested', label: 'Suggested' }].map(t => (
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
             style={{
-              flex: 1, padding: '6px 4px', borderRadius: 9, border: 'none',
+              flex: 1, padding: '6px 4px', borderRadius: 'var(--radius)', border: 'none',
               background: tab === t.key ? 'white' : 'transparent',
               color: tab === t.key ? 'var(--coral)' : 'var(--text-light)',
               fontWeight: 600, fontSize: 12, cursor: 'pointer',
-              boxShadow: tab === t.key ? '0 1px 5px rgba(39,23,6,0.08)' : 'none',
-              fontFamily: "'Outfit', sans-serif", transition: 'all 0.15s',
+              boxShadow: tab === t.key ? '0 1px 5px rgba(29,33,43,0.08)' : 'none',
+              fontFamily: "var(--font-ui)", transition: 'all 0.15s',
             }}
           >{t.label}</button>
         ))}

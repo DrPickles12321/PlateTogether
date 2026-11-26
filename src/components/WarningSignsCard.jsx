@@ -1,12 +1,15 @@
-// Fixed "when to get help" guidance for parents. Deliberately static: the app never judges whether something
-// is serious, it only tells parents who to call. The wording mirrors the chat's crisis and urgent replies in
-// lib/aiSafety.js. A clinician-editable version needs new stored data, so it waits for the storage decision.
+import Icon from './Icon'
+
+// Fixed "when to get help" guidance for parents, shown inside the Need help sheet. Deliberately
+// static: the app never judges whether something is serious, it only tells parents who to call.
+// The wording mirrors the chat's crisis and urgent replies in lib/aiSafety.js. A
+// clinician-editable version needs new stored data, so it waits for the storage decision.
 
 const NOW = [
   'Fainting or collapse',
   'Chest pain',
   'Trouble breathing or a seizure',
-  'Any talk of suicide or self-harm (call or text 988)',
+  'Any talk of suicide or self-harm',
 ]
 
 const TODAY = [
@@ -15,11 +18,29 @@ const TODAY = [
   'New dizziness, feeling very cold, or a racing or fluttering heartbeat',
 ]
 
-function Group({ title, tone, items }) {
+export function CallButton({ href, children, tone }) {
   return (
-    <div style={{ marginBottom: 12 }}>
-      <div style={{ fontSize: 12, fontWeight: 700, color: tone, marginBottom: 4 }}>{title}</div>
-      <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, color: 'var(--text-mid)', lineHeight: 1.5 }}>
+    <a
+      href={href}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 10, minHeight: 48, padding: '10px 14px',
+        borderRadius: 'var(--radius)', textDecoration: 'none', fontWeight: 700, fontSize: 15,
+        color: tone === 'urgent' ? 'white' : 'var(--ink)',
+        background: tone === 'urgent' ? 'var(--st-refused)' : 'var(--ink-light)',
+        border: tone === 'urgent' ? 'none' : '1.5px solid var(--ink-mid)',
+      }}
+    >
+      <Icon name="phone" size={18} />
+      {children}
+    </a>
+  )
+}
+
+function Group({ title, items }) {
+  return (
+    <div style={{ marginBottom: 14 }}>
+      <h3 style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-dark)', marginBottom: 6 }}>{title}</h3>
+      <ul style={{ margin: 0, paddingLeft: 20, fontSize: 15, color: 'var(--text-mid)', lineHeight: 1.5 }}>
         {items.map(i => <li key={i}>{i}</li>)}
       </ul>
     </div>
@@ -28,24 +49,17 @@ function Group({ title, tone, items }) {
 
 export default function WarningSignsCard() {
   return (
-    <details style={{
-      background: 'white', border: '1.5px solid var(--border)', borderRadius: 14,
-      padding: '0 14px', marginBottom: 12,
-    }}>
-      <summary style={{
-        cursor: 'pointer', padding: '12px 0', minHeight: 44, fontSize: 14, fontWeight: 600,
-        color: 'var(--text-dark)', display: 'flex', alignItems: 'center',
-      }}>
-        When to get help
-      </summary>
-      <div style={{ paddingBottom: 6 }}>
-        <Group title="Call 911 now" tone="var(--coral)" items={NOW} />
-        <Group title="Call your care team today" tone="var(--peach)" items={TODAY} />
-        <p style={{ fontSize: 12, color: 'var(--text-light)', margin: '0 0 12px', lineHeight: 1.5 }}>
-          General guidance only. Your clinician's own instructions come first. This app cannot tell you
-          whether something is an emergency, so if you are unsure, call.
-        </p>
+    <div>
+      <Group title="Call 911 now if you see" items={NOW} />
+      <div style={{ display: 'grid', gap: 8, marginBottom: 18 }}>
+        <CallButton href="tel:911" tone="urgent">Call 911</CallButton>
+        <CallButton href="tel:988">Call or text 988 (suicide and crisis line)</CallButton>
       </div>
-    </details>
+      <Group title="Call your care team today if you see" items={TODAY} />
+      <p style={{ fontSize: 14, color: 'var(--text-mid)', lineHeight: 1.5 }}>
+        General guidance only. Your clinician's own instructions come first. This app cannot tell
+        whether something is an emergency, so if you are unsure, call.
+      </p>
+    </div>
   )
 }

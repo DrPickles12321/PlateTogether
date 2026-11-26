@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { buildSessionPrep } from '../lib/sessionPrep'
 import { getWeekIsoDates } from '../lib/insights'
+import { localIsoDate } from '../lib/constants'
 import { SectionCard } from '../pages/ClinicianView'
 
 const STATUS_LABEL = { difficult: 'partly finished', refused: 'refused' }
@@ -12,7 +13,7 @@ function day(iso) {
 function Row({ label, children }) {
   return (
     <div style={{ marginBottom: 12 }}>
-      <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.7px', textTransform: 'uppercase', color: 'var(--text-light)', marginBottom: 3 }}>{label}</div>
+      <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-light)', marginBottom: 3 }}>{label}</div>
       <div style={{ fontSize: 13, color: 'var(--text-mid)', lineHeight: 1.5 }}>{children}</div>
     </div>
   )
@@ -24,6 +25,7 @@ export default function SessionPrepCard({ mealStatuses, mealDistress, allMealIte
     mealStatuses, mealDistress, allMealItems,
     isoDates: getWeekIsoDates(0),
     previousIsoDates: getWeekIsoDates(-1),
+    today: localIsoDate(),
   }), [mealStatuses, mealDistress, allMealItems])
 
   const { counts, distress } = prep
