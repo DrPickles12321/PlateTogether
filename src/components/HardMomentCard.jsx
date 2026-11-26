@@ -24,7 +24,8 @@ export default function HardMomentCard({ onMessage, onHelp, onDismiss }) {
       <p style={{ fontSize: 14, color: 'var(--text-mid)', margin: '14px 0 6px' }}>{HARD_MEAL.emergency}</p>
       <div style={{ display: 'grid', gap: 6, gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))' }}>
         <CallButton href="tel:911" tone="urgent">Call 911</CallButton>
-        <CallButton href="tel:988">Call or text 988</CallButton>
+        <CallButton href="tel:988">Call 988</CallButton>
+        <CallButton href="sms:988">Text 988</CallButton>
       </div>
     </div>
   )

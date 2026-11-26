@@ -17,13 +17,17 @@ export function getWeekIsoDates(offset = 0) {
   })
 }
 
-export function computeInsightsFromMealItems(allMealItems, mealStatuses = {}) {
+// Counts meals by their logged outcome, the same way the clinician's Week in review does, so the
+// two never disagree. Pass `isoDates` (this week up to today) to fix the window; without it the
+// last seven days are used.
+export function computeInsightsFromMealItems(allMealItems, mealStatuses = {}, isoDates = null) {
   const cutoff = Date.now() - ONE_WEEK_MS
   const MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack']
 
-  const recentDates = Object.keys(allMealItems).filter(
-    dateStr => new Date(dateStr).getTime() >= cutoff
-  )
+  const knownDates = new Set([...Object.keys(allMealItems || {}), ...Object.keys(mealStatuses || {})])
+  const recentDates = isoDates
+    ? isoDates.filter(d => knownDates.has(d))
+    : [...knownDates].filter(dateStr => new Date(dateStr).getTime() >= cutoff)
 
   if (recentDates.length === 0) {
     return { totalLogs: 0, okay: 0, difficult: 0, refused: 0, skipped: 0, hardestMealType: null, topRefusedCategory: null }
@@ -45,9 +49,9 @@ export function computeInsightsFromMealItems(allMealItems, mealStatuses = {}) {
         skipped++
         continue
       }
-      if (items.length > 0) {
+      if (status) {
         totalLogs++
-        const s = status || 'okay'
+        const s = status
         if (s === 'okay') okay++
         else if (s === 'difficult') { difficult++; hardCountByMealType[mealType]++ }
         else if (s === 'refused') {

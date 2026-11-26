@@ -49,9 +49,9 @@ export default function WelcomeModal({ role }) {
         aria-modal="true"
         style={{ background: '#fff', borderRadius: 'var(--radius)', maxWidth: 420, width: '100%', padding: '28px 24px', boxShadow: '0 14px 44px rgba(0,0,0,0.25)' }}
       >
-        <h3 className="font-hand" style={{ margin: '0 0 4px', fontSize: 26, fontWeight: 600, color: 'var(--text-dark)' }}>
+        <h2 className="font-hand" style={{ margin: '0 0 4px', fontSize: 26, fontWeight: 600, color: 'var(--text-dark)' }}>
           Welcome to Plate Together
-        </h3>
+        </h2>
         <p style={{ fontSize: 14, color: 'var(--text-mid)', margin: '0 0 18px', lineHeight: 1.5 }}>
           {role === 'parent'
             ? 'A calm, private way to track meals and share them with your care team.'

@@ -192,7 +192,7 @@ export default function WeeklyGrid({ onDayClick, parentNotes = [], onMarkNoteRea
                     <>
                       <p className="font-hand" style={{ color: 'var(--ink)', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{note.body}</p>
                       {isUnread ? (
-                        <button onClick={() => onMarkNoteRead?.(note.id)} style={{ marginTop: 6, minHeight: 32, padding: '2px 0', border: 'none', background: 'none', color: 'var(--ink)', fontSize: 13, fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: 3, cursor: 'pointer' }}>
+                        <button onClick={() => onMarkNoteRead?.(note.id)} style={{ marginTop: 6, minHeight: 44, padding: '2px 0', border: 'none', background: 'none', color: 'var(--ink)', fontSize: 13, fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: 3, cursor: 'pointer' }}>
                           Mark as read
                         </button>
                       ) : (

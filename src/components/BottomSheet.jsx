@@ -1,4 +1,5 @@
-import { useEffect } from 'react'
+import { useEffect, useId, useRef } from 'react'
+import { openLayer, isTopLayer } from '../lib/layerStack'
 import Icon from './Icon'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -9,12 +10,18 @@ import { motion, AnimatePresence } from 'framer-motion'
 // add-food input is placed at the TOP of the sheet content so it stays visible
 // above the keyboard without any positioning tricks.
 export default function BottomSheet({ open, onClose, title, children, footer }) {
+  const layerId = useId()
+  const onCloseRef = useRef(onClose)
+  useEffect(() => { onCloseRef.current = onClose })
+
+  // Keyed on open only, so re-renders don't reorder the layer stack; Escape closes the top layer.
   useEffect(() => {
     if (!open) return
-    function onKeyDown(e) { if (e.key === 'Escape') onClose() }
+    const closeLayer = openLayer(layerId)
+    function onKeyDown(e) { if (e.key === 'Escape' && isTopLayer(layerId)) onCloseRef.current() }
     document.addEventListener('keydown', onKeyDown)
-    return () => document.removeEventListener('keydown', onKeyDown)
-  }, [open, onClose])
+    return () => { document.removeEventListener('keydown', onKeyDown); closeLayer() }
+  }, [open, layerId])
 
   // Portal to <body> so the sheet is not trapped under the tab bar and chat
   // button by a parent's stacking context.

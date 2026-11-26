@@ -53,7 +53,8 @@ export default function WarningSignsCard() {
       <Group title="Call 911 now if you see" items={NOW} />
       <div style={{ display: 'grid', gap: 8, marginBottom: 18 }}>
         <CallButton href="tel:911" tone="urgent">Call 911</CallButton>
-        <CallButton href="tel:988">Call or text 988 (suicide and crisis line)</CallButton>
+        <CallButton href="tel:988">Call 988 (suicide and crisis line)</CallButton>
+        <CallButton href="sms:988">Text 988</CallButton>
       </div>
       <Group title="Call your care team today if you see" items={TODAY} />
       <p style={{ fontSize: 14, color: 'var(--text-mid)', lineHeight: 1.5 }}>

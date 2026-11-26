@@ -221,7 +221,6 @@ function DropZone({ mealType, items, onRemove, onFoodClick, selectedFoodIndex, i
 
 function MealCard({ meal, items, onRemove, latestLog, onQuickLog, time, onTimeChange, selectedFoodIndex, onFoodClick, onFoodStatusSet, onFoodPortionSet, distress, onDistressSet }) {
   const loggedStatus = latestLog?.status || null
-  const hasItems = items.length > 0
   const initialTime = parseTimeValue(time)
   const [pendingTime, setPendingTime] = useState(initialTime)
   const [lastValidHour, setLastValidHour] = useState(initialTime.hour)
@@ -319,24 +318,18 @@ function MealCard({ meal, items, onRemove, latestLog, onQuickLog, time, onTimeCh
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             {OUTCOME_ORDER.map(key => {
               const opt = OUTCOME_META[key]
-              const isSkip = key === 'skipped'
-              const enabled = isSkip ? !hasItems : hasItems
               const selected = loggedStatus === key
               return (
                 <button
                   key={key}
-                  onClick={() => enabled && onQuickLog(selected ? null : key)}
-                  disabled={!enabled}
+                  onClick={() => onQuickLog(selected ? null : key)}
                   aria-pressed={selected}
-                  title={!enabled ? (isSkip ? 'Remove the foods to mark this meal skipped' : 'Add what was served first') : undefined}
                   style={{
                     display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
                     padding: '7px 6px', borderRadius: 'var(--radius)', minWidth: 58, minHeight: 52,
                     border: `1.5px solid ${selected ? opt.color : 'var(--border-mid)'}`,
                     background: selected ? opt.bg : 'white',
-                    color: enabled ? opt.color : 'var(--text-light)',
-                    cursor: enabled ? 'pointer' : 'not-allowed',
-                    opacity: enabled ? 1 : 0.55,
+                    color: opt.color, cursor: 'pointer',
                     fontSize: 13, fontWeight: 700,
                   }}
                 >
@@ -464,7 +457,7 @@ function MobileMealCard({
             fontSize: 14, color: hasItems ? 'var(--ink)' : 'var(--text-mid)', marginTop: 2,
             whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
           }}>
-            {hasItems ? foodSummary : isSkipped ? 'Skipped' : 'Not written yet'}
+            {hasItems ? foodSummary : isSkipped ? 'Skipped' : loggedStatus ? 'No foods written' : 'Not logged yet'}
           </span>
         </button>
 
@@ -506,7 +499,7 @@ function MobileMealCard({
       </div>
 
       {/* One-tap repeat of yesterday's meal, shown without expanding */}
-      {!hasItems && !isSkipped && yesterdayItems.length > 0 && (
+      {!hasItems && !loggedStatus && yesterdayItems.length > 0 && (
         <div style={{ padding: `0 12px 12px ${MARGIN + 14}px` }}>
           <button
             onClick={() => onAddItems(yesterdayItems)}
@@ -647,30 +640,23 @@ function MobileMealCard({
           <div role="group" aria-label={`How ${meal.label} went`} style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
             {OUTCOME_ORDER.map(key => {
               const m = OUTCOME_META[key]
-              const isSkip = key === 'skipped'
-              const enabled = isSkip ? !hasItems : hasItems
               const selected = loggedStatus === key
               return (
                 <button
                   key={key}
-                  onClick={() => enabled && onQuickLog(selected ? null : key)}
-                  disabled={!enabled}
+                  onClick={() => onQuickLog(selected ? null : key)}
                   aria-pressed={selected}
                   style={{
                     display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4,
                     minHeight: 56, borderRadius: 'var(--radius)',
                     border: `1.5px solid ${selected ? m.color : 'var(--border-mid)'}`,
-                    background: selected ? m.bg : 'white', color: enabled ? m.color : 'var(--text-light)',
-                    cursor: enabled ? 'pointer' : 'not-allowed', opacity: enabled ? 1 : 0.55,
+                    background: selected ? m.bg : 'white', color: m.color, cursor: 'pointer',
                     fontSize: 14, fontWeight: 700,
                   }}
                 ><OutcomeMark mark={m.mark} size={18} color="currentColor" />{m.label}</button>
               )
             })}
           </div>
-          {!hasItems && (
-            <p style={{ fontSize: 13, color: 'var(--text-mid)', marginTop: 6 }}>Add what was served to mark how it went.</p>
-          )}
 
           {loggedStatus && loggedStatus !== 'skipped' && (
             <div style={{ marginTop: 14 }}>
@@ -872,8 +858,8 @@ export function ParentNoteSection({ note, selectedDate, onSave, onDelete }) {
               style={{
                 background: !isDirty || isSaving ? 'rgba(35,64,142,0.15)' : 'var(--ink)',
                 color: !isDirty || isSaving ? 'var(--text-light)' : 'white',
-                border: 'none', borderRadius: 20, padding: '6px 18px',
-                fontSize: 12, fontWeight: 600,
+                border: 'none', borderRadius: 'var(--radius)', padding: '6px 18px', minHeight: 44,
+                fontSize: 14, fontWeight: 600,
                 cursor: (!isDirty || isSaving) ? 'default' : 'pointer',
                 fontFamily: "'Lato', sans-serif", transition: 'all 0.15s',
 
@@ -994,7 +980,7 @@ export function ClinicianNotesSidebar({
                 onClick={() => markClinicianNoteRead?.(latest)}
                 style={{
                   background: 'none', border: '1px solid var(--border-mid)',
-                  borderRadius: 20, padding: '3px 9px', fontSize: 12, fontWeight: 600,
+                  borderRadius: 'var(--radius)', padding: '6px 12px', minHeight: 44, fontSize: 14, fontWeight: 600,
                   color: isUpdated ? 'var(--st-some)' : 'var(--coral)', cursor: 'pointer',
                   fontFamily: "'Lato', sans-serif",
                   borderColor: isUpdated ? 'var(--st-some)' : 'var(--border-mid)',
@@ -1006,7 +992,7 @@ export function ClinicianNotesSidebar({
               style={{
                 background: isSaved ? 'var(--peach-light)' : 'none',
                 border: `1px solid ${isSaved ? 'var(--peach-mid)' : 'var(--border-mid)'}`,
-                borderRadius: 20, padding: '3px 9px', fontSize: 12, fontWeight: 600,
+                borderRadius: 'var(--radius)', padding: '6px 12px', minHeight: 44, fontSize: 14, fontWeight: 600,
                 color: isSaved ? 'var(--peach)' : 'var(--text-light)', cursor: 'pointer',
                 fontFamily: "'Lato', sans-serif",
               }}
@@ -1017,12 +1003,12 @@ export function ClinicianNotesSidebar({
                   Hide?{' '}
                   <button
                     onClick={() => { onHideNote(latest.id); setConfirmHideLatest(false) }}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--pink)', fontWeight: 700, fontSize: 12, padding: 0, fontFamily: 'inherit' }}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--pink)', fontWeight: 700, fontSize: 14, padding: '0 6px', minHeight: 44, fontFamily: 'inherit' }}
                   >Yes</button>
                   {' / '}
                   <button
                     onClick={() => setConfirmHideLatest(false)}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-light)', fontSize: 12, padding: 0, fontFamily: 'inherit' }}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-light)', fontSize: 14, padding: '0 6px', minHeight: 44, fontFamily: 'inherit' }}
                   >Cancel</button>
                 </span>
               ) : (
@@ -1031,7 +1017,7 @@ export function ClinicianNotesSidebar({
                   title="Remove from this list"
                   style={{
                     background: 'none', border: '1px solid var(--border-mid)',
-                    borderRadius: 20, padding: '3px 9px', fontSize: 12, fontWeight: 600,
+                    borderRadius: 'var(--radius)', padding: '6px 12px', minHeight: 44, fontSize: 14, fontWeight: 600,
                     color: 'var(--text-light)', cursor: 'pointer', fontFamily: "'Lato', sans-serif",
                   }}
                 >Hide</button>
@@ -1098,7 +1084,7 @@ export function ClinicianNotesSidebar({
                     {' / '}
                     <button
                       onClick={() => setConfirmClear(false)}
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-light)', fontSize: 12, padding: 0, fontFamily: 'inherit' }}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-light)', fontSize: 14, padding: '0 6px', minHeight: 44, fontFamily: 'inherit' }}
                     >Cancel</button>
                   </span>
                 ) : (
@@ -1200,7 +1186,7 @@ export function ClinicianNotesSidebar({
                       onClick={() => onUnhideNote?.(note.id)}
                       style={{
                         flexShrink: 0, background: 'none', border: '1px solid var(--border-mid)',
-                        borderRadius: 20, padding: '3px 9px', fontSize: 12, fontWeight: 600,
+                        borderRadius: 'var(--radius)', padding: '6px 12px', minHeight: 44, fontSize: 14, fontWeight: 600,
                         color: 'var(--mint)', cursor: 'pointer', fontFamily: "'Lato', sans-serif",
                       }}
                     >Restore</button>
