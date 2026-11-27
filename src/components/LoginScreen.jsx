@@ -3,8 +3,8 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
 } from 'firebase/auth'
-import { ref, set } from 'firebase/database'
-import { auth, db } from '../firebase'
+import { auth } from '../firebase'
+import { createAccountRecords } from '../lib/accounts'
 import { useAuth } from '../contexts/AuthContext'
 import { useIsMobile } from '../hooks/useIsMobile'
 
@@ -44,19 +44,10 @@ export default function LoginScreen() {
         // role write below may not land before onAuthStateChanged reads it.
         setPendingRole(role)
         const cred = await createUserWithEmailAndPassword(auth, email, password)
-        const { uid } = cred.user
-        const writes = {
-          [`users/${uid}/role`]:  role,
-          [`users/${uid}/email`]: email,
-          [`users/${uid}/nutritionalTargets`]: { protein: 75, carbs: 150, fruitsVeggies: 200 },
-          [`users/${uid}/consent`]: { agreedAt: new Date().toISOString(), version: CONSENT_VERSION },
-        }
-        if (role === 'parent') {
-          const code = generateFamilyCode()
-          writes[`users/${uid}/familyCode`]  = code
-          writes[`familyCodes/${code}`]      = uid
-        }
-        await Promise.all(Object.entries(writes).map(([path, val]) => set(ref(db, path), val)))
+        await createAccountRecords({
+          uid: cred.user.uid, email, role, consentVersion: CONSENT_VERSION,
+          familyCode: role === 'parent' ? generateFamilyCode() : null,
+        })
       }
     } catch (err) {
       setError(friendlyError(err.code))

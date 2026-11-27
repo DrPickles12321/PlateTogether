@@ -5,7 +5,7 @@ import { describe, it, beforeAll, beforeEach, afterAll } from 'vitest'
 import { initializeTestEnvironment, assertFails, assertSucceeds } from '@firebase/rules-unit-testing'
 import {
   doc, getDoc, setDoc, updateDoc, deleteDoc, collection, getDocs, query, where, writeBatch,
-  serverTimestamp, Timestamp,
+  serverTimestamp, Timestamp, deleteField,
 } from 'firebase/firestore'
 
 const F = 'fam1'
@@ -349,5 +349,21 @@ describe('foods, usual meals and clinicians\' notes', () => {
     await assertSucceeds(setDoc(doc(as(P1), `users/${P1}/private/settings`), { hiddenClinicianNoteIds: { n1: true } }))
     await assertFails(getDoc(doc(as(THER), `users/${P1}/private/settings`)))
     await assertFails(setDoc(doc(as(THER), `users/${P1}/private/settings`), { x: 1 }))
+  })
+})
+
+describe('member email and clearing a phase', () => {
+  it('a member may store only their own sign-in email', async () => {
+    const own = env.authenticatedContext(NEWCLIN, { email: 'new@example.test' }).firestore()
+    const base = { role: 'dietitian', active: true, addedAt: serverTimestamp(), addedBy: NEWCLIN, via: { familyCode: CODE } }
+    await assertFails(setDoc(doc(own, `families/${F}/members/${NEWCLIN}`), { ...base, email: 'someone@example.test' }))
+    await assertSucceeds(setDoc(doc(own, `families/${F}/members/${NEWCLIN}`), { ...base, email: 'new@example.test' }))
+  })
+
+  it('the lead therapist can clear the phase', async () => {
+    await env.withSecurityRulesDisabled(async ctx => {
+      await updateDoc(doc(ctx.firestore(), `families/${F}`), { phase: { value: 2, since: past, setBy: THER } })
+    })
+    await assertSucceeds(updateDoc(doc(as(THER), `families/${F}`), { phase: deleteField() }))
   })
 })

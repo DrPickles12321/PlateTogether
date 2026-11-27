@@ -54,7 +54,7 @@ export function planMigration(users = {}, { now = new Date() } = {}) {
     if (cp.name) family.profile = compact({ name: cp.name, birthYear: cp.birthYear, treatmentStart: cp.treatmentStart })
     if ([1, 2, 3].includes(cp.phase)) family.phase = { value: cp.phase, since: null, setBy: null }
 
-    const members = { [parentUid]: { role: 'caregiver', active: true, addedAt: now, addedBy: parentUid } }
+    const members = { [parentUid]: compact({ role: 'caregiver', active: true, addedAt: now, addedBy: parentUid, email: u.email }) }
     const revoked = {}
     const sessions = {}
 
@@ -66,12 +66,13 @@ export function planMigration(users = {}, { now = new Date() } = {}) {
       const link = u.careTeam?.[cUid] || {}
       const theirs = users[cUid]?.patients?.[parentUid] || {}
       const isRevoked = !!u.revokedClinicians?.[cUid]
-      members[cUid] = {
+      members[cUid] = compact({
         role: 'therapist',
         active: !isRevoked && link.active !== false,
         addedAt: toDate(link.addedAt) || toDate(theirs.addedAt) || now,
         addedBy: cUid,
-      }
+        email: users[cUid]?.email,
+      })
       if (isRevoked) revoked[cUid] = { at: now }
       if (theirs.lastSessionAt) sessions[`legacy-${cUid}`] = { kind: 'session', by: cUid, at: toDate(`${theirs.lastSessionAt}T12:00:00Z`) }
       ensureUser(cUid, 'clinician', users[cUid]?.email).doc.families[familyId] = 'therapist'
@@ -115,6 +116,7 @@ export function planMigration(users = {}, { now = new Date() } = {}) {
     const parent = ensureUser(parentUid, 'family', u.email)
     parent.doc.families[familyId] = 'caregiver'
     parent.private = compact({
+      familyCode: u.familyCode,
       consent: u.consent,
       hiddenClinicianNoteIds: u.hiddenClinicianNoteIds,
       clinicianNotesRead: u.clinicianNotesRead,
