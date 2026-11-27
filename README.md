@@ -94,6 +94,22 @@ VITE_FIREBASE_PROJECT_ID=demo-plate VITE_FIREBASE_APP_ID=demo-app npm run dev
 
 The emulators need a config with `emulators.auth` (port 9099) and `emulators.database` (port 9000), for example `firebase emulators:start --only auth,database --project demo-plate --config <your-emulator-config>.json`. The switch lives in `src/firebase.js` and is ignored in production builds. The AI worker is not started, so food lookups return "No data" locally.
 
+### Moving to Firestore (roadmap B4 and B5)
+
+The app is moving from Realtime Database to Firestore (see `docs/plans/2026-11-27-fbt-framework.md`).
+`scripts/migrate-to-firestore.mjs` copies every parent's data into the new family record and checks it. It prints
+counts and family ids only. Dry run first:
+
+```bash
+node scripts/migrate-to-firestore.mjs --project <id>            # read and count, writes nothing
+node scripts/migrate-to-firestore.mjs --project <id> --apply    # write, then check every family
+```
+
+Against the real project it needs Google application-default credentials of a project owner
+(`gcloud auth application-default login`). Against local emulators, set `FIREBASE_DATABASE_EMULATOR_HOST` and
+`FIRESTORE_EMULATOR_HOST`. It only reads Realtime Database, so the old data is untouched. Don't run it on the real
+project until the app's switch-over (B5) is ready.
+
 ## Deploying
 
 The app deploys to Firebase Hosting on every push to `main` via GitHub Actions (`.github/workflows/`).

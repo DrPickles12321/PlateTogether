@@ -72,6 +72,7 @@ function valueProblem(type, value) {
 export function toMillis(at) {
   if (at == null) return -Infinity
   if (typeof at === 'number') return at
+  if (at instanceof Date) return at.getTime()
   if (typeof at === 'string') return Date.parse(at)
   if (typeof at.toMillis === 'function') return at.toMillis()
   if (typeof at.seconds === 'number') return at.seconds * 1000 + Math.floor((at.nanoseconds || 0) / 1e6)
