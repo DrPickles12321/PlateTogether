@@ -64,6 +64,11 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // Each person's own settings (consent, saved and hidden notes, cached insights). Owner only.
+    match /users/{userId}/private/{docId} {
+      allow read, write: if signedIn() && uid() == userId;
+    }
+
     // ── Family codes: let a clinician find a family; caregivers manage them ──
 
     match /familyCodes/{code} {
@@ -222,6 +227,37 @@ service cloud.firestore {
         allow read: if seesRecord(fid);
         allow create: if isTeam(fid) && stampedByMe();
         allow update, delete: if false;
+      }
+
+      // ── The family's foods and usual meals: caregivers own them; the team may retype a food ──
+      match /foods/{foodId} {
+        allow read: if seesRecord(fid);
+        allow create, delete: if isCaregiver(fid);
+        allow update: if isCaregiver(fid) || (isTeam(fid) && changedOnly(['category']));
+      }
+      match /usualMeals/{mealId} {
+        allow read: if seesRecord(fid);
+        allow create, update: if isCaregiver(fid)
+          && onlyKeys(['id', 'name', 'mealType', 'foods', 'createdAt'])
+          && request.resource.data.id == mealId
+          && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 60
+          && request.resource.data.mealType in ['breakfast', 'lunch', 'snack', 'dinner']
+          && request.resource.data.foods is list && request.resource.data.foods.size() <= 12;
+        allow delete: if isCaregiver(fid);
+      }
+
+      // ── Clinicians' notes to the family: the author edits or deletes; older notes with no author are
+      // claimed by whoever edits them next (as in the Realtime Database rules) ──
+      match /clinicianNotes/{noteId} {
+        allow read: if seesRecord(fid);
+        allow create: if isTeam(fid) && onlyKeys(['body', 'by', 'at', 'updatedAt'])
+          && stampedByMe()
+          && request.resource.data.body is string && request.resource.data.body.size() <= 4000;
+        allow update: if isTeam(fid) && (resource.data.by == uid() || resource.data.by == null)
+          && changedOnly(['body', 'by', 'updatedAt'])
+          && request.resource.data.by == uid() && request.resource.data.updatedAt == request.time
+          && request.resource.data.body is string && request.resource.data.body.size() <= 4000;
+        allow delete: if isTeam(fid) && resource.data.by == uid();
       }
 
       // ── Clinic measurements: team only; caregivers see weight if the lead shares it ──

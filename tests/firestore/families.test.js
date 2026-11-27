@@ -303,3 +303,51 @@ describe('server-only and user documents', () => {
     await assertFails(getDoc(doc(as(P1), `users/${THER}`)))
   })
 })
+
+describe('foods, usual meals and clinicians\' notes', () => {
+  const seed = async () => env.withSecurityRulesDisabled(async ctx => {
+    const db = ctx.firestore()
+    await setDoc(doc(db, `families/${F}/foods/f1`), { id: 'f1', name: 'Pizza', category: 'challenge' })
+    await setDoc(doc(db, `families/${F}/clinicianNotes/old`), { body: 'Older note.', by: null, at: past })
+    await setDoc(doc(db, `families/${F}/clinicianNotes/mine`), { body: 'Keep snack at 3:30.', by: THER, at: past })
+  })
+
+  it('caregivers manage foods; the team may only retype one; the teen cannot read them', async () => {
+    await seed()
+    await assertSucceeds(setDoc(doc(as(P1), `families/${F}/foods/f2`), { id: 'f2', name: 'Rice', category: 'familiar' }))
+    await assertSucceeds(updateDoc(doc(as(THER), `families/${F}/foods/f1`), { category: 'working_on' }))
+    await assertFails(updateDoc(doc(as(THER), `families/${F}/foods/f1`), { name: 'Salad' }))
+    await assertFails(deleteDoc(doc(as(THER), `families/${F}/foods/f1`)))
+    await assertFails(getDoc(doc(as(TEEN), `families/${F}/foods/f1`)))
+  })
+
+  it('caregivers save usual meals with a checked shape', async () => {
+    const meal = { id: 'u1', name: 'School-day breakfast', mealType: 'breakfast', foods: [{ name: 'Oatmeal' }], createdAt: '2026-11-27T08:00:00Z' }
+    await assertSucceeds(setDoc(doc(as(P1), `families/${F}/usualMeals/u1`), meal))
+    await assertFails(setDoc(doc(as(P1), `families/${F}/usualMeals/u2`), { ...meal, id: 'u2', mealType: 'brunch' }))
+    await assertFails(setDoc(doc(as(THER), `families/${F}/usualMeals/u3`), { ...meal, id: 'u3' }))
+  })
+
+  it('clinicians write notes to the family as themselves; caregivers read them', async () => {
+    await seed()
+    await assertSucceeds(setDoc(doc(as(DIET), `families/${F}/clinicianNotes/n9`), { body: 'Great week.', by: DIET, at: serverTimestamp() }))
+    await assertFails(setDoc(doc(as(DIET), `families/${F}/clinicianNotes/n8`), { body: 'x', by: THER, at: serverTimestamp() }))
+    await assertFails(setDoc(doc(as(P1), `families/${F}/clinicianNotes/n7`), { body: 'x', by: P1, at: serverTimestamp() }))
+    await assertSucceeds(getDoc(doc(as(P1), `families/${F}/clinicianNotes/mine`)))
+  })
+
+  it('only the author edits or deletes a note; an older note with no author is claimed on edit', async () => {
+    await seed()
+    await assertFails(updateDoc(doc(as(DIET), `families/${F}/clinicianNotes/mine`), { body: 'Changed', by: DIET, updatedAt: serverTimestamp() }))
+    await assertFails(deleteDoc(doc(as(DIET), `families/${F}/clinicianNotes/mine`)))
+    await assertSucceeds(updateDoc(doc(as(THER), `families/${F}/clinicianNotes/mine`), { body: 'Keep snack at 3:30 on school days.', by: THER, updatedAt: serverTimestamp() }))
+    await assertSucceeds(updateDoc(doc(as(DIET), `families/${F}/clinicianNotes/old`), { body: 'Older note, updated.', by: DIET, updatedAt: serverTimestamp() }))
+    await assertFails(deleteDoc(doc(as(P1), `families/${F}/clinicianNotes/mine`)))
+  })
+
+  it('each person\'s private settings are theirs alone', async () => {
+    await assertSucceeds(setDoc(doc(as(P1), `users/${P1}/private/settings`), { hiddenClinicianNoteIds: { n1: true } }))
+    await assertFails(getDoc(doc(as(THER), `users/${P1}/private/settings`)))
+    await assertFails(setDoc(doc(as(THER), `users/${P1}/private/settings`), { x: 1 }))
+  })
+})

@@ -57,6 +57,7 @@ describe('ordering', () => {
   it('reads Firestore timestamps, milliseconds and ISO strings; unknown times come first', () => {
     expect(toMillis({ seconds: 10, nanoseconds: 5e6 })).toBe(10005)
     expect(toMillis({ toMillis: () => 42 })).toBe(42)
+    expect(toMillis(new Date(7))).toBe(7)
     expect(toMillis('2026-11-27T00:00:00Z')).toBe(Date.parse('2026-11-27T00:00:00Z'))
     const events = [{ id: 'b', at: 20 }, { id: 'a', at: null }, { id: 'c', at: 10 }, { id: 'd', at: 10 }]
     expect(orderEvents(events).map(e => e.id)).toEqual(['a', 'c', 'd', 'b'])
