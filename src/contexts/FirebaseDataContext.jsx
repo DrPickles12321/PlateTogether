@@ -1,9 +1,10 @@
-import { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { ref, onValue, set, update, get } from 'firebase/database'
 import { deleteUser } from 'firebase/auth'
 import { db, auth } from '../firebase'
 import { useAuth } from './AuthContext'
-import { fetchFoodInfo } from '../lib/foodData'
+import { fetchFoodInfo, hasFoodProxy, lookupForBackfill } from '../lib/foodData'
+import { foodsNeedingNutrition, backfillPatch, BACKFILL_PER_VISIT } from '../lib/nutritionBackfill'
 import { quickLogPatch } from '../lib/quickLog'
 import { resolveViewingPatient, viewingStorageKey, visibleCareTeam } from '../lib/viewingPatient'
 import { normalizeCarePlan } from '../lib/carePlan'
@@ -592,6 +593,32 @@ export function FirebaseDataProvider({ children }) {
     }
     return food
   }
+
+  // Fill in USDA data for older foods, at most BACKFILL_PER_VISIT per session (lib/nutritionBackfill.js).
+  // One loop at a time: saving a food changes foodItems, which must not start a second loop. The date
+  // tried is saved so a food USDA can't match isn't retried daily; failed lookups are retried later.
+  const backfill = useRef({ uid: null, tried: new Set(), running: false })
+  useEffect(() => {
+    const state = backfill.current
+    if (state.uid !== uid) Object.assign(state, { uid, tried: new Set(), running: false })
+    if (!uid || !hasFoodProxy() || state.running) return
+    const slots = BACKFILL_PER_VISIT - state.tried.size
+    if (slots <= 0) return
+    const todo = foodsNeedingNutrition(foodItems.filter(f => !state.tried.has(f.id)), { limit: slots })
+    if (!todo.length) return
+    state.running = true
+    ;(async () => {
+      for (const food of todo) {
+        if (backfill.current.uid !== uid) return // signed out or switched account
+        state.tried.add(food.id)
+        const result = await lookupForBackfill(food.name)
+        if (backfill.current.uid !== uid) return
+        if (result.status === 'error') continue // offline or rate-limited: try again next visit
+        update(ref(db, `users/${uid}/foodItems/${food.id}`), backfillPatch(result.status === 'found' ? result : null))
+      }
+      state.running = false
+    })()
+  }, [uid, foodItems])
 
   function deleteFoodItem(id) {
     if (!uid) return

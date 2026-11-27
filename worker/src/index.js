@@ -1,5 +1,6 @@
 import { createRemoteJWKSet, jwtVerify } from 'jose'
 import { WHOLE_FOODS, BRANDED, mapCategoryToGroup, extractNutrients, pickResults, relevantCount } from './usda'
+import { createMemoryCache, cacheKey, createRateLimiter, cachedJson } from './cache'
 
 const JWKS = createRemoteJWKSet(
   new URL('https://www.googleapis.com/robot/v1/metadata/jwk/securetoken@system.gserviceaccount.com')
@@ -30,48 +31,63 @@ function usdaSearch(env, query, pageSize, dataType) {
   })
 }
 
-// Single best-match lookup — used to enrich a food on creation.
-async function handleFoodSearch(query, env) {
-  if (!env.USDA_API_KEY) return json({ error: 'USDA not configured' }, 503)
+// Free caching and a soft per-user limit for USDA calls (cache.js). Module scope, so they last as
+// long as this Worker instance.
+const memory = createMemoryCache()
+const allowFoodCall = createRateLimiter({ limit: 60, windowMs: 60 * 1000 })
+const edgeCache = () => (typeof caches !== 'undefined' ? caches.default : undefined)
+
+// Single best-match lookup, used to fill in a food's group and nutrition. Returns plain data.
+async function lookupFood(query, env) {
   let r
   try {
     r = await usdaSearch(env, query, 1, WHOLE_FOODS)
   } catch (err) {
     console.error('USDA fetch failed:', err.message)
-    return json({ matched: null, group: null, nutrition: null })
+    return { error: 'USDA unreachable' }
   }
-  if (!r.ok) return json({ error: `USDA API ${r.status}` }, 502)
-  const data = await r.json()
-  const food = data.foods?.[0]
-  if (!food) return json({ matched: null, group: null, nutrition: null })
-  return json({
+  if (!r.ok) return { error: `USDA API ${r.status}` }
+  const food = (await r.json()).foods?.[0]
+  if (!food) return { matched: null, group: null, nutrition: null }
+  return {
     matched: food.description || null,
     foodCategory: food.foodCategory || null,
     group: mapCategoryToGroup(food.foodCategory),
     nutrition: extractNutrients(food),
-  })
+  }
 }
 
 // Multi-result search for the add-food sheet and the Suggested tab. Whole and generic foods first;
-// branded products only when fewer than three of those match every word typed, so "garlic bread" doesn't fill up with
-// identical store-brand entries. Names are tidied and deduplicated in pickResults (usda.js).
-async function handleFoodSearchMulti(query, limit, env) {
-  if (!env.USDA_API_KEY) return json({ error: 'USDA not configured' }, 503)
+// branded products only when fewer than three of those match every word typed, so "garlic bread"
+// doesn't fill up with identical store-brand entries. Names are tidied and deduplicated in
+// pickResults (usda.js). Returns plain data.
+async function searchFoodsMulti(query, limit, env) {
   const pageSize = Math.min(limit * 3, 50)
   try {
     const r = await usdaSearch(env, query, pageSize, WHOLE_FOODS)
-    if (!r.ok) return json({ error: `USDA API ${r.status}` }, 502)
+    if (!r.ok) return { error: `USDA API ${r.status}` }
     const whole = (await r.json()).foods || []
     let results = pickResults(whole, query, limit)
     if (relevantCount(results, query) < 3) {
       const b = await usdaSearch(env, query, pageSize, BRANDED)
       if (b.ok) results = pickResults([...whole, ...((await b.json()).foods || [])], query, limit)
     }
-    return json({ results })
+    return { results }
   } catch (err) {
     console.error('USDA search failed:', err.message)
-    return json({ results: [] })
+    return { error: 'USDA unreachable' }
   }
+}
+
+async function handleFoodCall(kind, query, limit, env, userId) {
+  if (!env.USDA_API_KEY) return json({ error: 'USDA not configured' }, 503)
+  if (!allowFoodCall(userId)) return json({ error: 'Too many food searches. Try again in a minute.' }, 429)
+  const key = cacheKey(kind, query, limit)
+  const data = await cachedJson(key, () => (kind === 'lookup' ? lookupFood(query, env) : searchFoodsMulti(query, limit, env)),
+    { memory, edge: edgeCache() })
+  // A failed lookup is an error (so the app can retry later), not "no match"; a failed search is just empty.
+  if (data?.error) return kind === 'lookup' ? json({ error: data.error }, 502) : json({ results: [] })
+  return json(data)
 }
 
 export default {
@@ -95,11 +111,13 @@ export default {
       return json({ error: 'Server misconfiguration' }, 500)
     }
 
+    let userId
     try {
-      await jwtVerify(token, JWKS, {
+      const { payload } = await jwtVerify(token, JWKS, {
         issuer: `https://securetoken.google.com/${env.FIREBASE_PROJECT_ID}`,
         audience: env.FIREBASE_PROJECT_ID,
       })
+      userId = payload.sub
     } catch (err) {
       console.error('JWT verification failed:', err.message)
       return json({ error: 'Invalid or expired token' }, 401)
@@ -150,13 +168,13 @@ export default {
 
     // USDA single-food enrichment: { query: "<food name>" }
     if (typeof body?.query === 'string' && body.query.trim()) {
-      return handleFoodSearch(body.query.trim().slice(0, 200), env)
+      return handleFoodCall('lookup', body.query.trim().slice(0, 200), 0, env, userId)
     }
 
     // USDA multi-result search: { search: "<query>", limit?: N }
     if (typeof body?.search === 'string' && body.search.trim()) {
       const limit = Math.min(Math.max(parseInt(body.limit, 10) || 12, 1), 20)
-      return handleFoodSearchMulti(body.search.trim().slice(0, 200), limit, env)
+      return handleFoodCall('search', body.search.trim().slice(0, 200), limit, env, userId)
     }
 
     const prompt = body?.prompt
