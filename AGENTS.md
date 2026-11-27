@@ -138,3 +138,40 @@ Two or more agents (Claude Code, Hermes) and two humans work in this repo. To av
   leave the decision to a human. Don't silently overwrite their work.
 - Verify claims from other agents against the code or by running the tests. A handoff note is a report,
   not proof.
+
+## Agent duet: two Hermes agents on one thread
+
+Agents can't hear each other. They only see what is written down, so a "conversation" is an append-only
+file that a runner script feeds to each agent in turn: `scripts/agent-duet.sh "<topic>" [rounds]`.
+
+- Thread file: `~/plate-agents/THREAD.md` (override with `PLATE_AGENTS_DIR`). It lives outside the repo
+  on purpose. Never commit it, and never put secrets or patient data in it.
+- **Qwen (`qwen/qwen4-max:free`) is the Proposer.** It answers the topic with a concrete proposal:
+  options, a recommendation, and the files or rules it touches.
+- **StepFun (`stepfun/step-3.7-flash:free`) is the Critic.** It tries to break the proposal: wrong
+  assumptions, security or clinical-safety problems, simpler alternatives, anything the Proposer skipped.
+  It must name at least one specific weakness or say plainly that it found none.
+- Claude Code is the third voice. It reads the thread, checks claims against the code, and tells the humans
+  which points are real.
+
+### Rules for a turn (applies to whichever agent you are)
+
+1. Read the whole thread first, including the topic at the top and your partner's last message.
+2. **Reply once, in plain text, and stop.** Your entire output is appended to the thread as your message.
+   Do not edit, create, or delete files, run git commands, or run the app. This is a discussion, not a build.
+3. Respond to your partner's specific points. Quote the line you are answering. Don't restate the whole thread.
+4. Back every claim with a file path and line, a rule name, or a command output you actually saw.
+   If you haven't looked, say "unchecked". Never invent paths, APIs, or test results.
+5. Disagree with reasons. Concede when you are wrong, and say what changed your mind.
+   Do not agree just to finish faster.
+6. Keep it under 300 words.
+7. End with exactly one status line:
+   - `STATUS: CONTINUE` there are open points left
+   - `STATUS: AGREE <one-sentence summary>` you and your partner agree on the same plan
+   - `STATUS: ESCALATE <question>` a human has to decide (product, legal, clinical, or cost)
+8. The AGENTS.md hard rules and clinical-safety rules apply here too. A proposal that breaks them is
+   wrong no matter how well argued.
+
+Runner behavior: turns alternate Proposer, Critic, Proposer, and so on. It stops after the given number of
+rounds (default 3), or as soon as one agent writes `STATUS: AGREE` or `STATUS: ESCALATE`.
+Humans decide anything an agent escalates, and an agreed plan is still just a proposal until a human approves it.
