@@ -2,11 +2,10 @@
 // The parent writes name, birth year and treatment start; only a linked clinician sets the FBT phase
 // (database.rules.json: childProfile). The name is whatever the parent types, a first name or initials.
 
-export const PHASES = {
-  1: 'Phase 1: parents take charge of eating',
-  2: 'Phase 2: control handed back gradually',
-  3: 'Phase 3: back to everyday life',
-}
+import { phaseLabels } from './programs'
+
+// The phases a clinician can pick, worded once in lib/programs.js.
+export const PHASES = phaseLabels()
 
 export const NAME_MAX = 40
 
