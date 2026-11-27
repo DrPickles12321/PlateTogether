@@ -788,7 +788,7 @@ export function ParentNoteSection({ note, selectedDate, onSave, onDelete }) {
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           borderBottom: '1px solid var(--border)',
         }}>
-          <span style={{ fontWeight: 700, fontSize: 15, color: 'var(--coral)', fontFamily: "'Lato', sans-serif" }}>
+          <span style={{ fontWeight: 700, fontSize: 15, color: 'var(--coral)', fontFamily: 'inherit' }}>
             Parent Note
           </span>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -819,26 +819,21 @@ export function ParentNoteSection({ note, selectedDate, onSave, onDelete }) {
           </div>
         </div>
 
-        {/* Ruled writing area */}
-        <div style={{
-          backgroundImage: 'repeating-linear-gradient(transparent, transparent 27px, var(--border) 27px, var(--border) 28px)',
-          backgroundSize: '100% 28px', backgroundPositionY: '4px',
-          display: 'flex',
-        }}>
-          <div style={{ width: 1, background: 'var(--margin)', flexShrink: 0, marginLeft: 20, marginRight: 12 }} />
-          <div style={{ flex: 1, padding: '10px 16px 10px 0' }}>
+        <div style={{ padding: '12px 16px' }}>
+          <div>
+            <label htmlFor="parent-note-body" style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)' }}>Note for your care team</label>
             <textarea
+              id="parent-note-body"
               value={body}
               onChange={e => { setBody(e.target.value); setSaveStatus('idle') }}
               placeholder="Write a note for your care team..."
               rows={4}
               maxLength={1000}
               style={{
-                width: '100%', border: 'none', background: 'transparent',
-                resize: 'none', outline: 'none',
-                fontSize: 13, fontFamily: "'Lato', sans-serif",
-                color: 'var(--text-dark)', lineHeight: '28px',
-                padding: 0, boxSizing: 'border-box',
+                width: '100%', border: '1.5px solid var(--border-mid)', borderRadius: 'var(--radius)', background: 'white',
+                resize: 'vertical', fontSize: 15, fontFamily: 'inherit',
+                color: 'var(--text-dark)', lineHeight: 1.5,
+                padding: '10px 12px', boxSizing: 'border-box',
               }}
             />
           </div>
@@ -867,7 +862,7 @@ export function ParentNoteSection({ note, selectedDate, onSave, onDelete }) {
                 border: 'none', borderRadius: 'var(--radius)', padding: '6px 18px', minHeight: 44,
                 fontSize: 14, fontWeight: 600,
                 cursor: (!isDirty || isSaving) ? 'default' : 'pointer',
-                fontFamily: "'Lato', sans-serif", transition: 'all 0.15s',
+                fontFamily: 'inherit', transition: 'all 0.15s',
 
               }}
             >
@@ -927,23 +922,16 @@ export function ClinicianNotesSidebar({
         borderRadius: 'var(--radius)', overflow: 'hidden',
       }}>
         <div style={{ padding: '10px 12px 6px' }}>
-          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--coral)', fontFamily: "'Lato', sans-serif" }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--coral)', fontFamily: 'inherit' }}>
             Clinician Notes
           </span>
         </div>
 
-        {/* Ruled area */}
-        <div style={{
-          backgroundImage: 'repeating-linear-gradient(transparent, transparent 27px, var(--border) 27px, var(--border) 28px)',
-          backgroundSize: '100% 28px', backgroundPositionY: '4px',
-          display: 'flex', minHeight: 84,
-        }}>
-          <div style={{ width: 1, background: 'var(--margin)', flexShrink: 0, marginLeft: 10, marginRight: 8 }} />
-          <div style={{ flex: 1, padding: '8px 10px 8px 0' }}>
+        <div style={{ minHeight: 84 }}>
+          <div style={{ padding: '10px 12px' }}>
             {!latest ? (
               <div style={{ display: 'flex', gap: 5, alignItems: 'flex-start' }}>
-                <span style={{ color: 'rgba(35,64,142,0.3)', fontSize: 14, lineHeight: '28px' }}><Icon name="dot" size={14} style={{ marginTop: 6 }} /></span>
-                <p style={{ margin: 0, fontSize: 12, color: 'var(--text-light)', fontStyle: 'italic', lineHeight: '28px' }}>No notes yet.</p>
+                <p style={{ margin: 0, fontSize: 13, color: 'var(--text-light)', lineHeight: 1.5 }}>No notes yet.</p>
               </div>
             ) : (
               <>
@@ -960,8 +948,7 @@ export function ClinicianNotesSidebar({
                   </div>
                 )}
                 <div style={{ display: 'flex', gap: 5, alignItems: 'flex-start' }}>
-                  <span style={{ color: 'var(--coral)', fontSize: 14, lineHeight: '28px', flexShrink: 0 }}><Icon name="dot" size={14} style={{ marginTop: 6 }} /></span>
-                  <p style={{ margin: 0, fontSize: 12, color: 'var(--text-mid)', lineHeight: '28px' }}>{latest.body}</p>
+                  <p style={{ margin: 0, fontSize: 14, color: 'var(--text-dark)', lineHeight: 1.5 }}>{latest.body}</p>
                 </div>
                 {latest.created_at && (
                   <p style={{ margin: '4px 0 0', fontSize: 12, color: 'var(--text-light)' }}>
@@ -988,7 +975,7 @@ export function ClinicianNotesSidebar({
                   background: 'none', border: '1px solid var(--border-mid)',
                   borderRadius: 'var(--radius)', padding: '6px 12px', minHeight: 44, fontSize: 14, fontWeight: 600,
                   color: isUpdated ? 'var(--st-some)' : 'var(--coral)', cursor: 'pointer',
-                  fontFamily: "'Lato', sans-serif",
+                  fontFamily: 'inherit',
                   borderColor: isUpdated ? 'var(--st-some)' : 'var(--border-mid)',
                 }}
               >Mark as read</button>
@@ -1000,7 +987,7 @@ export function ClinicianNotesSidebar({
                 border: `1px solid ${isSaved ? 'var(--peach-mid)' : 'var(--border-mid)'}`,
                 borderRadius: 'var(--radius)', padding: '6px 12px', minHeight: 44, fontSize: 14, fontWeight: 600,
                 color: isSaved ? 'var(--peach)' : 'var(--text-light)', cursor: 'pointer',
-                fontFamily: "'Lato', sans-serif",
+                fontFamily: 'inherit',
               }}
             >{isSaved ? 'Saved' : 'Save'}</button>
             {onHideNote && (
@@ -1024,7 +1011,7 @@ export function ClinicianNotesSidebar({
                   style={{
                     background: 'none', border: '1px solid var(--border-mid)',
                     borderRadius: 'var(--radius)', padding: '6px 12px', minHeight: 44, fontSize: 14, fontWeight: 600,
-                    color: 'var(--text-light)', cursor: 'pointer', fontFamily: "'Lato', sans-serif",
+                    color: 'var(--text-light)', cursor: 'pointer', fontFamily: 'inherit',
                   }}
                 >Hide</button>
               )
@@ -1040,7 +1027,7 @@ export function ClinicianNotesSidebar({
               width: '100%', padding: '7px 12px', background: 'none', border: 'none',
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
               cursor: savedClinicianNotes.length > 0 ? 'pointer' : 'default',
-              fontFamily: "'Lato', sans-serif",
+              fontFamily: 'inherit',
               opacity: savedClinicianNotes.length > 0 ? 1 : 0.4,
             }}
           >
@@ -1052,15 +1039,9 @@ export function ClinicianNotesSidebar({
           {showSaved && savedClinicianNotes.length > 0 && (
             <div style={{ borderTop: '1px solid var(--border)' }}>
               {[...savedClinicianNotes].reverse().map((note, i) => (
-                <div key={`${note.id}-${i}`} style={{
-                  backgroundImage: 'repeating-linear-gradient(transparent, transparent 27px, var(--border) 27px, var(--border) 28px)',
-                  backgroundSize: '100% 28px', backgroundPositionY: '4px',
-                  display: 'flex', borderBottom: '1px solid var(--border)',
-                  position: 'relative',
-                }}>
-                  <div style={{ width: 1, background: 'var(--margin)', flexShrink: 0, marginLeft: 8, marginRight: 6 }} />
-                  <div style={{ flex: 1, padding: '7px 28px 7px 0' }}>
-                    <p style={{ margin: '0 0 3px', fontSize: 13, color: 'var(--text-mid)', lineHeight: '28px' }}>{note.body}</p>
+                <div key={`${note.id}-${i}`} style={{ display: 'flex', borderBottom: '1px solid var(--border)', position: 'relative' }}>
+                  <div style={{ flex: 1, padding: '10px 36px 10px 12px' }}>
+                    <p style={{ margin: '0 0 3px', fontSize: 14, color: 'var(--text-dark)', lineHeight: 1.5 }}>{note.body}</p>
                     <span style={{ fontSize: 12, color: 'var(--text-light)' }}>
                       {new Date(note.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                     </span>
@@ -1081,7 +1062,7 @@ export function ClinicianNotesSidebar({
               {/* Clear all */}
               <div style={{ padding: '7px 12px', display: 'flex', justifyContent: 'flex-end' }}>
                 {confirmClear ? (
-                  <span style={{ fontSize: 12, color: 'var(--text-mid)', fontFamily: "'Lato', sans-serif" }}>
+                  <span style={{ fontSize: 12, color: 'var(--text-mid)', fontFamily: 'inherit' }}>
                     Sure?{' '}
                     <button
                       onClick={() => { clearAllSavedNotes?.(); setShowSaved(false); setConfirmClear(false) }}
@@ -1101,7 +1082,7 @@ export function ClinicianNotesSidebar({
                     style={{
                       background: 'none', border: 'none', cursor: 'pointer',
                       fontSize: 12, color: 'var(--text-light)', padding: 0,
-                      fontFamily: "'Lato', sans-serif", transition: 'color 0.15s',
+                      fontFamily: 'inherit', transition: 'color 0.15s',
                     }}
                   >Clear all saved</button>
                 )}
@@ -1118,7 +1099,7 @@ export function ClinicianNotesSidebar({
               style={{
                 width: '100%', padding: '7px 12px', background: 'none', border: 'none',
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                cursor: 'pointer', fontFamily: "'Lato', sans-serif",
+                cursor: 'pointer', fontFamily: 'inherit',
               }}
             >
               <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-mid)' }}>History ({olderNotes.filter(n => !hiddenNoteIds.includes(n.id)).length})</span>
@@ -1172,7 +1153,7 @@ export function ClinicianNotesSidebar({
               style={{
                 width: '100%', padding: '7px 12px', background: 'none', border: 'none',
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                cursor: 'pointer', fontFamily: "'Lato', sans-serif",
+                cursor: 'pointer', fontFamily: 'inherit',
               }}
             >
               <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-light)' }}>Removed ({removedNotes.length})</span>
@@ -1193,7 +1174,7 @@ export function ClinicianNotesSidebar({
                       style={{
                         flexShrink: 0, background: 'none', border: '1px solid var(--border-mid)',
                         borderRadius: 'var(--radius)', padding: '6px 12px', minHeight: 44, fontSize: 14, fontWeight: 600,
-                        color: 'var(--mint)', cursor: 'pointer', fontFamily: "'Lato', sans-serif",
+                        color: 'var(--mint)', cursor: 'pointer', fontFamily: 'inherit',
                       }}
                     >Restore</button>
                   </div>

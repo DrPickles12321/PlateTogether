@@ -55,27 +55,11 @@ export default function NotesPanel({ notes, mode, onSave, onDelete, notesReadByP
         </span>
       </div>
 
-      {/* Red margin line + ruled content */}
       <div style={{
         display: 'flex',
         minHeight: 180,
       }}>
-        {/* Red margin line */}
-        <div style={{
-          width: 2,
-          background: 'rgba(35,64,142,0.25)',
-          flexShrink: 0,
-          marginLeft: 32,
-        }} />
-
-        {/* Content area with ruled lines */}
-        <div style={{
-          flex: 1,
-          padding: '16px 18px 16px 14px',
-          backgroundImage: 'repeating-linear-gradient(transparent, transparent 27px, rgba(35,64,142,0.08) 27px, rgba(35,64,142,0.08) 28px)',
-          backgroundSize: '100% 28px',
-          backgroundPositionY: '4px',
-        }}>
+        <div style={{ flex: 1, padding: '16px 18px' }}>
           {mode === 'clinician' ? (
             <>
               <NoteComposer
