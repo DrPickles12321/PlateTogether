@@ -1,4 +1,5 @@
 import { useFirebaseData } from '../contexts/FirebaseDataContext'
+import { useAuth } from '../contexts/AuthContext'
 import { RevealSection, SectionCard, ParentNotesPanel } from './ClinicianView'
 import NotesPanel from '../components/NotesPanel'
 
@@ -14,6 +15,8 @@ export default function ClinicianNotesView() {
     writeClinicianNote,
     deleteClinicianNote,
   } = useFirebaseData()
+
+  const { user } = useAuth()
 
   function handleSaveNote({ body, existingNoteId }) {
     writeClinicianNote({ body, existingNoteId })
@@ -41,6 +44,7 @@ export default function ClinicianNotesView() {
             onSave={handleSaveNote}
             onDelete={deleteClinicianNote}
             notesReadByParent={clinicianNotesRead}
+            currentUid={user?.uid || null}
           />
         </SectionCard>
       </RevealSection>

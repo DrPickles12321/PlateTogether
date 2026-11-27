@@ -6,7 +6,7 @@ import { useFirebaseData } from '../contexts/FirebaseDataContext'
 // localStorage so it shows once and never nags. Purely a UX hint — no data written.
 const STEPS = {
   parent: [
-    { text: 'Log meals on the Today tab — add foods and mark how each meal went.' },
+    { text: 'Log each meal from Next meal: one tap for how it went, and add foods if you like.' },
     { text: 'Share your family code with your clinician so they can follow along.' },
     { text: 'Check Insights any time for a gentle look at the week.' },
   ],

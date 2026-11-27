@@ -64,10 +64,10 @@ function FoodRow({ food, added, onTap, onInfo, last }) {
         </span>
       </button>
       {onInfo && (
-        <button type="button" onClick={() => onInfo(food)} aria-label={`Nutrition facts for ${food.name}`} style={{
+        <button type="button" onClick={() => onInfo(food)} aria-label={`Options for ${food.name}`} style={{
           flexShrink: 0, width: 44, minHeight: 48, border: 'none', borderLeft: '1px solid var(--rule)', background: 'transparent',
-          color: 'var(--text-light)', fontSize: 15, fontWeight: 700, fontStyle: 'italic', cursor: 'pointer',
-        }}>i</button>
+          color: 'var(--text-light)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}><Icon name="more" size={18} /></button>
       )}
     </li>
   )
@@ -89,7 +89,7 @@ function NewRow({ name, hint, onTap, last }) {
 }
 
 export default function AddFoodSheet({ open, onClose, mealLabel, mealKey, date, allMealItems = {}, mealItems = [], onAddToMeal, onAddManyToMeal, onRemoveFromMeal }) {
-  const { foodItems, addFoodItem, setFoodNutrition, resetFoodNutrition, assignedChallenges, usualMeals, saveUsualMeal, deleteUsualMeal } = useFirebaseData()
+  const { foodItems, addFoodItem, updateFoodItemCategory, setFoodNutrition, resetFoodNutrition, assignedChallenges, usualMeals, saveUsualMeal, deleteUsualMeal } = useFirebaseData()
   const { hideNutritionNumbers } = useAppMode()
   const [query, setQuery] = useState('')
   const [newType, setNewType] = useState('familiar')
@@ -230,7 +230,7 @@ export default function AddFoodSheet({ open, onClose, mealLabel, mealKey, date, 
                 <ul style={list}>
                   {matches.map((f, i) => (
                     <FoodRow key={f.id} food={f} added={inMealIds.has(f.id)} onTap={pickFromSearch}
-                      onInfo={hideNutritionNumbers ? null : setFactsFood} last={i === matches.length - 1} />
+                      onInfo={setFactsFood} last={i === matches.length - 1} />
                   ))}
                 </ul>
               </section>
@@ -269,7 +269,7 @@ export default function AddFoodSheet({ open, onClose, mealLabel, mealKey, date, 
                 <ul style={list}>
                   {usual.map((f, i) => (
                     <FoodRow key={f.id} food={f} added={inMealIds.has(f.id)} onTap={toggle}
-                      onInfo={hideNutritionNumbers ? null : setFactsFood} last={i === usual.length - 1} />
+                      onInfo={setFactsFood} last={i === usual.length - 1} />
                   ))}
                 </ul>
               </section>
@@ -281,7 +281,7 @@ export default function AddFoodSheet({ open, onClose, mealLabel, mealKey, date, 
                 <ul style={list}>
                   {rest.map((f, i) => (
                     <FoodRow key={f.id} food={f} added={inMealIds.has(f.id)} onTap={toggle}
-                      onInfo={hideNutritionNumbers ? null : setFactsFood} last={i === rest.length - 1} />
+                      onInfo={setFactsFood} last={i === rest.length - 1} />
                   ))}
                 </ul>
               </section>
@@ -322,8 +322,17 @@ export default function AddFoodSheet({ open, onClose, mealLabel, mealKey, date, 
         </div>
       </BottomSheet>
 
-      <Modal isOpen={!!factsLive} onClose={() => setFactsFood(null)} title={factsLive ? `Nutrition · ${factsLive.name}` : ''} zIndex={70}>
+      <Modal isOpen={!!factsLive} onClose={() => setFactsFood(null)} title={factsLive ? factsLive.name : ''} zIndex={70}>
         {factsLive && (
+          <h3 style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)', marginBottom: 6 }}>Type</h3>
+        )}
+        {factsLive && (
+          <TypePicker value={factsLive.category || null} onChange={key => updateFoodItemCategory(factsLive.id, key)} label={`Type for ${factsLive.name}`} />
+        )}
+        {factsLive && !hideNutritionNumbers && (
+          <h3 style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)', margin: '14px 0 6px' }}>Nutrition</h3>
+        )}
+        {factsLive && !hideNutritionNumbers && (
           <NutritionFacts
             food={factsLive}
             onSave={nutrition => setFoodNutrition(factsLive.id, nutrition)}

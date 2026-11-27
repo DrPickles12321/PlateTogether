@@ -96,8 +96,7 @@ Shown when a parent taps "Get help" or "When to get help". Fixed text: the app n
   problems in the first weeks)?
 - **Q9.** Should the family's own clinician be able to edit this list for their family?
 
-Design note for the team, not the clinician: since the redesign the "Call 911" button is charcoal, not red.
-Decide whether the emergency button should stand out more.
+Design note for the team: the "Call 911" button is red (the only red in the app) so it stands out.
 
 ## 5. The parent's week
 
