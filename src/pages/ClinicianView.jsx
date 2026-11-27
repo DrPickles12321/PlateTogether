@@ -8,6 +8,7 @@ import ClinicianTabBar from '../components/ClinicianTabBar'
 import FamilyList from '../components/FamilyList'
 import { familySummary, sortFamilies } from '../lib/familyTriage'
 import { familyName, profileDetails, PHASES } from '../lib/childProfile'
+import { sessionAgo } from '../lib/sessionSummary'
 import { getWeekIsoDates } from '../lib/insights'
 import { localIsoDate } from '../lib/constants'
 import { useIsMobile } from '../hooks/useIsMobile'
@@ -378,6 +379,7 @@ export default function ClinicianView() {
     patientsWithOpenSos,
     patientWeekData,
     setChildPhase,
+    markSessionDone,
     allMealItems: parentMealItems,
   } = useFirebaseData()
 
@@ -399,6 +401,7 @@ export default function ClinicianView() {
       name: familyName(patientWeekData[p.uid]?.profile, p.email),
       details: profileDetails(patientWeekData[p.uid]?.profile, today),
       phase: patientWeekData[p.uid]?.profile?.phase || null,
+      lastSessionAt: p.lastSessionAt || null,
       summary: familySummary({
         mealLogs: patientWeekData[p.uid]?.mealLogs,
         parentNotes: patientWeekData[p.uid]?.parentNotes,
@@ -492,6 +495,18 @@ export default function ClinicianView() {
               <option value="">Not set</option>
               {Object.entries(PHASES).map(([n, text]) => <option key={n} value={n}>{text}</option>)}
             </select>
+          </div>
+        )}
+        {current && (
+          <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <p style={{ fontSize: 14, color: 'var(--on-ink-soft)', margin: 0 }} aria-live="polite">
+              {current.lastSessionAt ? `Your last session: ${sessionAgo(current.lastSessionAt, localIsoDate())}` : 'No session marked yet'}
+            </p>
+            {current.lastSessionAt !== localIsoDate() && (
+              <button type="button" onClick={() => markSessionDone(localIsoDate())}
+                style={{ minHeight: 40, border: '1px solid var(--on-ink-soft)', borderRadius: 'var(--radius)', padding: '6px 12px', background: 'transparent', color: 'var(--on-ink)', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
+              >Session done today</button>
+            )}
           </div>
         )}
         <div style={{ marginTop: 10, display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
