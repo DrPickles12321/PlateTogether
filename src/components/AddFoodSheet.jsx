@@ -9,6 +9,7 @@ import { useAppMode } from '../hooks/useAppMode'
 import { searchFoods } from '../lib/foodData'
 import { usualFoods, searchFamilyFoods, canAddAsNew, newFoodSuggestions, tidyName, showNewFoods } from '../lib/foodSearch'
 import { UsualMealsList, SaveUsualMeal } from './UsualMeals'
+import { NEW_FAMILY_FOODS, starterIdeas } from '../lib/starterFoods'
 
 // Adding food to a meal in as few taps as possible. Before anything is typed, the family's usual
 // foods for this meal are at the top, so most meals are a few taps. One search box finds the
@@ -80,6 +81,7 @@ export default function AddFoodSheet({ open, onClose, mealLabel, mealKey, date, 
   const usual = usualFoods(ctx)
   const matches = searchFamilyFoods({ ...ctx, query: trimmed })
   const existingNames = foodItems.map(f => f.name)
+  const ideas = starterIdeas(mealKey, existingNames)
   const usdaResults = usda.q === trimmed ? usda.results : []
   const newOk = showNewFoods(trimmed, matches.length)
   const others = newOk ? newFoodSuggestions({ query: trimmed, usda: usdaResults, existingNames }) : []
@@ -128,6 +130,12 @@ export default function AddFoodSheet({ open, onClose, mealLabel, mealKey, date, 
     if (food) onAddToMeal(food)
     reset()
     inputRef.current?.focus()
+  }
+
+  // A starter idea: keep the chosen type for the next tap, and don't pull up the keyboard.
+  function addIdea(name) {
+    const food = addFoodItem({ category: newType, name })
+    if (food) onAddToMeal(food)
   }
 
   function addTyped() {
@@ -256,10 +264,31 @@ export default function AddFoodSheet({ open, onClose, mealLabel, mealKey, date, 
               </section>
             )}
 
-            {foodItems.length === 0 && (
-              <p style={{ fontSize: 15, color: 'var(--text-mid)', lineHeight: 1.5, marginTop: 14 }}>
-                No foods yet. Type one above to add it, or browse ideas below.
-              </p>
+            {foodItems.length < NEW_FAMILY_FOODS && ideas.length > 0 && (
+              <section aria-labelledby="starter-ideas">
+                <h3 id="starter-ideas" style={label13}>Ideas to get started</h3>
+                <p style={{ fontSize: 14, color: 'var(--text-mid)', lineHeight: 1.45, marginBottom: 8 }}>
+                  Tap any your family eats to add it to this {mealLabel.toLowerCase()}. Or type a food above.
+                </p>
+                <div role="group" aria-label="Type for foods you add" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 4, marginBottom: 8 }}>
+                  {TYPES.map(t => (
+                    <button key={t.key} type="button" aria-pressed={newType === t.key} onClick={() => setNewType(t.key)} style={{
+                      minHeight: 40, borderRadius: 'var(--radius)', fontSize: 14, fontWeight: 600, cursor: 'pointer',
+                      border: `1.5px solid ${newType === t.key ? 'var(--ink)' : 'var(--border)'}`,
+                      background: newType === t.key ? 'var(--ink-light)' : 'white', color: newType === t.key ? 'var(--ink-hover)' : 'var(--text-mid)',
+                    }}>{t.label}</button>
+                  ))}
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {ideas.map(name => (
+                    <button key={name} type="button" onClick={() => addIdea(name)} style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 6, minHeight: 44, padding: '0 12px',
+                      borderRadius: 'var(--radius)', border: '1.5px solid var(--border-mid)', background: 'white',
+                      color: 'var(--text-dark)', fontSize: 15, cursor: 'pointer',
+                    }}><Icon name="plus" size={14} />{name}</button>
+                  ))}
+                </div>
+              </section>
             )}
 
             <button type="button" onClick={() => setShowIdeas(s => !s)} aria-expanded={showIdeas} style={{

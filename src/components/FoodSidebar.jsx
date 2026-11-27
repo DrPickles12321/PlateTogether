@@ -8,7 +8,7 @@ import { localIsoDate } from '../lib/constants'
 import Modal from './Modal'
 import NutritionFacts from './NutritionFacts'
 import { searchFoods } from '../lib/foodData'
-import { COMMON_FOODS } from '../data/commonFoods'
+import { ALL_STARTER_FOODS } from '../lib/starterFoods'
 
 export const CATEGORIES = [
   { key: 'familiar',   label: 'Familiar',   color: 'var(--mint)',  bg: 'var(--mint-light)',  border: 'var(--mint-mid)' },
@@ -271,8 +271,8 @@ export function SuggestedFoods({ onAdd, existingNames, buttonSize = 22, assigned
   const q = query.trim().toLowerCase()
   const existingLower = new Set(existingNames.map(n => n.toLowerCase()))
 
-  // Curated foods, filtered to "starts with" matches — flat list (no category split).
-  const curatedNamesList = COMMON_FOODS
+  // Starter ideas, filtered to "starts with" matches — flat list (no type split).
+  const curatedNamesList = ALL_STARTER_FOODS.map(name => ({ name }))
     .filter(f => !existingLower.has(f.name.toLowerCase()) && prefixRank(f.name, q) > 0)
     .map(f => f.name)
     .sort((a, b) => prefixRank(b, q) - prefixRank(a, q) || a.localeCompare(b))
@@ -285,7 +285,7 @@ export function SuggestedFoods({ onAdd, existingNames, buttonSize = 22, assigned
     const t = setTimeout(async () => {
       const results = await searchFoods(query.trim(), 20)
       if (cancelled) return
-      const curatedNames = new Set(COMMON_FOODS.map(f => f.name.toLowerCase()))
+      const curatedNames = new Set(ALL_STARTER_FOODS.map(n => n.toLowerCase()))
       const ranked = results
         .filter(r => !existingLower.has(r.name.toLowerCase()) && !curatedNames.has(r.name.toLowerCase()) && prefixRank(r.name, q) > 0)
         .sort((a, b) => prefixRank(b.name, q) - prefixRank(a.name, q) || a.name.localeCompare(b.name))
