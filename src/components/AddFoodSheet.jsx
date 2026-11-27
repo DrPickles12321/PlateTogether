@@ -85,6 +85,8 @@ export default function AddFoodSheet({ open, onClose, mealLabel, mealKey, date, 
   const newOk = showNewFoods(trimmed, matches.length)
   const others = newOk ? newFoodSuggestions({ query: trimmed, curated: COMMON_FOODS, usda: usdaResults, existingNames }) : []
   const offerNew = newOk && canAddAsNew(trimmed, foodItems)
+  // When what was typed is exactly a USDA food, the "Add" row carries its group and nutrition.
+  const exactUsda = offerNew ? usdaResults.find(r => r.name?.toLowerCase() === tidyName(trimmed).toLowerCase()) : null
   const searchingUsda = newOk && usda.q !== trimmed
   const usualIds = new Set(usual.map(f => f.id))
   const rest = [...foodItems].filter(f => !usualIds.has(f.id)).sort((a, b) => a.name.localeCompare(b.name))
@@ -129,11 +131,15 @@ export default function AddFoodSheet({ open, onClose, mealLabel, mealKey, date, 
     inputRef.current?.focus()
   }
 
+  function addTyped() {
+    addNew({ name: trimmed, ...(exactUsda ? { group: exactUsda.group, nutrition: exactUsda.nutrition } : {}) })
+  }
+
   function onKeyDown(e) {
     if (e.key !== 'Enter') return
     e.preventDefault()
     if (matches.length) pickFromSearch(matches[0])
-    else if (offerNew) addNew({ name: trimmed })
+    else if (offerNew) addTyped()
   }
 
   return (
@@ -205,7 +211,7 @@ export default function AddFoodSheet({ open, onClose, mealLabel, mealKey, date, 
                   ))}
                 </div>
                 <ul style={list}>
-                  {offerNew && <NewRow name={`Add "${tidyName(trimmed)}"`}onTap={() => addNew({ name: trimmed })} last={others.length === 0} />}
+                  {offerNew && <NewRow name={`Add "${tidyName(trimmed)}"`} hint={exactUsda?.nutrition ? 'USDA' : null} onTap={addTyped} last={others.length === 0} />}
                   {others.map((s, i) => (
                     <NewRow key={s.name} name={s.name} hint={s.nutrition ? 'USDA' : null}
                       onTap={() => addNew({ name: s.name, ...(s.group || s.nutrition ? { group: s.group, nutrition: s.nutrition } : {}) })}

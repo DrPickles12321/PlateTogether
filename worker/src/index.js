@@ -1,4 +1,5 @@
 import { createRemoteJWKSet, jwtVerify } from 'jose'
+import { WHOLE_FOODS, BRANDED, mapCategoryToGroup, extractNutrients, pickResults, relevantCount } from './usda'
 
 const JWKS = createRemoteJWKSet(
   new URL('https://www.googleapis.com/robot/v1/metadata/jwk/securetoken@system.gserviceaccount.com')
@@ -16,41 +17,6 @@ function json(body, status = 200) {
     headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
   })
 }
-
-// Map a USDA FoodData Central foodCategory to our coarse food group, matching
-// the plate_zone values used by the local nutrition data (grain/produce/
-// protein/dairy/mixed).
-function mapCategoryToGroup(cat) {
-  const c = (typeof cat === 'string' ? cat : cat?.description || '').toLowerCase()
-  if (!c) return 'mixed'
-  const has = (...ws) => ws.some(w => c.includes(w))
-  if (has('fruit', 'apple', 'banana', 'berr', 'grape', 'melon', 'citrus', 'orange', 'peach', 'pear', 'plum', 'mango', 'pineapple', 'cherry')) return 'produce'
-  if (has('vegetable', 'potato', 'carrot', 'broccoli', 'spinach', 'lettuce', 'tomato', 'beans', 'peas', 'corn', 'squash', 'pepper', 'onion', 'greens')) return 'produce'
-  if (has('grain', 'pasta', 'bread', 'cereal', 'rice', 'oat', 'wheat', 'flour', 'baked', 'cracker', 'noodle')) return 'grain'
-  if (has('dairy', 'milk', 'cheese', 'yogurt', 'egg', 'butter', 'cream')) return 'dairy'
-  if (has('poultry', 'chicken', 'turkey', 'beef', 'pork', 'lamb', 'veal', 'fish', 'salmon', 'tuna', 'shellfish', 'shrimp', 'sausage', 'meat', 'legume', 'nut', 'seed', 'tofu', 'bacon')) return 'protein'
-  return 'mixed'
-}
-
-// Pull the core macros out of a USDA food's foodNutrients array.
-function extractNutrients(food) {
-  const out = { calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0, fiber_g: 0 }
-  for (const n of food.foodNutrients || []) {
-    const name = (n.nutrientName || n.nutrient?.name || '').toLowerCase()
-    const unit = (n.unitName || n.nutrient?.unitName || '').toLowerCase()
-    const val = typeof n.value === 'number' ? n.value : (typeof n.amount === 'number' ? n.amount : 0)
-    if (name === 'energy' && unit === 'kcal') { if (!out.calories) out.calories = val }
-    else if (name.startsWith('protein')) out.protein_g = val
-    else if (name.startsWith('carbohydrate')) out.carbs_g = val
-    else if (name.startsWith('total lipid')) out.fat_g = val
-    else if (name.startsWith('fiber')) out.fiber_g = val
-  }
-  for (const k in out) out[k] = Math.round(out[k] * 10) / 10
-  return out
-}
-
-const WHOLE_FOODS = ['Foundation', 'SR Legacy', 'Survey (FNDDS)']
-const WITH_BRANDED = ['Foundation', 'SR Legacy', 'Survey (FNDDS)', 'Branded']
 
 // USDA's GET /foods/search 400s when a dataType value contains spaces/parens
 // (e.g. "Survey (FNDDS)"). Use POST with a JSON body, which takes the array cleanly.
@@ -86,30 +52,26 @@ async function handleFoodSearch(query, env) {
   })
 }
 
-// Multi-result search — used by the Suggested tab to browse many foods.
-// Includes Branded/packaged products for the widest set of options.
+// Multi-result search for the add-food sheet and the Suggested tab. Whole and generic foods first;
+// branded products only when fewer than three of those match every word typed, so "garlic bread" doesn't fill up with
+// identical store-brand entries. Names are tidied and deduplicated in pickResults (usda.js).
 async function handleFoodSearchMulti(query, limit, env) {
   if (!env.USDA_API_KEY) return json({ error: 'USDA not configured' }, 503)
-  let r
+  const pageSize = Math.min(limit * 3, 50)
   try {
-    r = await usdaSearch(env, query, limit, WITH_BRANDED)
+    const r = await usdaSearch(env, query, pageSize, WHOLE_FOODS)
+    if (!r.ok) return json({ error: `USDA API ${r.status}` }, 502)
+    const whole = (await r.json()).foods || []
+    let results = pickResults(whole, query, limit)
+    if (relevantCount(results, query) < 3) {
+      const b = await usdaSearch(env, query, pageSize, BRANDED)
+      if (b.ok) results = pickResults([...whole, ...((await b.json()).foods || [])], query, limit)
+    }
+    return json({ results })
   } catch (err) {
     console.error('USDA search failed:', err.message)
     return json({ results: [] })
   }
-  if (!r.ok) return json({ error: `USDA API ${r.status}` }, 502)
-  const data = await r.json()
-  const seen = new Set()
-  const results = []
-  for (const food of data.foods || []) {
-    const name = (food.description || '').trim()
-    if (!name) continue
-    const key = name.toLowerCase()
-    if (seen.has(key)) continue
-    seen.add(key)
-    results.push({ name, group: mapCategoryToGroup(food.foodCategory), nutrition: extractNutrients(food) })
-  }
-  return json({ results })
 }
 
 export default {
