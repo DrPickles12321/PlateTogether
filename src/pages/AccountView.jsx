@@ -3,13 +3,14 @@ import { useFirebaseData } from '../contexts/FirebaseDataContext'
 import { useIsMobile } from '../hooks/useIsMobile'
 import DeleteAccountModal from '../components/DeleteAccountModal'
 import CareTeamCard from '../components/CareTeamCard'
+import ChildProfileCard from '../components/ChildProfileCard'
 import { signOutOfApp } from '../lib/signOut'
 
 const section = { marginTop: 28, paddingTop: 20, borderTop: '1px solid var(--rule)' }
 const h3 = { fontSize: 16, fontWeight: 700, color: 'var(--text-dark)', marginBottom: 6 }
 
 export default function AccountView() {
-  const { deleteAccount, careTeam, revokeCareTeamAccess, reEnableCareTeamAccess, familyCode } = useFirebaseData()
+  const { deleteAccount, careTeam, revokeCareTeamAccess, reEnableCareTeamAccess, familyCode, childProfile, saveChildProfile } = useFirebaseData()
   const isMobile = useIsMobile()
   const [showDelete, setShowDelete] = useState(false)
   const [confirmSignOut, setConfirmSignOut] = useState(false)
@@ -20,6 +21,8 @@ export default function AccountView() {
       <p style={{ fontSize: 15, color: 'var(--text-mid)', margin: '4px 0 20px' }}>
         Who can see your meal log, and your account settings.
       </p>
+
+      <ChildProfileCard profile={childProfile} onSave={saveChildProfile} />
 
       {familyCode && (
         <section style={{ marginBottom: 24 }}>

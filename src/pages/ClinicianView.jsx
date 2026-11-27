@@ -7,6 +7,7 @@ import DailyNutritionSummary from '../components/nutrition/DailyNutritionSummary
 import ClinicianTabBar from '../components/ClinicianTabBar'
 import FamilyList from '../components/FamilyList'
 import { familySummary, sortFamilies } from '../lib/familyTriage'
+import { familyName, profileDetails, PHASES } from '../lib/childProfile'
 import { getWeekIsoDates } from '../lib/insights'
 import { localIsoDate } from '../lib/constants'
 import { useIsMobile } from '../hooks/useIsMobile'
@@ -376,6 +377,7 @@ export default function ClinicianView() {
     removePatient,
     patientsWithOpenSos,
     patientWeekData,
+    setChildPhase,
     allMealItems: parentMealItems,
   } = useFirebaseData()
 
@@ -394,7 +396,9 @@ export default function ClinicianView() {
     const today = localIsoDate()
     return sortFamilies(patients.map(p => ({
       uid: p.uid,
-      name: p.email || 'Family',
+      name: familyName(patientWeekData[p.uid]?.profile, p.email),
+      details: profileDetails(patientWeekData[p.uid]?.profile, today),
+      phase: patientWeekData[p.uid]?.profile?.phase || null,
       summary: familySummary({
         mealLogs: patientWeekData[p.uid]?.mealLogs,
         parentNotes: patientWeekData[p.uid]?.parentNotes,
@@ -474,10 +478,21 @@ export default function ClinicianView() {
       <section aria-labelledby="family-title" style={{ background: 'var(--ink)', color: 'var(--on-ink)', padding: isMobile ? '16px 16px 18px' : '20px 28px 22px', margin: isMobile ? '0 -16px' : 0 }}>
         <p style={{ fontSize: 14, color: 'var(--on-ink-soft)' }}>Family file</p>
         <h1 id="family-title" style={{ fontSize: isMobile ? 24 : 30, fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--on-ink)', overflowWrap: 'anywhere' }}>{current?.name}</h1>
+        {current?.details && <p style={{ fontSize: 15, color: 'var(--on-ink)', marginTop: 2 }}>{current.details}</p>}
         {current && (
           <p style={{ fontSize: 15, color: 'var(--on-ink-soft)', marginTop: 4 }}>
             {current.summary.reasons.length ? current.summary.reasons.join(' · ') : current.summary.reason}
           </p>
+        )}
+        {current && (
+          <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <label htmlFor="family-phase" style={{ fontSize: 14, color: 'var(--on-ink-soft)' }}>Treatment phase</label>
+            <select id="family-phase" value={current.phase || ''} onChange={e => setChildPhase(Number(e.target.value) || null)}
+              style={{ minHeight: 40, padding: '6px 10px', borderRadius: 'var(--radius)', border: '1px solid var(--on-ink-soft)', background: 'var(--ink)', color: 'var(--on-ink)', fontSize: 14, cursor: 'pointer' }}>
+              <option value="">Not set</option>
+              {Object.entries(PHASES).map(([n, text]) => <option key={n} value={n}>{text}</option>)}
+            </select>
+          </div>
         )}
         <div style={{ marginTop: 8 }}>
           {confirmUnlink ? (

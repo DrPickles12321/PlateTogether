@@ -25,6 +25,7 @@ export default function FamilyList({ families, selectedUid, onSelect }) {
               <span aria-hidden="true" style={{ flexShrink: 0, width: 10, height: 10, borderRadius: '50%', marginTop: 6, boxSizing: 'border-box', ...MARK[f.summary.priority] }} />
               <span style={{ minWidth: 0 }}>
                 <span style={{ display: 'block', fontSize: 15, fontWeight: 600, overflowWrap: 'anywhere' }}>{f.name}</span>
+                {f.details && <span style={{ display: 'block', fontSize: 13, color: 'var(--text-mid)' }}>{f.details}</span>}
                 <span style={{ display: 'block', fontSize: 13, color: f.summary.priority >= 2 ? 'var(--highlight-ink)' : 'var(--text-light)', marginTop: 2 }}>
                   {f.summary.reasons.length ? f.summary.reasons.join(' · ') : f.summary.reason}
                 </span>
