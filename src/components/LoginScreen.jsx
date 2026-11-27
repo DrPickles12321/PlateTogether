@@ -7,7 +7,6 @@ import { ref, set } from 'firebase/database'
 import { auth, db } from '../firebase'
 import { useAuth } from '../contexts/AuthContext'
 import { useIsMobile } from '../hooks/useIsMobile'
-import ModeChooser from './ModeChooser'
 
 const INPUT_STYLE = {
   width: '100%', minHeight: 48, padding: '10px 14px', borderRadius: 'var(--radius)',
@@ -81,7 +80,6 @@ export default function LoginScreen() {
 
   const formBlock = (
     <>
-      <ModeChooser />
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         {mode === 'register' && (
           <fieldset style={{ border: 'none', padding: 0, margin: 0 }}>
