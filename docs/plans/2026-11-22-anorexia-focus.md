@@ -59,6 +59,8 @@ data model, so it should be designed together with the storage decision, not bef
 
 ## The test-only "type of app" chooser (shipped in this branch)
 
+**Removed 2026-11-27.** The anorexia version is now the only app: parents don't see nutrition numbers unless their clinician turns them on, and the chooser is gone. The text below is kept for history.
+
 On the sign-in screen (development builds, or the live site with `?testmode` in the address) you
 can pick **General meal support** (today's app) or **Anorexia (family-based)**. It is remembered
 on that device only. It is a testing aid so you can try the focused version without changing real

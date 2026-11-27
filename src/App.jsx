@@ -2,7 +2,6 @@ import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { NutritionalTargetsProvider } from './contexts/NutritionalTargetsContext'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
-import AppModeProvider from './contexts/AppModeProvider'
 import { FirebaseDataProvider } from './contexts/FirebaseDataContext'
 import Navbar from './components/Navbar'
 import LoginScreen from './components/LoginScreen'
@@ -94,16 +93,14 @@ function AppLayout() {
 
 export default function App() {
   return (
-    <AppModeProvider>
-      <AuthProvider>
-        <FirebaseDataProvider>
-          <NutritionalTargetsProvider>
-            <BrowserRouter>
-              <AppLayout />
-            </BrowserRouter>
-          </NutritionalTargetsProvider>
-        </FirebaseDataProvider>
-      </AuthProvider>
-    </AppModeProvider>
+    <AuthProvider>
+      <FirebaseDataProvider>
+        <NutritionalTargetsProvider>
+          <BrowserRouter>
+            <AppLayout />
+          </BrowserRouter>
+        </NutritionalTargetsProvider>
+      </FirebaseDataProvider>
+    </AuthProvider>
   )
 }
