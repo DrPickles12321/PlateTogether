@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { APP_MODES, normalizeMode, featuresFor, testModeEnabled } from './appMode'
+import { APP_MODES, normalizeMode, featuresFor, testModeEnabled, parentSeesNumbers } from './appMode'
 
 describe('normalizeMode', () => {
   it('keeps known modes', () => {
@@ -29,5 +29,17 @@ describe('testModeEnabled', () => {
   it('is off for ordinary visitors', () => {
     expect(testModeEnabled({})).toBe(false)
     expect(testModeEnabled({ search: '?x=1' })).toBe(false)
+  })
+})
+
+describe('parentSeesNumbers', () => {
+  it("follows the clinician's switch when it is set", () => {
+    expect(parentSeesNumbers({ mode: 'anorexia', setting: { showToParent: true } })).toBe(true)
+    expect(parentSeesNumbers({ mode: 'general', setting: { showToParent: false } })).toBe(false)
+  })
+  it('falls back to the app mode when the clinician has not chosen', () => {
+    expect(parentSeesNumbers({ mode: 'anorexia', setting: null })).toBe(false)
+    expect(parentSeesNumbers({ mode: 'general', setting: null })).toBe(true)
+    expect(parentSeesNumbers({ mode: 'anorexia', setting: { showToParent: 'yes' } })).toBe(false)
   })
 })

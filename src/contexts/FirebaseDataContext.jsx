@@ -105,6 +105,8 @@ export function FirebaseDataProvider({ children }) {
   const [patientAssignedChallenges, setPatientAssignedChallenges] = useState([]) // viewed patient's assigned challenges
   const [ownCarePlan, setOwnCarePlan]                 = useState(() => normalizeCarePlan(null)) // family's meal plan (parent view)
   const [patientCarePlan, setPatientCarePlan]         = useState(() => normalizeCarePlan(null)) // viewed patient's meal plan
+  const [ownNutritionDisplay, setOwnNutritionDisplay] = useState(null) // clinician's number switch (parent view)
+  const [patientNutritionDisplay, setPatientNutritionDisplay] = useState(null) // ...for the viewed family
   const [patientsWithOpenSos, setPatientsWithOpenSos] = useState({})   // { uid: true }
   const [patientFbMealData, setPatientFbMealData]     = useState({})
   const [patientMealTimesByDate, setPatientMealTimesByDate] = useState({})
@@ -222,6 +224,10 @@ export function FirebaseDataProvider({ children }) {
       setOwnCarePlan(normalizeCarePlan(snap.val()))
     }))
 
+    unsubs.push(onValue(ref(db, `${base}/nutritionDisplay`), snap => {
+      setOwnNutritionDisplay(snap.val() || null)
+    }))
+
     unsubs.push(onValue(ref(db, `${base}/assignedChallenges`), snap => {
       const val = snap.val() || {}
       setOwnAssignedChallenges(Object.entries(val).map(([id, v]) => ({ id, ...v })))
@@ -332,6 +338,10 @@ export function FirebaseDataProvider({ children }) {
     unsubs.push(onValue(ref(db, `users/${viewingPatientUid}/carePlan`), snap => {
       setPatientCarePlan(normalizeCarePlan(snap.val()))
     }))
+
+    unsubs.push(onValue(ref(db, `users/${viewingPatientUid}/nutritionDisplay`), snap => {
+      setPatientNutritionDisplay(snap.val() || null)
+    }))
     unsubs.push(onValue(ref(db, `users/${viewingPatientUid}/assignedChallenges`), snap => {
       const val = snap.val() || {}
       setPatientAssignedChallenges(Object.entries(val).map(([id, v]) => ({ id, ...v })))
@@ -366,6 +376,7 @@ export function FirebaseDataProvider({ children }) {
   const clinicianNotes         = viewingPatientUid ? patientClinicianNotes : ownClinicianNotes
   const assignedChallenges     = viewingPatientUid ? patientAssignedChallenges : ownAssignedChallenges
   const carePlan               = viewingPatientUid ? patientCarePlan : ownCarePlan
+  const nutritionDisplay       = viewingPatientUid ? patientNutritionDisplay : ownNutritionDisplay
 
   // ── Write functions ────────────────────────────────────────────────────────
 
@@ -436,6 +447,17 @@ export function FirebaseDataProvider({ children }) {
     return set(ref(db, `users/${targetUid}/carePlan`), {
       tableReminders: next.tableReminders,
       refusalSteps: next.refusalSteps,
+      updatedAt: new Date().toISOString(),
+      updatedBy: uid,
+    })
+  }
+
+  // The clinician's switch for whether this family's parent sees nutrition numbers. Only a linked,
+  // active clinician can write it (database.rules.json: nutritionDisplay); the parent can't.
+  function setNutritionDisplay(showToParent) {
+    if (!viewingPatientUid || !uid) return Promise.resolve()
+    return set(ref(db, `users/${viewingPatientUid}/nutritionDisplay`), {
+      showToParent: !!showToParent,
       updatedAt: new Date().toISOString(),
       updatedBy: uid,
     })
@@ -886,6 +908,8 @@ export function FirebaseDataProvider({ children }) {
       assignedChallenges,
       carePlan,
       saveCarePlan,
+      nutritionDisplay,
+      setNutritionDisplay,
       addAssignedChallenge,
       removeAssignedChallenge,
       careTeam,

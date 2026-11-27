@@ -5,7 +5,7 @@ import Modal from './Modal'
 import NutritionFacts from './NutritionFacts'
 import { SuggestedFoods } from './FoodSidebar'
 import { useFirebaseData } from '../contexts/FirebaseDataContext'
-import { useAppMode } from '../hooks/useAppMode'
+import { useNutritionVisibility } from '../hooks/useNutritionVisibility'
 import { searchFoods } from '../lib/foodData'
 import { usualFoods, searchFamilyFoods, canAddAsNew, newFoodSuggestions, tidyName, showNewFoods } from '../lib/foodSearch'
 import { UsualMealsList, SaveUsualMeal } from './UsualMeals'
@@ -90,7 +90,7 @@ function NewRow({ name, hint, onTap, last }) {
 
 export default function AddFoodSheet({ open, onClose, mealLabel, mealKey, date, allMealItems = {}, mealItems = [], onAddToMeal, onAddManyToMeal, onRemoveFromMeal }) {
   const { foodItems, addFoodItem, updateFoodItemCategory, setFoodNutrition, resetFoodNutrition, assignedChallenges, usualMeals, saveUsualMeal, deleteUsualMeal } = useFirebaseData()
-  const { hideNutritionNumbers } = useAppMode()
+  const { hideNutritionNumbers } = useNutritionVisibility()
   const [query, setQuery] = useState('')
   const [newType, setNewType] = useState('familiar')
   const [ideaType, setIdeaType] = useState(null)

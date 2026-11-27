@@ -18,6 +18,14 @@ export function featuresFor(mode) {
   return { hideNutritionNumbers: normalizeMode(mode) === 'anorexia' }
 }
 
+// Whether a parent sees nutrition numbers. The family's clinician decides with a switch
+// (users/{parent}/nutritionDisplay); until they have chosen, the app mode decides
+// (the anorexia version hides numbers from parents).
+export function parentSeesNumbers({ mode, setting } = {}) {
+  if (setting && typeof setting.showToParent === 'boolean') return setting.showToParent
+  return normalizeMode(mode) !== 'anorexia'
+}
+
 // The chooser is a testing aid: shown in development, or on the live site only
 // when the address has ?testmode.
 export function testModeEnabled({ dev = false, search = '' } = {}) {
