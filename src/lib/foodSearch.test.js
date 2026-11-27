@@ -97,16 +97,17 @@ describe('canAddAsNew', () => {
 })
 
 describe('newFoodSuggestions', () => {
-  const curated = [{ name: 'Garlic bread' }, { name: 'Bagel' }, { name: 'Pizza' }]
-  it('merges curated and USDA results, skipping what the family has and duplicates', () => {
-    const usda = [{ name: 'Garlic Bread' }, { name: 'Garlic, raw' }, { name: 'Pizza' }]
-    const got = newFoodSuggestions({ query: 'gar', curated, usda, existingNames: ['Pizza'] }).map(f => f.name)
+  it('dedupes USDA results and skips what the family already has', () => {
+    const usda = [{ name: 'Garlic bread' }, { name: 'Garlic Bread' }, { name: 'Garlic, raw' }, { name: 'Pizza' }]
+    const got = newFoodSuggestions({ query: 'gar', usda, existingNames: ['Pizza'] }).map(f => f.name)
     expect(got).toEqual(['Garlic bread', 'Garlic, raw'])
   })
   it('leaves out the exact text typed, which has its own "add" row', () => {
-    expect(newFoodSuggestions({ query: 'bagel', curated, usda: [] })).toEqual([])
+    expect(newFoodSuggestions({ query: 'bagel', usda: [{ name: 'Bagel' }, { name: 'Bagel, plain' }] }).map(f => f.name)).toEqual(['Bagel, plain'])
   })
-  it('waits for two letters', () => {
-    expect(newFoodSuggestions({ query: 'g', curated, usda: [{ name: 'Granola' }] })).toEqual([])
+  it('waits for two letters and caps the list', () => {
+    expect(newFoodSuggestions({ query: 'g', usda: [{ name: 'Granola' }] })).toEqual([])
+    const many = Array.from({ length: 10 }, (_, i) => ({ name: `Granola ${i}` }))
+    expect(newFoodSuggestions({ query: 'gra', usda: many })).toHaveLength(6)
   })
 })

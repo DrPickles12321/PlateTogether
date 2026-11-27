@@ -6,7 +6,6 @@ import NutritionFacts from './NutritionFacts'
 import { SuggestedFoods } from './FoodSidebar'
 import { useFirebaseData } from '../contexts/FirebaseDataContext'
 import { useAppMode } from '../hooks/useAppMode'
-import { COMMON_FOODS } from '../data/commonFoods'
 import { searchFoods } from '../lib/foodData'
 import { usualFoods, searchFamilyFoods, canAddAsNew, newFoodSuggestions, tidyName, showNewFoods } from '../lib/foodSearch'
 import { UsualMealsList, SaveUsualMeal } from './UsualMeals'
@@ -83,7 +82,7 @@ export default function AddFoodSheet({ open, onClose, mealLabel, mealKey, date, 
   const existingNames = foodItems.map(f => f.name)
   const usdaResults = usda.q === trimmed ? usda.results : []
   const newOk = showNewFoods(trimmed, matches.length)
-  const others = newOk ? newFoodSuggestions({ query: trimmed, curated: COMMON_FOODS, usda: usdaResults, existingNames }) : []
+  const others = newOk ? newFoodSuggestions({ query: trimmed, usda: usdaResults, existingNames }) : []
   const offerNew = newOk && canAddAsNew(trimmed, foodItems)
   // When what was typed is exactly a USDA food, the "Add" row carries its group and nutrition.
   const exactUsda = offerNew ? usdaResults.find(r => r.name?.toLowerCase() === tidyName(trimmed).toLowerCase()) : null
