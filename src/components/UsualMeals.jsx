@@ -64,6 +64,8 @@ export function SaveUsualMeal({ usualMeals, mealKey, mealLabel, mealItems, onSav
   const [open, setOpen] = useState(false)
   const [name, setName] = useState('')
   const [saved, setSaved] = useState('')
+  const [error, setError] = useState('')
+  const [saving, setSaving] = useState(false)
   const existing = usualMealsFor(usualMeals, mealKey)
   const alreadySaved = existing.find(m => sameFoods(m.foods, mealItems))
 
@@ -77,12 +79,20 @@ export function SaveUsualMeal({ usualMeals, mealKey, mealLabel, mealItems, onSav
     setOpen(true)
   }
 
-  function save(e) {
+  async function save(e) {
     e.preventDefault()
-    const meal = onSave(name)
-    if (meal) {
-      setSaved(meal.name)
-      setOpen(false)
+    setError('')
+    setSaving(true)
+    try {
+      const meal = await onSave(name)
+      if (meal) {
+        setSaved(meal.name)
+        setOpen(false)
+      }
+    } catch {
+      setError("Couldn't save this one. Check your connection and try again.")
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -103,9 +113,10 @@ export function SaveUsualMeal({ usualMeals, mealKey, mealLabel, mealItems, onSav
         border: '1.5px solid var(--ink-mid)', borderRadius: 'var(--radius)', background: 'white',
       }} />
       <div style={{ display: 'flex', gap: 8 }}>
-        <button type="submit" disabled={!name.trim()} style={{ ...smallBtn(true), flex: 1, minHeight: 44 }}>Save</button>
-        <button type="button" onClick={() => setOpen(false)} style={{ ...smallBtn(false), flex: 1, minHeight: 44 }}>Cancel</button>
+        <button type="submit" disabled={!name.trim() || saving} style={{ ...smallBtn(true), flex: 1, minHeight: 44 }}>{saving ? 'Saving…' : 'Save'}</button>
+        <button type="button" onClick={() => { setOpen(false); setError('') }} style={{ ...smallBtn(false), flex: 1, minHeight: 44 }}>Cancel</button>
       </div>
+      {error && <p role="alert" style={{ fontSize: 14, color: 'var(--highlight-ink)' }}>{error}</p>}
     </form>
   )
 }

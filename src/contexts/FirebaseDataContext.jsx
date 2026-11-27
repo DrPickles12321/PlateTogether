@@ -600,12 +600,13 @@ export function FirebaseDataProvider({ children }) {
   }
 
   // A meal the family serves often, saved so it can be added again in one tap. Parent-only data
-  // (database.rules.json: usualMeals). Returns the saved record, or null if there was nothing to save.
-  function saveUsualMeal({ name, mealType, foods }) {
+  // (database.rules.json: usualMeals). Resolves to the saved record, or null if there was nothing to
+  // save; rejects if the database refuses the write, so the screen can say so.
+  async function saveUsualMeal({ name, mealType, foods }) {
     if (!uid) return null
     const meal = buildUsualMeal({ id: crypto.randomUUID(), name, mealType, foods })
     if (!meal) return null
-    set(ref(db, `users/${uid}/usualMeals/${meal.id}`), meal)
+    await set(ref(db, `users/${uid}/usualMeals/${meal.id}`), meal)
     return meal
   }
 
