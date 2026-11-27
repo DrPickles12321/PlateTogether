@@ -112,8 +112,9 @@ The AI features (digest, chat, and the planned clinician assistant) talk about e
 These come from the founders and an investor conversation. They are goals, not finished decisions.
 Ask before assuming details.
 
-1. **Narrow the scope.** Feedback was that the app tries to do too much. Pick one eating disorder (or one
-   clear patient population) and design for it. Which one is not decided yet.
+1. **Narrow the scope.** Decided 2026-11-27: teens (about 12 to 18) with anorexia in family-based treatment
+   (FBT). The product is the tool that keeps FBT on track: a shared plan, carried out by a team, with early
+   warnings. Read `docs/plans/2026-11-27-fbt-framework.md` before designing features; the roadmap orders the work.
 2. **Mobile-first.** See `MOBILE.md` and `CAPACITOR.md`. Logging a meal on a phone has to take seconds.
 3. **Easy food entry and current nutrition data.** Replace stale `nutritionDb.json` data with a maintained
    source (USDA FoodData Central is already used in the Worker), and make adding food fast.

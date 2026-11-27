@@ -118,20 +118,28 @@ npm run deploy
 
 ## Where things stand
 
-The plan is in [docs/plans/2026-11-26-roadmap.md](docs/plans/2026-11-26-roadmap.md).
+Plate Together is being built as **the tool that keeps family-based treatment (FBT) for teen anorexia on track**:
+a shared plan, carried out by a team, with early warnings. The design, with the research behind it, is in
+[docs/plans/2026-11-27-fbt-framework.md](docs/plans/2026-11-27-fbt-framework.md); the order of work is in
+[docs/plans/2026-11-26-roadmap.md](docs/plans/2026-11-26-roadmap.md).
 
-- **Done:** phase 0 (open items, except the clinician wording review), phase 1 (fast food entry: usual meals, family foods first) and phase 2 (USDA nutrition data, cached, with a clinician switch for showing numbers to parents). The clinician screens were redesigned around families ordered by need.
-- **Now, phase 3: statistics for clinicians.** It starts with a decision a clinician has to make: which numbers to show. The draft to react to is [docs/clinical/2026-11-27-clinician-metrics-draft.md](docs/clinical/2026-11-27-clinician-metrics-draft.md). The agreed list then becomes one tested module, `src/lib/clinicianStats.js`.
-- **Waiting on a clinician:** the wording review in [docs/clinical/2026-11-26-wording-review.md](docs/clinical/2026-11-26-wording-review.md) and the metrics draft above.
-- **Built, phase 3A: ready to pitch.** A child profile so clinicians see names instead of emails, a printable session summary, and a "since your last session" marker. Left: ask a clinic about billing codes, and a pitch page.
-- **Later:** phase 4 (the gate before real families: BAA and storage, both caregivers on one family, a care team with roles for therapist, dietitian and pediatrician, clinic invites, meal reminders; see [docs/plans/2026-11-27-care-team.md](docs/plans/2026-11-27-care-team.md)) and phase 5 (a clinician assistant grounded in vetted sources).
+- **Done:** fast meal logging, families ordered by need, Worth talking about, care plan, child profile with
+  FBT phase, printable session summary, "since your last session". Anorexia is the only program.
+- **Now (phase A, no code):** interviews with FBT clinicians and parents
+  ([interview guide](docs/clinical/2026-11-27-fbt-interview-guide.md)), the storage decision, and clinician
+  reviews of the [wording](docs/clinical/2026-11-26-wording-review.md) and
+  [metrics](docs/clinical/2026-11-27-clinician-metrics-draft.md) drafts.
+- **Can start now:** program × phase config, hard meal mode (calm screen, debrief), offline logging.
+- **Next:** one family with an event record and several caregivers, team roles, push and tag-in, early
+  response from clinic weights, session guide, teen account by phase, alert routing, then the compliance gate
+  and a pilot.
 - **Known gap:** `npm run lint` reports existing errors (mostly in `agent/` and older contexts). New code is kept lint-clean.
 
 ## More docs
 
 - [AGENTS.md](AGENTS.md): rules for every coding agent and human working here (hard rules, clinical-safety rules, conventions)
-- [docs/plans/](docs/plans/): product direction, the anorexia focus, the design pass and the roadmap
-- [docs/clinical/](docs/clinical/): documents for a clinician to review
+- [docs/plans/](docs/plans/): the FBT framework, the roadmap, the care team, and earlier direction and design docs
+- [docs/clinical/](docs/clinical/): documents for clinicians: reviews to mark up and the interview guide
 - [MOBILE.md](MOBILE.md) — mobile UI plan and pre-launch checklist
 - [CAPACITOR.md](CAPACITOR.md) — scoping for native iOS/Android wrapping
 - [COMPLIANCE.md](COMPLIANCE.md) — HIPAA/GDPR gap list before onboarding real patients or clinicians
