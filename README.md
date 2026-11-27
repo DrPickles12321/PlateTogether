@@ -1,32 +1,37 @@
 # Plate Together
 
-Shared meal support for families navigating eating-disorder recovery. Parents log meals day-to-day, and a linked clinician reviews progress, leaves session notes, and adjusts a care plan — all from one shared record.
+Meal support for families in eating-disorder recovery, built mainly for parents of a teen with anorexia. A parent logs meals on a phone in a few taps; a linked clinician sees how the week went, writes session notes, and sets the family's care plan, all from one shared record.
 
-Started at HackPrinceton.
+Live at https://platetogether.web.app. Started at HackPrinceton and now being turned into a real product. The app stores sensitive health data about mostly-minor patients, so read [AGENTS.md](AGENTS.md) before touching data code.
 
 ## What it does
 
-**Parent side** (`/parent`)
-- **Today** — log breakfast/lunch/snack/dinner, mark meal status and distress, track daily supplements against nutritional targets
-- **Week** — a week-at-a-glance view of meals and rhythm
-- **Insights** — progress over time, eating-rhythm regularity, weekly trends
-- **Notes** — read and hide clinician notes, write your own notes back to the care team (with real delete)
-- **Account** — manage the care team (revoke/restore a clinician's access), delete account
+Every meal is logged as one of four outcomes, drawn in the same colour so none looks like a failure or a win: **Ate it all**, **Ate some**, **Didn't eat**, **Not served**. Parents never see scores or percentages.
+
+**Parent side** (`/parent`, mobile-first)
+- **Next meal**: log the coming meal in a few taps, with the family's own foods, "usual meals" and same-as-yesterday. If a meal is refused, the clinician's plan for refused meals is shown right away.
+- **Today**: the day's meals, distress before and after (optional), and the supplement checklist.
+- **Week**: the week at a glance, with a plain-words summary.
+- **Notes**: write to the care team and read the clinician's notes.
+- **Account**: the family code, the care team (revoke or restore a clinician), delete account.
+- **Need help**: always available; a request for support goes to the care team, with an emergency call button next to it.
 
 **Clinician side** (`/clinician`)
-- Link to a family by code, switch between multiple patients
-- **Overview** — SOS alerts, week-at-a-glance grid
-- **Insights** — progress, eating rhythm, weekly trends, an AI-generated clinical digest
-- **Care Plan** — assign challenge foods, set weekly nutritional goals and prescribed supplements
-- **Notes** — read the parent's notes (hide from view, never edit/delete their record), write and delete your own session notes
+- **Families, ordered by need**: whoever asked for support comes first, then families with meals not eaten this week, then unread notes or nothing logged for a few days. Each family shows the reason in plain words.
+- **Overview**: "Worth talking about" (hard meals, unread notes, challenge foods tried, distress change, each with the entries behind it) and the week-at-a-glance grid.
+- **Insights**: week in review, eating rhythm, weekly trend, and an AI clinical digest.
+- **Care plan**: lines to read at the table, the steps to follow when a meal is refused, challenge foods, supplements, and whether the parent sees nutrition numbers.
+- **Notes**: read the parent's notes (mark read or hide, never edit), write session notes.
 
-Access is code-based: a parent shares a family code, a clinician links to it, and the parent can revoke or restore that access at any time. Security rules enforce that a clinician can never alter or erase a parent's own note — only add a `read_at` timestamp — so a shared record can't be silently rewritten from the other side.
+Food search uses USDA FoodData Central through the Worker, with free caching. Foods can be typed as familiar, working on or challenge, or left without a type.
+
+Access is code-based: a parent shares a family code, a clinician links to it, and the parent can revoke or restore that access at any time. Security rules enforce that a clinician can never alter or erase a parent's own note (only add a `read_at` timestamp), can only edit their own session notes, and loses all access once revoked.
 
 ## Tech stack
 
-- **Frontend**: React 19 + Vite, React Router v6, Tailwind
+- **Frontend**: React 19 + Vite, React Router 7, Tailwind 4, DM Sans; forest-and-sage design tokens in `src/index.css`
 - **Backend**: Firebase Realtime Database (data + rules) and Firebase Auth
-- **AI**: Cloudflare Worker (`worker/`) proxying Anthropic Claude for the clinical digest and food-lookup helpers
+- **AI and food data**: Cloudflare Worker (`worker/`) proxying Anthropic Claude (clinical digest, chat) and USDA FoodData Central (food lookup, cached). The browser never holds an API key; it calls the Worker with a Firebase ID token.
 - **Optional iMessage companion** (`agent/`): a standing agent (via [spectrum-ts](https://www.npmjs.com/package/spectrum-ts)) that sends dinner-window reminders, weekly summaries, and SOS follow-ups over iMessage, backed by Supabase
 - **Testing**: Vitest
 
@@ -110,8 +115,21 @@ cd worker
 npm run deploy
 ```
 
+## Where things stand
+
+The plan is in [docs/plans/2026-11-26-roadmap.md](docs/plans/2026-11-26-roadmap.md).
+
+- **Done:** phase 0 (open items, except the clinician wording review), phase 1 (fast food entry: usual meals, family foods first) and phase 2 (USDA nutrition data, cached, with a clinician switch for showing numbers to parents). The clinician screens were redesigned around families ordered by need.
+- **Now, phase 3: statistics for clinicians.** It starts with a decision a clinician has to make: which numbers to show. The draft to react to is [docs/clinical/2026-11-27-clinician-metrics-draft.md](docs/clinical/2026-11-27-clinician-metrics-draft.md). The agreed list then becomes one tested module, `src/lib/clinicianStats.js`.
+- **Waiting on a clinician:** the wording review in [docs/clinical/2026-11-26-wording-review.md](docs/clinical/2026-11-26-wording-review.md) and the metrics draft above.
+- **Later:** phase 4 (the gate before any AI sees patient data: BAA, storage, compliance) and phase 5 (a clinician assistant grounded in vetted sources).
+- **Known gap:** `npm run lint` reports existing errors (mostly in `agent/` and older contexts). New code is kept lint-clean.
+
 ## More docs
 
+- [AGENTS.md](AGENTS.md): rules for every coding agent and human working here (hard rules, clinical-safety rules, conventions)
+- [docs/plans/](docs/plans/): product direction, the anorexia focus, the design pass and the roadmap
+- [docs/clinical/](docs/clinical/): documents for a clinician to review
 - [MOBILE.md](MOBILE.md) — mobile UI plan and pre-launch checklist
 - [CAPACITOR.md](CAPACITOR.md) — scoping for native iOS/Android wrapping
 - [COMPLIANCE.md](COMPLIANCE.md) — HIPAA/GDPR gap list before onboarding real patients or clinicians
