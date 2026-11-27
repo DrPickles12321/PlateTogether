@@ -35,8 +35,8 @@ function computeWeekMetrics(weekDates, allMealItems, mealStatuses, mealTimesByDa
         if (status in statusCountsByMeal[mealType]) statusCountsByMeal[mealType][status]++
       }
       for (const item of items) {
-        const cat = item.category || 'working_on'
-        if (cat in categoryCounts) categoryCounts[cat]++
+        const cat = item.category
+        if (cat && cat in categoryCounts) categoryCounts[cat]++
       }
       const minutes = timeToMinutes(dayTimes[mealType])
       if (minutes != null) mealTimeMinutesByType[mealType].push(minutes)

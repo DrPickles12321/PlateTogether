@@ -128,10 +128,25 @@ The parent chat checks messages in code before any AI sees them. These replies a
 The AI's full instructions (the system prompts) live in `src/lib/chatService.js` and `src/lib/aiInsights.js`
 and need a separate review before any clinician-facing AI ships.
 
+## 7. Starter food ideas for a new family
+
+A family with fewer than 8 saved foods sees a few tappable ideas for the meal they are logging. There are no
+preset "safe" or "challenge" labels: the parent picks the type (Familiar, Working on, Challenge) when adding.
+
+| Meal | Ideas shown | Keep / Change / Cut |
+|---|---|---|
+| Breakfast | Toast, Oatmeal, Cereal with milk, Yogurt, Banana, Scrambled eggs, Bagel, Pancakes | |
+| Lunch | Turkey sandwich, Grilled cheese, Pasta, Quesadilla, Soup, Mac and cheese, Chicken wrap, Pizza | |
+| Snack | Apple, Cheese and crackers, Granola bar, Pretzels, Grapes, Peanut butter crackers, Trail mix, Muffin | |
+| Dinner | Pasta with sauce, Rice, Chicken, Tacos, Salmon, Burger, Potatoes, Stir fry | |
+
+- **Q12.** Is a neutral list like this helpful for a new family, or could any suggestion feel like pressure?
+  Should the family's clinician be able to set these instead?
+
 ---
 
 **Reviewer:** ______________________  **Role / license:** ______________________  **Date:** __________
 
 Where to change things after review: outcome words in `src/lib/outcomes.js`; refusal and hard-meal text in
 `src/lib/supportCopy.js`; warning signs in `src/components/WarningSignsCard.jsx`; week highlights in
-`src/lib/weekHighlights.js`; chat replies in `src/lib/aiSafety.js`.
+`src/lib/weekHighlights.js`; starter ideas in `src/lib/starterFoods.js`; chat replies in `src/lib/aiSafety.js`.

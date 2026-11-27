@@ -43,7 +43,7 @@
             "createdAt": { ".validate": "newData.isString()" },
             "foods": {
               "$i": {
-                ".validate": "$i.matches(/^([0-9]|1[01])$/) && newData.hasChildren(['name', 'category'])",
+                ".validate": "$i.matches(/^([0-9]|1[01])$/) && newData.hasChildren(['name'])",
                 "id": { ".validate": "newData.isString()" },
                 "name": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 80" },
                 "category": { ".validate": "newData.val() === 'familiar' || newData.val() === 'working_on' || newData.val() === 'challenge'" },

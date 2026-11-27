@@ -61,6 +61,10 @@ describe('usual meals', () => {
     await assertFails(set(ref(parent, `${path}/u1`), { ...meal, foods: [{ name: 'Oatmeal', category: 'familiar', calories: 300 }] }))
   })
 
+  it('allows a food with no type', async () => {
+    await assertSucceeds(set(ref(as(PARENT), `${path}/u1`), { ...meal, foods: [{ id: 'a', name: 'Toast' }, { id: 'b', name: 'Milk', category: 'familiar' }] }))
+  })
+
   it('caps a usual meal at 12 foods', async () => {
     const foods = Array.from({ length: 13 }, (_, i) => ({ id: `f${i}`, name: `Food ${i}`, category: 'familiar' }))
     await assertFails(set(ref(as(PARENT), `${path}/u1`), { ...meal, foods }))

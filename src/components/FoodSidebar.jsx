@@ -8,13 +8,16 @@ import { localIsoDate } from '../lib/constants'
 import Modal from './Modal'
 import NutritionFacts from './NutritionFacts'
 import { searchFoods } from '../lib/foodData'
-import { COMMON_FOODS } from '../data/commonFoods'
+import { ALL_STARTER_FOODS } from '../lib/starterFoods'
 
 export const CATEGORIES = [
   { key: 'familiar',   label: 'Familiar',   color: 'var(--mint)',  bg: 'var(--mint-light)',  border: 'var(--mint-mid)' },
   { key: 'working_on', label: 'Working On', color: 'var(--peach)', bg: 'var(--peach-light)', border: 'var(--peach-mid)' },
   { key: 'challenge',  label: 'Challenge',  color: 'var(--pink)',  bg: 'var(--pink-light)',  border: 'var(--pink-mid)' },
 ]
+
+const CATEGORY_KEYS = CATEGORIES.map(c => c.key)
+const NO_TYPE = { key: 'none', label: 'No type', color: 'var(--text-mid)', bg: 'var(--surface-warm)', border: 'var(--border)' }
 
 const MOVE_LABELS = { familiar: 'Move to Familiar', working_on: 'Move to Working On', challenge: 'Move to Challenge' }
 
@@ -64,6 +67,8 @@ function FoodCard({ food, onDelete, onChangeCategory }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 2, position: 'relative' }} ref={menuRef}>
           <button
             onClick={() => setMenuOpen(o => !o)}
+            aria-label={`More options for ${food.name}`}
+            aria-expanded={menuOpen}
             style={{
               background: 'none', border: 'none', cursor: 'pointer',
               color: 'var(--text-light)', padding: '2px 5px', fontSize: 16, lineHeight: 1,
@@ -74,6 +79,7 @@ function FoodCard({ food, onDelete, onChangeCategory }) {
           ><Icon name="more" size={18} /></button>
           <button
             onClick={() => setConfirmDelete(true)}
+            aria-label={`Remove ${food.name} from your foods`}
             style={{
               background: 'none', border: 'none', cursor: 'pointer',
               color: 'var(--border-mid)', padding: '2px 4px', fontSize: 15, lineHeight: 1,
@@ -231,32 +237,32 @@ function prefixRank(name, q) {
   return 0
 }
 
-function SuggestRow({ name, buttonSize, dotSize, onAdd, extra }) {
+// One food idea: its name, then labelled buttons to add it with no type or as a type. Words, not
+// coloured dots, so the choices can be told apart without colour or a hover tooltip.
+const ADD_AS = [
+  { key: null, label: '+ No type' },
+  { key: 'familiar', label: 'Familiar' },
+  { key: 'working_on', label: 'Working on' },
+  { key: 'challenge', label: 'Challenge' },
+]
+
+function SuggestRow({ name, buttonSize, onAdd, extra }) {
   return (
-    <div style={{
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      background: 'white', border: '1.5px solid var(--border)',
-      borderRadius: 'var(--radius)', padding: '8px 10px', gap: 8,
-    }}>
-      <span style={{ fontSize: 13, color: 'var(--text-dark)', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</span>
-      <div style={{ display: 'flex', gap: 5, flexShrink: 0 }}>
-        {CATEGORIES.map(cat => (
+    <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '8px 10px' }}>
+      <span style={{ display: 'block', fontSize: 14, color: 'var(--text-dark)', marginBottom: 6, overflowWrap: 'anywhere' }}>{name}</span>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(68px, 1fr))', gap: 4 }}>
+        {ADD_AS.map(t => (
           <button
-            key={cat.key}
-            title={`Add as ${cat.label}`}
-            aria-label={`Add ${name} as ${cat.label}`}
-            onClick={() => onAdd({ name, category: cat.key, ...extra })}
+            key={t.label}
+            type="button"
+            aria-label={t.key ? `Add ${name} as ${t.label}` : `Add ${name} without a type`}
+            onClick={() => onAdd({ name, ...(t.key ? { category: t.key } : {}), ...extra })}
             style={{
-              width: buttonSize, height: buttonSize, borderRadius: '50%', padding: 0,
-              border: `1.5px solid ${cat.border}`, background: cat.bg,
-              cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              transition: 'transform 0.1s', flexShrink: 0,
+              minHeight: Math.max(buttonSize, 32), padding: '0 2px', borderRadius: 'var(--radius)',
+              border: '1px solid var(--border-mid)', background: t.key ? 'white' : 'var(--ink-light)',
+              color: t.key ? 'var(--text-mid)' : 'var(--ink-hover)', fontSize: 12, fontWeight: 600, lineHeight: 1.15, cursor: 'pointer',
             }}
-            onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.12)'}
-            onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
-          >
-            <span style={{ width: dotSize, height: dotSize, borderRadius: '50%', background: cat.color, display: 'block' }} />
-          </button>
+          >{t.label}</button>
         ))}
       </div>
     </div>
@@ -267,12 +273,11 @@ export function SuggestedFoods({ onAdd, existingNames, buttonSize = 22, assigned
   const [query, setQuery] = useState('')
   const [usdaResults, setUsdaResults] = useState([])
   const [searching, setSearching] = useState(false)
-  const dotSize = Math.round(buttonSize * 0.36)
   const q = query.trim().toLowerCase()
   const existingLower = new Set(existingNames.map(n => n.toLowerCase()))
 
-  // Curated foods, filtered to "starts with" matches — flat list (no category split).
-  const curatedNamesList = COMMON_FOODS
+  // Starter ideas, filtered to "starts with" matches — flat list (no type split).
+  const curatedNamesList = ALL_STARTER_FOODS.map(name => ({ name }))
     .filter(f => !existingLower.has(f.name.toLowerCase()) && prefixRank(f.name, q) > 0)
     .map(f => f.name)
     .sort((a, b) => prefixRank(b, q) - prefixRank(a, q) || a.localeCompare(b))
@@ -285,7 +290,7 @@ export function SuggestedFoods({ onAdd, existingNames, buttonSize = 22, assigned
     const t = setTimeout(async () => {
       const results = await searchFoods(query.trim(), 20)
       if (cancelled) return
-      const curatedNames = new Set(COMMON_FOODS.map(f => f.name.toLowerCase()))
+      const curatedNames = new Set(ALL_STARTER_FOODS.map(n => n.toLowerCase()))
       const ranked = results
         .filter(r => !existingLower.has(r.name.toLowerCase()) && !curatedNames.has(r.name.toLowerCase()) && prefixRank(r.name, q) > 0)
         .sort((a, b) => prefixRank(b.name, q) - prefixRank(a.name, q) || a.name.localeCompare(b.name))
@@ -318,7 +323,7 @@ export function SuggestedFoods({ onAdd, existingNames, buttonSize = 22, assigned
 
       {!q && (
         <p style={{ fontSize: 13, color: 'var(--text-light)', lineHeight: 1.5, marginBottom: 10 }}>
-          Pick how each food feels — familiar, working on, or a challenge.
+          Add a food with no type, or give it one now. You can change it later on a computer.
         </p>
       )}
 
@@ -363,7 +368,7 @@ export function SuggestedFoods({ onAdd, existingNames, buttonSize = 22, assigned
       {curatedNamesList.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginBottom: 14 }}>
           {curatedNamesList.map(name => (
-            <SuggestRow key={name} name={name} buttonSize={buttonSize} dotSize={dotSize} onAdd={onAdd} />
+            <SuggestRow key={name} name={name} buttonSize={buttonSize} onAdd={onAdd} />
           ))}
         </div>
       )}
@@ -375,7 +380,7 @@ export function SuggestedFoods({ onAdd, existingNames, buttonSize = 22, assigned
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
             {usdaResults.map(r => (
-              <SuggestRow key={r.name} name={r.name} buttonSize={buttonSize} dotSize={dotSize} onAdd={onAdd} extra={{ group: r.group, nutrition: r.nutrition }} />
+              <SuggestRow key={r.name} name={r.name} buttonSize={buttonSize} onAdd={onAdd} extra={{ group: r.group, nutrition: r.nutrition }} />
             ))}
           </div>
         </div>
@@ -391,6 +396,7 @@ export function SuggestedFoods({ onAdd, existingNames, buttonSize = 22, assigned
 }
 
 const NEW_TYPES = [
+  { key: null, label: 'No type' },
   { key: 'familiar', label: 'Familiar' },
   { key: 'working_on', label: 'Working on' },
   { key: 'challenge', label: 'Challenge' },
@@ -471,9 +477,9 @@ export default function FoodSidebar() {
             />
             {offerNew && (
               <div style={{ marginTop: 8 }}>
-                <div role="group" aria-label="Type for the new food" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 4, marginBottom: 6 }}>
+                <div role="group" aria-label="Type for the new food" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 4, marginBottom: 6 }}>
                   {NEW_TYPES.map(t => (
-                    <button key={t.key} type="button" aria-pressed={newType === t.key} onClick={() => setNewType(t.key)} style={{
+                    <button key={t.label} type="button" aria-pressed={newType === t.key} onClick={() => setNewType(t.key)} style={{
                       minHeight: 36, padding: '0 2px', borderRadius: 'var(--radius)', fontSize: 12, fontWeight: 600, cursor: 'pointer',
                       border: `1.5px solid ${newType === t.key ? 'var(--ink)' : 'var(--border)'}`,
                       background: newType === t.key ? 'var(--ink-light)' : 'white', color: newType === t.key ? 'var(--ink-hover)' : 'var(--text-mid)',
@@ -502,6 +508,11 @@ export default function FoodSidebar() {
                 />
               )
             })}
+            {(() => {
+              const foods = matches.filter(f => !CATEGORY_KEYS.includes(f.category))
+              if (foods.length === 0) return null
+              return <Section key="none" config={NO_TYPE} foods={foods} onDelete={handleDelete} onChangeCategory={handleChangeCategory} />
+            })()}
             {trimmed && matches.length === 0 && !offerNew && (
               <p style={{ fontSize: 13, color: 'var(--text-light)' }}>Type at least two letters to add a new food.</p>
             )}

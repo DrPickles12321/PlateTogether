@@ -19,6 +19,10 @@ describe('buildUsualMeal', () => {
     expect(buildUsualMeal({ name: ' ', mealType: 'lunch', foods: [oats, milk] })).toBeNull()
     expect(buildUsualMeal({ name: 'X', mealType: 'brunch', foods: [oats, milk] })).toBeNull()
   })
+  it('keeps a food with no type as no type', () => {
+    const plain = { id: 'n', name: 'Toast' }
+    expect(buildUsualMeal({ name: 'X', mealType: 'breakfast', foods: [plain, milk], now: NOW }).foods[0]).toEqual({ id: 'n', name: 'Toast' })
+  })
   it('drops duplicates and caps the list', () => {
     const many = Array.from({ length: 20 }, (_, i) => ({ id: `f${i}`, name: `Food ${i}` }))
     expect(buildUsualMeal({ name: 'Big', mealType: 'dinner', foods: [oats, oats, ...many] }).foods).toHaveLength(MAX_FOODS)

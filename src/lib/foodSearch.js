@@ -97,16 +97,15 @@ export function canAddAsNew(query, foods = []) {
   return q.length >= 2 && !foods.some(f => norm(f.name) === q)
 }
 
-// Foods the family doesn't have yet, from the curated list and the USDA search, without duplicates.
-export function newFoodSuggestions({ query = '', curated = [], usda = [], existingNames = [], limit = 6 } = {}) {
+// USDA foods the family doesn't have yet, without duplicates or the exact text typed (that has its
+// own "Add" row).
+export function newFoodSuggestions({ query = '', usda = [], existingNames = [], limit = 6 } = {}) {
   const q = norm(query)
   if (q.length < 2) return []
   const have = new Set(existingNames.map(norm))
   const seen = new Set()
   const out = []
-  const curatedHits = curated.filter(c => matchScore(c.name, q) > 0)
-    .sort((a, b) => matchScore(b.name, q) - matchScore(a.name, q))
-  for (const item of [...curatedHits, ...usda]) {
+  for (const item of usda) {
     const n = norm(item?.name)
     if (!n || n === q || have.has(n) || seen.has(n)) continue
     seen.add(n)

@@ -6,19 +6,43 @@ import NutritionFacts from './NutritionFacts'
 import { SuggestedFoods } from './FoodSidebar'
 import { useFirebaseData } from '../contexts/FirebaseDataContext'
 import { useAppMode } from '../hooks/useAppMode'
-import { COMMON_FOODS } from '../data/commonFoods'
 import { searchFoods } from '../lib/foodData'
 import { usualFoods, searchFamilyFoods, canAddAsNew, newFoodSuggestions, tidyName, showNewFoods } from '../lib/foodSearch'
 import { UsualMealsList, SaveUsualMeal } from './UsualMeals'
+import { NEW_FAMILY_FOODS, starterIdeas } from '../lib/starterFoods'
 
 // Adding food to a meal in as few taps as possible. Before anything is typed, the family's usual
 // foods for this meal are at the top, so most meals are a few taps. One search box finds the
 // family's own foods first and only offers a new food when nothing matches.
 const TYPES = [
+  { key: null, label: 'No type' },
   { key: 'familiar', label: 'Familiar' },
   { key: 'working_on', label: 'Working on' },
   { key: 'challenge', label: 'Challenge' },
 ]
+const HIDE_IDEAS_KEY = 'pt:hideStarterIdeas'
+
+function readHidden() {
+  try { return localStorage.getItem(HIDE_IDEAS_KEY) === '1' } catch { return false }
+}
+
+// The type a new food is saved with. "No type" leaves it unclassified; the family can sort it later.
+function TypePicker({ value, onChange, label }) {
+  return (
+    <div role="group" aria-label={label} style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 4, marginBottom: 8 }}>
+      {TYPES.map(t => {
+        const on = value === t.key
+        return (
+          <button key={t.label} type="button" aria-pressed={on} onClick={() => onChange(t.key)} style={{
+            minHeight: 40, padding: '0 2px', borderRadius: 'var(--radius)', fontSize: 13, fontWeight: 600, lineHeight: 1.15, cursor: 'pointer',
+            border: `1.5px solid ${on ? 'var(--ink)' : 'var(--border)'}`,
+            background: on ? 'var(--ink-light)' : 'white', color: on ? 'var(--ink-hover)' : 'var(--text-mid)',
+          }}>{t.label}</button>
+        )
+      })}
+    </div>
+  )
+}
 const TYPE_LABEL = { working_on: 'Working on', challenge: 'Challenge' }
 const label13 = { fontSize: 13, fontWeight: 600, color: 'var(--ink)', margin: '18px 0 6px' }
 const list = { listStyle: 'none', margin: 0, padding: 0, borderTop: '1px solid var(--rule)', borderBottom: '1px solid var(--rule)', background: 'white' }
@@ -69,6 +93,8 @@ export default function AddFoodSheet({ open, onClose, mealLabel, mealKey, date, 
   const { hideNutritionNumbers } = useAppMode()
   const [query, setQuery] = useState('')
   const [newType, setNewType] = useState('familiar')
+  const [ideaType, setIdeaType] = useState(null)
+  const [ideasHidden, setIdeasHidden] = useState(readHidden)
   const [usda, setUsda] = useState({ q: '', results: [] })
   const [showIdeas, setShowIdeas] = useState(false)
   const [factsFood, setFactsFood] = useState(null)
@@ -81,9 +107,10 @@ export default function AddFoodSheet({ open, onClose, mealLabel, mealKey, date, 
   const usual = usualFoods(ctx)
   const matches = searchFamilyFoods({ ...ctx, query: trimmed })
   const existingNames = foodItems.map(f => f.name)
+  const ideas = starterIdeas(mealKey, existingNames)
   const usdaResults = usda.q === trimmed ? usda.results : []
   const newOk = showNewFoods(trimmed, matches.length)
-  const others = newOk ? newFoodSuggestions({ query: trimmed, curated: COMMON_FOODS, usda: usdaResults, existingNames }) : []
+  const others = newOk ? newFoodSuggestions({ query: trimmed, usda: usdaResults, existingNames }) : []
   const offerNew = newOk && canAddAsNew(trimmed, foodItems)
   // When what was typed is exactly a USDA food, the "Add" row carries its group and nutrition.
   const exactUsda = offerNew ? usdaResults.find(r => r.name?.toLowerCase() === tidyName(trimmed).toLowerCase()) : null
@@ -129,6 +156,17 @@ export default function AddFoodSheet({ open, onClose, mealLabel, mealKey, date, 
     if (food) onAddToMeal(food)
     reset()
     inputRef.current?.focus()
+  }
+
+  // A starter idea: keep the chosen type for the next tap, and don't pull up the keyboard.
+  function addIdea(name) {
+    const food = addFoodItem({ category: ideaType, name })
+    if (food) onAddToMeal(food)
+  }
+
+  function hideIdeas() {
+    setIdeasHidden(true)
+    try { localStorage.setItem(HIDE_IDEAS_KEY, '1') } catch { /* private mode: hidden for this visit only */ }
   }
 
   function addTyped() {
@@ -201,15 +239,7 @@ export default function AddFoodSheet({ open, onClose, mealLabel, mealKey, date, 
             {(offerNew || others.length > 0) && (
               <section aria-labelledby="new-foods">
                 <h3 id="new-foods" style={label13}>{matches.length ? 'Or add a new food' : 'Add a new food'}</h3>
-                <div role="group" aria-label="Type for a new food" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 4, marginBottom: 8 }}>
-                  {TYPES.map(t => (
-                    <button key={t.key} type="button" aria-pressed={newType === t.key} onClick={() => setNewType(t.key)} style={{
-                      minHeight: 40, borderRadius: 'var(--radius)', fontSize: 14, fontWeight: 600, cursor: 'pointer',
-                      border: `1.5px solid ${newType === t.key ? 'var(--ink)' : 'var(--border)'}`,
-                      background: newType === t.key ? 'var(--ink-light)' : 'white', color: newType === t.key ? 'var(--ink-hover)' : 'var(--text-mid)',
-                    }}>{t.label}</button>
-                  ))}
-                </div>
+                <TypePicker value={newType} onChange={setNewType} label="Type for a new food" />
                 <ul style={list}>
                   {offerNew && <NewRow name={`Add "${tidyName(trimmed)}"`} hint={exactUsda?.nutrition ? 'USDA' : null} onTap={addTyped} last={others.length === 0} />}
                   {others.map((s, i) => (
@@ -257,10 +287,27 @@ export default function AddFoodSheet({ open, onClose, mealLabel, mealKey, date, 
               </section>
             )}
 
-            {foodItems.length === 0 && (
-              <p style={{ fontSize: 15, color: 'var(--text-mid)', lineHeight: 1.5, marginTop: 14 }}>
-                No foods yet. Type one above to add it, or browse ideas below.
-              </p>
+            {foodItems.length < NEW_FAMILY_FOODS && ideas.length > 0 && !ideasHidden && (
+              <section aria-labelledby="starter-ideas">
+                <h3 id="starter-ideas" style={label13}>Ideas to get started</h3>
+                <p style={{ fontSize: 14, color: 'var(--text-mid)', lineHeight: 1.45, marginBottom: 8 }}>
+                  Tap any your family eats to add it to this {mealLabel.toLowerCase()}. Or type a food above.
+                </p>
+                <TypePicker value={ideaType} onChange={setIdeaType} label="Type for foods you add" />
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {ideas.map(name => (
+                    <button key={name} type="button" onClick={() => addIdea(name)} style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 6, minHeight: 44, padding: '0 12px',
+                      borderRadius: 'var(--radius)', border: '1.5px solid var(--border-mid)', background: 'white',
+                      color: 'var(--text-dark)', fontSize: 15, cursor: 'pointer',
+                    }}><Icon name="plus" size={14} />{name}</button>
+                  ))}
+                </div>
+                <button type="button" onClick={hideIdeas} style={{
+                  minHeight: 44, marginTop: 4, padding: 0, border: 'none', background: 'none',
+                  color: 'var(--text-mid)', fontSize: 14, textDecoration: 'underline', textUnderlineOffset: 3, cursor: 'pointer',
+                }}>Hide these ideas</button>
+              </section>
             )}
 
             <button type="button" onClick={() => setShowIdeas(s => !s)} aria-expanded={showIdeas} style={{
