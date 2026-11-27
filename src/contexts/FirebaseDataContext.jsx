@@ -567,7 +567,7 @@ export function FirebaseDataProvider({ children }) {
   function addFoodItem({ name, category, group, nutrition }) {
     if (!uid) return null
     const id = crypto.randomUUID()
-    const food = { id, name, category }
+    const food = { id, name, ...(category ? { category } : {}) }
     // The onValue listener on foodItems replaces the full list from Firebase's
     // local cache synchronously during set(), so an optimistic append here would
     // show the item twice. Let the listener be the single source of truth.

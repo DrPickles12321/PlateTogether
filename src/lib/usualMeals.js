@@ -16,7 +16,7 @@ function snapshot(food) {
   return {
     id: String(food.id || ''),
     name,
-    category: CATEGORIES.includes(food.category) ? food.category : 'familiar',
+    ...(CATEGORIES.includes(food.category) ? { category: food.category } : {}),
   }
 }
 

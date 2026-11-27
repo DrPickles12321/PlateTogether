@@ -58,8 +58,9 @@ export function computeInsightsFromMealItems(allMealItems, mealStatuses = {}, is
           refused++
           hardCountByMealType[mealType]++
           for (const item of items) {
-            const cat = item.category || 'working_on'
-            if (cat in refusedByCategory) refusedByCategory[cat]++
+            // Foods the family hasn't given a type to aren't counted under any type.
+            const cat = item.category
+            if (cat && cat in refusedByCategory) refusedByCategory[cat]++
           }
         }
       }

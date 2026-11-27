@@ -16,6 +16,9 @@ export const CATEGORIES = [
   { key: 'challenge',  label: 'Challenge',  color: 'var(--pink)',  bg: 'var(--pink-light)',  border: 'var(--pink-mid)' },
 ]
 
+const CATEGORY_KEYS = CATEGORIES.map(c => c.key)
+const NO_TYPE = { key: 'none', label: 'No type', color: 'var(--text-mid)', bg: 'var(--surface-warm)', border: 'var(--border)' }
+
 const MOVE_LABELS = { familiar: 'Move to Familiar', working_on: 'Move to Working On', challenge: 'Move to Challenge' }
 
 function FoodCard({ food, onDelete, onChangeCategory }) {
@@ -240,6 +243,16 @@ function SuggestRow({ name, buttonSize, dotSize, onAdd, extra }) {
     }}>
       <span style={{ fontSize: 13, color: 'var(--text-dark)', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</span>
       <div style={{ display: 'flex', gap: 5, flexShrink: 0 }}>
+        <button
+          title="Add without a type"
+          aria-label={`Add ${name} without a type`}
+          onClick={() => onAdd({ name, ...extra })}
+          style={{
+            width: buttonSize, height: buttonSize, borderRadius: '50%', padding: 0,
+            border: '1.5px solid var(--border-mid)', background: 'white', color: 'var(--text-mid)',
+            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+          }}
+        ><Icon name="plus" size={Math.round(buttonSize * 0.45)} /></button>
         {CATEGORIES.map(cat => (
           <button
             key={cat.key}
@@ -391,6 +404,7 @@ export function SuggestedFoods({ onAdd, existingNames, buttonSize = 22, assigned
 }
 
 const NEW_TYPES = [
+  { key: null, label: 'No type' },
   { key: 'familiar', label: 'Familiar' },
   { key: 'working_on', label: 'Working on' },
   { key: 'challenge', label: 'Challenge' },
@@ -471,9 +485,9 @@ export default function FoodSidebar() {
             />
             {offerNew && (
               <div style={{ marginTop: 8 }}>
-                <div role="group" aria-label="Type for the new food" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 4, marginBottom: 6 }}>
+                <div role="group" aria-label="Type for the new food" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 4, marginBottom: 6 }}>
                   {NEW_TYPES.map(t => (
-                    <button key={t.key} type="button" aria-pressed={newType === t.key} onClick={() => setNewType(t.key)} style={{
+                    <button key={t.label} type="button" aria-pressed={newType === t.key} onClick={() => setNewType(t.key)} style={{
                       minHeight: 36, padding: '0 2px', borderRadius: 'var(--radius)', fontSize: 12, fontWeight: 600, cursor: 'pointer',
                       border: `1.5px solid ${newType === t.key ? 'var(--ink)' : 'var(--border)'}`,
                       background: newType === t.key ? 'var(--ink-light)' : 'white', color: newType === t.key ? 'var(--ink-hover)' : 'var(--text-mid)',
@@ -502,6 +516,11 @@ export default function FoodSidebar() {
                 />
               )
             })}
+            {(() => {
+              const foods = matches.filter(f => !CATEGORY_KEYS.includes(f.category))
+              if (foods.length === 0) return null
+              return <Section key="none" config={NO_TYPE} foods={foods} onDelete={handleDelete} onChangeCategory={handleChangeCategory} />
+            })()}
             {trimmed && matches.length === 0 && !offerNew && (
               <p style={{ fontSize: 13, color: 'var(--text-light)' }}>Type at least two letters to add a new food.</p>
             )}
