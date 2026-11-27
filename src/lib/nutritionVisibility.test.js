@@ -14,3 +14,11 @@ describe('parentSeesNumbers', () => {
     expect(parentSeesNumbers({})).toBe(false)
   })
 })
+
+describe('the program default', () => {
+  it('applies only when the clinician has not chosen', () => {
+    expect(parentSeesNumbers(null, { parentSeesNumbers: true })).toBe(true)
+    expect(parentSeesNumbers({ showToParent: false }, { parentSeesNumbers: true })).toBe(false)
+    expect(parentSeesNumbers({ showToParent: true }, { parentSeesNumbers: false })).toBe(true)
+  })
+})
