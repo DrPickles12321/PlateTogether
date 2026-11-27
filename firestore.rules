@@ -118,7 +118,7 @@ service cloud.firestore {
       allow update: if (isCaregiver(fid) && changedOnly(['profile']) && validProfile(request.resource.data.profile))
         || (isLead(fid) && changedOnly(['program', 'phase', 'measurementsShared'])
             && request.resource.data.program == 'anorexia-fbt'
-            && (!('phase' in changed()) || validPhase(request.resource.data.phase))
+            && (!('phase' in changed()) || !('phase' in request.resource.data) || validPhase(request.resource.data.phase))
             && (!('measurementsShared' in changed()) || request.resource.data.measurementsShared is bool));
       allow delete: if false;
 
@@ -141,7 +141,8 @@ service cloud.firestore {
         // Joining as yourself, with proof.
         allow create: if signedIn() && memberId == uid()
           && !exists(revokedPath(fid, uid()))
-          && onlyKeys(['role', 'active', 'addedAt', 'addedBy', 'household', 'via'])
+          && onlyKeys(['role', 'active', 'addedAt', 'addedBy', 'household', 'via', 'email'])
+          && (!('email' in request.resource.data) || request.resource.data.email == request.auth.token.email)
           && request.resource.data.active == true
           && request.resource.data.addedBy == uid()
           && request.resource.data.addedAt == request.time

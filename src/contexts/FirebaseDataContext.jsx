@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
+import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { ref, onValue, set, update, get, query, orderByKey, startAt } from 'firebase/database'
 import { deleteUser } from 'firebase/auth'
 import { db, auth } from '../firebase'
@@ -10,10 +10,11 @@ import { resolveViewingPatient, viewingStorageKey, visibleCareTeam } from '../li
 import { normalizeCarePlan } from '../lib/carePlan'
 import { buildUsualMeal } from '../lib/usualMeals'
 import { getWeekIsoDates } from '../lib/insights'
+import { FirebaseDataContext, DEFAULT_TARGETS } from './dataContext'
+import { onFirestore } from '../lib/backend'
+import FirestoreDataProvider from './FirestoreDataProvider'
 
-const FirebaseDataContext = createContext(null)
 
-const DEFAULT_TARGETS = { protein: 75, carbs: 150, fruitsVeggies: 200 }
 
 export const DEFAULT_MEAL_TIMES = { breakfast: '08:00', lunch: '13:00', snack: '15:30', dinner: '19:00' }
 
@@ -75,7 +76,12 @@ function deriveMealDistress(fbMealData) {
   return out
 }
 
+// The data layer for the app: Firestore after the switch-over (lib/backend.js), Realtime Database until then.
 export function FirebaseDataProvider({ children }) {
+  return onFirestore ? <FirestoreDataProvider>{children}</FirestoreDataProvider> : <RtdbDataProvider>{children}</RtdbDataProvider>
+}
+
+function RtdbDataProvider({ children }) {
   const { user } = useAuth()
   const uid = user?.uid || null
 

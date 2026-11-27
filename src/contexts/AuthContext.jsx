@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { onAuthStateChanged, signOut } from 'firebase/auth'
-import { ref, get } from 'firebase/database'
-import { auth, db } from '../firebase'
+import { auth } from '../firebase'
+import { readRole } from '../lib/accounts'
 
 const AuthContext = createContext(null)
 
@@ -15,10 +15,9 @@ export function AuthProvider({ children }) {
     return onAuthStateChanged(auth, async firebaseUser => {
       if (firebaseUser) {
         try {
-          const snap = await get(ref(db, `users/${firebaseUser.uid}/role`))
+          const storedRole = await readRole(firebaseUser.uid)
           // Guard: user might have been signed out while we awaited
           if (auth.currentUser?.uid !== firebaseUser.uid) return
-          const storedRole = snap.val()
           if (pendingRoleRef.current && storedRole && storedRole !== pendingRoleRef.current) {
             pendingRoleRef.current = null
             await signOut(auth)

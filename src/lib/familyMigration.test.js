@@ -84,7 +84,9 @@ describe('planMigration', () => {
 
   it('writes user documents, private settings and the family code', () => {
     expect(plan.userDocs[P].doc).toEqual({ email: 'parent@example.test', accountType: 'family', families: { [familyIdFor(P)]: 'caregiver' } })
-    expect(plan.userDocs[P].private).toMatchObject({ consent: { version: 1 }, hiddenClinicianNoteIds: { cn0: true } })
+    expect(plan.userDocs[P].private).toMatchObject({ familyCode: 'ABC123', consent: { version: 1 }, hiddenClinicianNoteIds: { cn0: true } })
+    expect(fam.members[P].email).toBe('parent@example.test')
+    expect(fam.members[C1].email).toBe('c1@example.test')
     expect(plan.userDocs[C1].doc).toEqual({ email: 'c1@example.test', accountType: 'clinician', families: { [familyIdFor(P)]: 'therapist' } })
     expect(plan.userDocs[C3].private.hiddenParentNoteIds).toEqual({ [P]: { n9: true } })
     expect(plan.familyCodes).toEqual({ ABC123: { familyId: familyIdFor(P), createdBy: P } })
