@@ -1,5 +1,6 @@
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
-  test: { environment: 'node', include: ['tests/rules/**/*.test.js'], testTimeout: 20000 },
+  // Every rules test file clears the same emulator database, so files must run one at a time.
+  test: { environment: 'node', include: ['tests/rules/**/*.test.js'], testTimeout: 20000, fileParallelism: false },
 })

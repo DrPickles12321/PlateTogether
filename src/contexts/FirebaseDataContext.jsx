@@ -667,12 +667,15 @@ export function FirebaseDataProvider({ children }) {
     // The patientClinicianNotes onValue listener full-replaces the list from
     // Firebase's local cache during set(), so we don't optimistically mutate
     // local state here — a new-note append would otherwise show it twice.
+    // authorUid is enforced by database.rules.json: a clinician can only create notes as
+    // themselves and only edit or delete their own. Older notes without one are claimed on edit.
     if (existingNoteId) {
       const existing = patientClinicianNotes.find(n => n.id === existingNoteId)
-      const note = { ...existing, body }
+      if (existing?.authorUid && existing.authorUid !== uid) return
+      const note = { ...existing, body, authorUid: uid }
       set(ref(db, `users/${viewingPatientUid}/clinicianNotes/${existingNoteId}`), note)
     } else {
-      const note = { id: crypto.randomUUID(), body, created_at: new Date().toISOString() }
+      const note = { id: crypto.randomUUID(), body, created_at: new Date().toISOString(), authorUid: uid }
       set(ref(db, `users/${viewingPatientUid}/clinicianNotes/${note.id}`), note)
     }
   }
