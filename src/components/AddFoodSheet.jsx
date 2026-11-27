@@ -9,6 +9,7 @@ import { useAppMode } from '../hooks/useAppMode'
 import { COMMON_FOODS } from '../data/commonFoods'
 import { searchFoods } from '../lib/foodData'
 import { usualFoods, searchFamilyFoods, canAddAsNew, newFoodSuggestions, tidyName, showNewFoods } from '../lib/foodSearch'
+import { UsualMealsList, SaveUsualMeal } from './UsualMeals'
 
 // Adding food to a meal in as few taps as possible. Before anything is typed, the family's usual
 // foods for this meal are at the top, so most meals are a few taps. One search box finds the
@@ -63,8 +64,8 @@ function NewRow({ name, hint, onTap, last }) {
   )
 }
 
-export default function AddFoodSheet({ open, onClose, mealLabel, mealKey, date, allMealItems = {}, mealItems = [], onAddToMeal, onRemoveFromMeal }) {
-  const { foodItems, addFoodItem, setFoodNutrition, resetFoodNutrition, assignedChallenges } = useFirebaseData()
+export default function AddFoodSheet({ open, onClose, mealLabel, mealKey, date, allMealItems = {}, mealItems = [], onAddToMeal, onAddManyToMeal, onRemoveFromMeal }) {
+  const { foodItems, addFoodItem, setFoodNutrition, resetFoodNutrition, assignedChallenges, usualMeals, saveUsualMeal, deleteUsualMeal } = useFirebaseData()
   const { hideNutritionNumbers } = useAppMode()
   const [query, setQuery] = useState('')
   const [newType, setNewType] = useState('familiar')
@@ -172,6 +173,10 @@ export default function AddFoodSheet({ open, onClose, mealLabel, mealKey, date, 
             ))}
           </div>
         )}
+        {!trimmed && (
+          <SaveUsualMeal usualMeals={usualMeals} mealKey={mealKey} mealLabel={mealLabel} mealItems={mealItems}
+            onSave={name => saveUsualMeal({ name, mealType: mealKey, foods: mealItems })} />
+        )}
 
         {trimmed ? (
           <>
@@ -219,6 +224,9 @@ export default function AddFoodSheet({ open, onClose, mealLabel, mealKey, date, 
           </>
         ) : (
           <>
+            <UsualMealsList usualMeals={usualMeals} mealKey={mealKey} mealItems={mealItems}
+              foodItems={foodItems} onAdd={foods => onAddManyToMeal?.(foods)} onDelete={deleteUsualMeal} />
+
             {usual.length > 0 && (
               <section aria-labelledby="usual">
                 <h3 id="usual" style={label13}>Usually at {mealLabel.toLowerCase()}</h3>

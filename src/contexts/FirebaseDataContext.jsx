@@ -7,6 +7,7 @@ import { fetchFoodInfo } from '../lib/foodData'
 import { quickLogPatch } from '../lib/quickLog'
 import { resolveViewingPatient, viewingStorageKey, visibleCareTeam } from '../lib/viewingPatient'
 import { normalizeCarePlan } from '../lib/carePlan'
+import { buildUsualMeal } from '../lib/usualMeals'
 
 const FirebaseDataContext = createContext(null)
 
@@ -88,6 +89,7 @@ export function FirebaseDataProvider({ children }) {
   const [hiddenParentNoteIdsTree, setHiddenParentNoteIdsTree] = useState({}) // clinician-side: { patientUid: [noteId] }
   const [ownClinicianNotes, setOwnClinicianNotes]     = useState([])
   const [foodItems, setFoodItems]                     = useState([])
+  const [usualMeals, setUsualMeals]                   = useState({}) // { id: { id, name, mealType, foods, createdAt } }
   const [familyCode, setFamilyCode]                   = useState(null)
   const [mySos, setMySos]                             = useState([])   // parent's own SOS records
   const [careTeam, setCareTeam]                       = useState([])   // [{uid, email, active, addedAt}] — clinicians linked to me
@@ -125,6 +127,7 @@ export function FirebaseDataProvider({ children }) {
       setHiddenParentNoteIdsTree({})
       setOwnClinicianNotes([])
       setFoodItems([])
+      setUsualMeals({})
       setFamilyCode(null)
       setPatients([])
       setViewingChoice({ owner: null, patient: null })
@@ -203,6 +206,10 @@ export function FirebaseDataProvider({ children }) {
     unsubs.push(onValue(ref(db, `${base}/foodItems`), snap => {
       const val = snap.val()
       setFoodItems(val ? Object.values(val) : [])
+    }))
+
+    unsubs.push(onValue(ref(db, `${base}/usualMeals`), snap => {
+      setUsualMeals(snap.val() || {})
     }))
 
     unsubs.push(onValue(ref(db, `${base}/sos`), snap => {
@@ -592,6 +599,21 @@ export function FirebaseDataProvider({ children }) {
     setFoodItems(prev => prev.filter(f => f.id !== id))
   }
 
+  // A meal the family serves often, saved so it can be added again in one tap. Parent-only data
+  // (database.rules.json: usualMeals). Returns the saved record, or null if there was nothing to save.
+  function saveUsualMeal({ name, mealType, foods }) {
+    if (!uid) return null
+    const meal = buildUsualMeal({ id: crypto.randomUUID(), name, mealType, foods })
+    if (!meal) return null
+    set(ref(db, `users/${uid}/usualMeals/${meal.id}`), meal)
+    return meal
+  }
+
+  function deleteUsualMeal(id) {
+    if (!uid || !id) return
+    set(ref(db, `users/${uid}/usualMeals/${id}`), null)
+  }
+
   // ── SOS (parent → care team) ───────────────────────────────────────────────
   function sendSos({ note = '' }) {
     if (!uid) return null
@@ -825,6 +847,9 @@ export function FirebaseDataProvider({ children }) {
       removePatient,
       deleteAccount,
       foodItems,
+      usualMeals,
+      saveUsualMeal,
+      deleteUsualMeal,
       addFoodItem,
       deleteFoodItem,
       updateFoodItemCategory,
