@@ -13,11 +13,12 @@ Every meal is logged as one of four outcomes, drawn in the same colour so none l
 - **Today**: the day's meals, distress before and after (optional), and the supplement checklist.
 - **Week**: the week at a glance, with a plain-words summary.
 - **Notes**: write to the care team and read the clinician's notes.
-- **Account**: the family code, the care team (revoke or restore a clinician), delete account.
+- **Account**: the child's first name or initials, birth year and treatment start (the care team sees this name), the family code, the care team (revoke or restore a clinician), delete account.
 - **Need help**: always available; a request for support goes to the care team, with an emergency call button next to it.
 
 **Clinician side** (`/clinician`)
 - **Families, ordered by need**: whoever asked for support comes first, then families with meals not eaten this week, then unread notes or nothing logged for a few days. Each family shows the reason in plain words.
+- **Family header**: the child's name, age, treatment week and FBT phase (the clinician sets the phase), when you last saw them with a one-tap "Session done today", and a **Session summary**: a printable page covering since your last session, this week or last week.
 - **Overview**: "Worth talking about" (hard meals, unread notes, challenge foods tried, distress change, each with the entries behind it) and the week-at-a-glance grid.
 - **Insights**: week in review, eating rhythm, weekly trend, and an AI clinical digest.
 - **Care plan**: lines to read at the table, the steps to follow when a meal is refused, challenge foods, supplements, and whether the parent sees nutrition numbers.
@@ -122,7 +123,7 @@ The plan is in [docs/plans/2026-11-26-roadmap.md](docs/plans/2026-11-26-roadmap.
 - **Done:** phase 0 (open items, except the clinician wording review), phase 1 (fast food entry: usual meals, family foods first) and phase 2 (USDA nutrition data, cached, with a clinician switch for showing numbers to parents). The clinician screens were redesigned around families ordered by need.
 - **Now, phase 3: statistics for clinicians.** It starts with a decision a clinician has to make: which numbers to show. The draft to react to is [docs/clinical/2026-11-27-clinician-metrics-draft.md](docs/clinical/2026-11-27-clinician-metrics-draft.md). The agreed list then becomes one tested module, `src/lib/clinicianStats.js`.
 - **Waiting on a clinician:** the wording review in [docs/clinical/2026-11-26-wording-review.md](docs/clinical/2026-11-26-wording-review.md) and the metrics draft above.
-- **Now, phase 3A: ready to pitch.** A child profile so clinicians see names instead of emails, a printable session summary, and a "since your last session" marker.
+- **Built, phase 3A: ready to pitch.** A child profile so clinicians see names instead of emails, a printable session summary, and a "since your last session" marker. Left: ask a clinic about billing codes, and a pitch page.
 - **Later:** phase 4 (the gate before real families: BAA and storage, both caregivers on one family, a care team with roles for therapist, dietitian and pediatrician, clinic invites, meal reminders; see [docs/plans/2026-11-27-care-team.md](docs/plans/2026-11-27-care-team.md)) and phase 5 (a clinician assistant grounded in vetted sources).
 - **Known gap:** `npm run lint` reports existing errors (mostly in `agent/` and older contexts). New code is kept lint-clean.
 

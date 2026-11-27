@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useFirebaseData } from '../contexts/FirebaseDataContext'
-import { buildSessionSummary } from '../lib/sessionSummary'
+import { buildSessionSummary, datesSince, datesBefore } from '../lib/sessionSummary'
 import { getWeekIsoDates } from '../lib/insights'
 import { localIsoDate } from '../lib/constants'
 import { OUTCOME_META, OUTCOME_ORDER } from '../lib/outcomes'
@@ -27,17 +27,28 @@ export default function ClinicianSummary() {
     viewingPatientUid, patients, patientAccessDenied, childProfile,
     mealStatuses, mealDistress, allMealItems, parentNotesArray,
   } = useFirebaseData()
-  const [weekOffset, setWeekOffset] = useState(0)
   const today = localIsoDate()
+  const family = patients.find(p => p.uid === viewingPatientUid)
+  const sinceDates = useMemo(() => datesSince(family?.lastSessionAt, today), [family?.lastSessionAt, today])
+  // Which days the page covers. "since" is the default once a session has been marked.
+  const [choice, setChoice] = useState(null)
+  const range = choice || (sinceDates.length ? 'since' : 'week')
 
-  const name = familyName(childProfile, patients.find(p => p.uid === viewingPatientUid)?.email)
+  const name = familyName(childProfile, family?.email)
   useEffect(() => { document.title = `Session summary · ${name} · Plate Together` }, [name])
 
-  const isoDates = useMemo(() => getWeekIsoDates(weekOffset), [weekOffset])
+  const isoDates = useMemo(() => (
+    range === 'since' && sinceDates.length ? sinceDates : getWeekIsoDates(range === 'last' ? -1 : 0)
+  ), [range, sinceDates])
   const summary = useMemo(() => buildSessionSummary({
     mealStatuses, mealDistress, allMealItems, parentNotes: parentNotesArray,
-    isoDates, previousIsoDates: getWeekIsoDates(weekOffset - 1), today,
-  }), [mealStatuses, mealDistress, allMealItems, parentNotesArray, isoDates, weekOffset, today])
+    isoDates, previousIsoDates: datesBefore(isoDates), today,
+  }), [mealStatuses, mealDistress, allMealItems, parentNotesArray, isoDates, today])
+  const ranges = [
+    ...(sinceDates.length ? [['since', 'Since your last session']] : []),
+    ['week', 'This week'],
+    ['last', 'Last week'],
+  ]
 
   if (!viewingPatientUid || patientAccessDenied) {
     return (
@@ -59,10 +70,10 @@ export default function ClinicianSummary() {
     <main className="print-page" style={{ maxWidth: 760, margin: '0 auto', padding: '20px 16px 48px', width: '100%', boxSizing: 'border-box' }}>
       <div className="no-print" style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', marginBottom: 18 }}>
         <Link to="/clinician/overview" className="clv-pill-btn" style={linkBtn}>Back to the family</Link>
-        <div role="group" aria-label="Week" style={{ display: 'flex', gap: 6 }}>
-          {[[0, 'This week'], [-1, 'Last week']].map(([off, label]) => (
-            <button key={off} type="button" onClick={() => setWeekOffset(off)} aria-pressed={weekOffset === off}
-              className={`clv-pill-btn${weekOffset === off ? ' filled' : ''}`} style={{ minHeight: 44 }}>{label}</button>
+        <div role="group" aria-label="Days covered" style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+          {ranges.map(([key, label]) => (
+            <button key={key} type="button" onClick={() => setChoice(key)} aria-pressed={range === key}
+              className={`clv-pill-btn${range === key ? ' filled' : ''}`} style={{ minHeight: 44 }}>{label}</button>
           ))}
         </div>
         <button type="button" onClick={() => window.print()} className="clv-pill-btn" style={{ minHeight: 44, marginLeft: 'auto' }}>Print</button>
@@ -72,7 +83,8 @@ export default function ClinicianSummary() {
       <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: '-0.02em', margin: '2px 0 0', overflowWrap: 'anywhere' }}>{name}</h1>
       {details && <p style={{ ...body, marginTop: 2 }}>{details}</p>}
       <p style={{ ...muted, marginTop: 6 }}>
-        {dayLong(isoDates[0])} to {dayLong(isoDates[6])}. From the family's own logs; not a clinical assessment.
+        {range === 'since' && `Since your session on ${dayLong(family.lastSessionAt)}: `}
+        {dayLong(isoDates[0])} to {dayLong(isoDates[isoDates.length - 1])}. From the family's own logs; not a clinical assessment.
       </p>
 
       <section style={{ ...section, marginTop: 16 }}>
@@ -82,8 +94,8 @@ export default function ClinicianSummary() {
             {counted.map(k => `${OUTCOME_META[k].label}: ${prep.counts[k]}`).join(' · ')}
             <span style={{ color: 'var(--text-mid)' }}>. {prep.logged} of {prep.totalSlots} meals logged so far.</span>
           </p>
-        ) : <p style={muted}>Nothing logged this week.</p>}
-        {prep.hardestMeal && <p style={{ ...muted, marginTop: 4 }}>Hardest meal this week: {prep.hardestMeal.label.toLowerCase()} ({prep.hardestMeal.count}).</p>}
+        ) : <p style={muted}>Nothing logged in these days.</p>}
+        {prep.hardestMeal && <p style={{ ...muted, marginTop: 4 }}>Hardest meal: {prep.hardestMeal.label.toLowerCase()} ({prep.hardestMeal.count}).</p>}
       </section>
 
       <section style={section}>
@@ -106,7 +118,7 @@ export default function ClinicianSummary() {
                     return (
                       <td key={k} style={{ ...td, background: hard ? 'var(--highlight)' : undefined }}>
                         {m.status ? <span style={{ fontWeight: 600 }}>{OUTCOME_META[m.status]?.label}</span>
-                          : <span style={{ color: 'var(--text-light)' }}>{day.future ? '' : 'Not logged'}</span>}
+                          : <span style={{ color: 'var(--text-light)' }}>{day.date < today ? 'Not logged' : ''}</span>}
                         {m.foods.length > 0 && <span style={{ display: 'block', color: 'var(--text-mid)' }}>{m.foods.join(', ')}</span>}
                         {m.distress && (
                           <span style={{ display: 'block', color: 'var(--text-mid)' }}>
@@ -132,15 +144,15 @@ export default function ClinicianSummary() {
               <li key={`${a.date}-${a.meal}-${a.name}`}>{a.name}, {a.mealLabel.toLowerCase()} on {dayShort(a.date)}{a.status ? `: ${word(a.status)}` : ''}</li>
             ))}
           </ul>
-        ) : <p style={muted}>No challenge foods logged this week.</p>}
+        ) : <p style={muted}>No challenge foods logged in these days.</p>}
       </section>
 
       <section style={section}>
         <h2 style={h2}>Distress after meals</h2>
-        {prep.distress.avgPost === null ? <p style={muted}>No ratings this week.</p> : (
+        {prep.distress.avgPost === null ? <p style={muted}>No ratings in these days.</p> : (
           <p style={body}>
             Average {prep.distress.avgPost} of 5
-            {prep.distress.change ? `, ${prep.distress.change > 0 ? 'up' : 'down'} ${Math.abs(prep.distress.change)} from the week before` : ''}.
+            {prep.distress.change ? `, ${prep.distress.change > 0 ? 'up' : 'down'} ${Math.abs(prep.distress.change)} from the same number of days before` : ''}.
           </p>
         )}
       </section>
@@ -163,7 +175,7 @@ export default function ClinicianSummary() {
               </li>
             ))}
           </ul>
-        ) : <p style={muted}>No notes this week.</p>}
+        ) : <p style={muted}>No notes in these days.</p>}
       </section>
 
       <section style={section}>

@@ -251,6 +251,7 @@ export function FirebaseDataProvider({ children }) {
         uid:   pUid,
         email: typeof data === 'object' ? (data.email || pUid) : pUid,
         code:  typeof data === 'object' ? data.code : null,
+        lastSessionAt: typeof data === 'object' ? (data.lastSessionAt || null) : null,
       })))
     }))
 
@@ -496,6 +497,13 @@ export function FirebaseDataProvider({ children }) {
     return update(ref(db, `users/${uid}/childProfile`), {
       name, birthYear: birthYear ?? null, treatmentStart: treatmentStart ?? null, updatedAt: new Date().toISOString(),
     })
+  }
+
+  // The clinician's own "seen them" mark for the open family, on their own link (rules: patients).
+  // The session summary then offers "since your last session".
+  function markSessionDone(isoDate) {
+    if (!viewingPatientUid || !uid) return Promise.resolve()
+    return set(ref(db, `users/${uid}/patients/${viewingPatientUid}/lastSessionAt`), isoDate)
   }
 
   // The FBT phase is the clinician's call; only a linked, active clinician can write it.
@@ -954,6 +962,7 @@ export function FirebaseDataProvider({ children }) {
       childProfile,
       saveChildProfile,
       setChildPhase,
+      markSessionDone,
       addAssignedChallenge,
       removeAssignedChallenge,
       careTeam,
