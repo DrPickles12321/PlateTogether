@@ -20,6 +20,7 @@ import ClinicianOverview from './pages/ClinicianOverview'
 import ClinicianInsights from './pages/ClinicianInsights'
 import ClinicianCarePlan from './pages/ClinicianCarePlan'
 import ClinicianNotesView from './pages/ClinicianNotesView'
+import ClinicianSummary from './pages/ClinicianSummary'
 
 function AppLayout() {
   const { user, role } = useAuth()
@@ -77,6 +78,7 @@ function AppLayout() {
           <Route path="notes" element={<NotesView />} />
           <Route path="account" element={<AccountView />} />
         </Route>
+        <Route path="/clinician/summary" element={<ClinicianSummary />} />
         <Route path="/clinician" element={<ClinicianView />}>
           <Route index element={<Navigate to="overview" replace />} />
           <Route path="overview" element={<ClinicianOverview />} />
