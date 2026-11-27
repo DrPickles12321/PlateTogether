@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import Icon from '../components/Icon'
-import { Outlet } from 'react-router-dom'
+import { Link, Outlet } from 'react-router-dom'
 import { useFirebaseData } from '../contexts/FirebaseDataContext'
 import WelcomeModal from '../components/WelcomeModal'
 import DailyNutritionSummary from '../components/nutrition/DailyNutritionSummary'
@@ -494,7 +494,10 @@ export default function ClinicianView() {
             </select>
           </div>
         )}
-        <div style={{ marginTop: 8 }}>
+        <div style={{ marginTop: 10, display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
+          <Link to="/clinician/summary"
+            style={{ minHeight: 40, display: 'inline-flex', alignItems: 'center', padding: '6px 12px', borderRadius: 'var(--radius)', background: 'var(--on-ink)', color: 'var(--ink)', fontSize: 14, fontWeight: 700, textDecoration: 'none' }}
+          >Session summary</Link>
           {confirmUnlink ? (
             <span style={{ display: 'inline-flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
               <span style={{ fontSize: 14 }}>Unlink this family?</span>

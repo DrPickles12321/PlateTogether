@@ -217,3 +217,11 @@ p { margin: 0; }
   color: var(--text-mid);
   padding-top: 2px;
 }
+
+/* Printing (the clinician's session summary): only the page itself, on white. */
+@media print {
+  body > #root header, .no-print { display: none !important; }
+  html, body { background: white !important; }
+  .print-page { max-width: none !important; padding: 0 !important; }
+  @page { margin: 14mm; }
+}
