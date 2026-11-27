@@ -3,7 +3,8 @@ import Icon from './Icon'
 import { useDraggable } from '@dnd-kit/core'
 import { useFirebaseData } from '../contexts/FirebaseDataContext'
 import { useAppMode } from '../hooks/useAppMode'
-import AddFoodInput from './AddFoodInput'
+import { searchFamilyFoods, canAddAsNew, showNewFoods, tidyName } from '../lib/foodSearch'
+import { localIsoDate } from '../lib/constants'
 import Modal from './Modal'
 import NutritionFacts from './NutritionFacts'
 import { searchFoods } from '../lib/foodData'
@@ -389,12 +390,33 @@ export function SuggestedFoods({ onAdd, existingNames, buttonSize = 22, assigned
   )
 }
 
+const NEW_TYPES = [
+  { key: 'familiar', label: 'Familiar' },
+  { key: 'working_on', label: 'Working on' },
+  { key: 'challenge', label: 'Challenge' },
+]
+
 export default function FoodSidebar() {
-  const { foodItems, addFoodItem, deleteFoodItem, updateFoodItemCategory, assignedChallenges } = useFirebaseData()
+  const { foodItems, allMealItems = {}, addFoodItem, deleteFoodItem, updateFoodItemCategory, assignedChallenges } = useFirebaseData()
   const [tab, setTab] = useState('mine')
+  const [query, setQuery] = useState('')
+  const [newType, setNewType] = useState('familiar')
+
+  // One box that filters the family's list as you type and offers "Add …" only when the food
+  // isn't there yet (same ranking as the add-food sheet, lib/foodSearch.js).
+  const trimmed = query.trim()
+  const matches = trimmed ? searchFamilyFoods({ foods: foodItems, allMealItems, date: localIsoDate(), query: trimmed }) : foodItems
+  const offerNew = showNewFoods(trimmed, trimmed ? matches.length : 1) && canAddAsNew(trimmed, foodItems)
 
   function handleAddFood(payload) {
     addFoodItem(payload)
+  }
+
+  function addTyped() {
+    if (!offerNew) return
+    addFoodItem({ name: tidyName(trimmed), category: newType })
+    setQuery('')
+    setNewType('familiar')
   }
 
   function handleDelete(food) {
@@ -436,18 +458,53 @@ export default function FoodSidebar() {
       {tab === 'mine' ? (
         <>
           <div style={{ marginBottom: 16 }}>
-            <AddFoodInput onAddFood={handleAddFood} existingFoodNames={existingNames} />
+            <label htmlFor="sidebar-food-search" style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)' }}>Find or add a food</label>
+            <input
+              id="sidebar-food-search" type="search" value={query} autoComplete="off"
+              onChange={e => setQuery(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addTyped() } }}
+              placeholder="Find or add a food"
+              style={{
+                boxSizing: 'border-box', width: '100%', minHeight: 44, padding: '0 12px', fontSize: 15,
+                border: '1.5px solid var(--border-mid)', borderRadius: 'var(--radius)', background: 'white', color: 'var(--text-dark)',
+              }}
+            />
+            {offerNew && (
+              <div style={{ marginTop: 8 }}>
+                <div role="group" aria-label="Type for the new food" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 4, marginBottom: 6 }}>
+                  {NEW_TYPES.map(t => (
+                    <button key={t.key} type="button" aria-pressed={newType === t.key} onClick={() => setNewType(t.key)} style={{
+                      minHeight: 36, padding: '0 2px', borderRadius: 'var(--radius)', fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                      border: `1.5px solid ${newType === t.key ? 'var(--ink)' : 'var(--border)'}`,
+                      background: newType === t.key ? 'var(--ink-light)' : 'white', color: newType === t.key ? 'var(--ink-hover)' : 'var(--text-mid)',
+                    }}>{t.label}</button>
+                  ))}
+                </div>
+                <button type="button" onClick={addTyped} style={{
+                  width: '100%', minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                  borderRadius: 'var(--radius)', border: 'none', background: 'var(--ink)', color: 'var(--on-ink)',
+                  fontSize: 14, fontWeight: 600, cursor: 'pointer',
+                }}><Icon name="plus" size={16} />Add "{tidyName(trimmed)}"</button>
+              </div>
+            )}
           </div>
           <div style={{ flex: 1, overflowY: 'auto' }}>
-            {CATEGORIES.map(cfg => (
-              <Section
-                key={cfg.key}
-                config={cfg}
-                foods={foodItems.filter(f => f.category === cfg.key)}
-                onDelete={handleDelete}
-                onChangeCategory={handleChangeCategory}
-              />
-            ))}
+            {CATEGORIES.map(cfg => {
+              const foods = matches.filter(f => f.category === cfg.key)
+              if (trimmed && foods.length === 0) return null
+              return (
+                <Section
+                  key={cfg.key}
+                  config={cfg}
+                  foods={foods}
+                  onDelete={handleDelete}
+                  onChangeCategory={handleChangeCategory}
+                />
+              )
+            })}
+            {trimmed && matches.length === 0 && !offerNew && (
+              <p style={{ fontSize: 13, color: 'var(--text-light)' }}>Type at least two letters to add a new food.</p>
+            )}
           </div>
         </>
       ) : (
