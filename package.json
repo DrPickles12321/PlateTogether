@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:rules": "firebase emulators:exec --only database --project demo-plate 'vitest run -c vitest.rules.config.js'"
+    "test:rules": "firebase emulators:exec --only database --project demo-plate 'vitest run -c vitest.rules.config.js'",
+    "test:firestore": "firebase emulators:exec --only firestore --project demo-plate 'vitest run -c vitest.firestore.config.js'"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.90.0",

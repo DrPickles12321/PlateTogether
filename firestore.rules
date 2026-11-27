@@ -1,0 +1,300 @@
+rules_version = '2';
+
+// Firestore rules for the family record (docs/plans/2026-11-27-fbt-framework.md, section 7).
+// Not used by the app yet; the app still reads Realtime Database until roadmap step B5.
+//
+// Invariants, each covered by tests/firestore:
+// - Access comes only from an active membership; a caregiver-only revoked marker outranks it.
+// - Joining needs proof: being the family's creator, an unused unexpired invite, or (clinicians) a family code.
+// - Events, plan history, measurements and session marks are append-only: nobody edits or deletes them.
+// - A team member never edits a caregiver's event; reading a caregiver note is its own event.
+// - The teen never reads events, the plan, measurements, check-ins, team notes or alerts.
+// - A coordinator reads the family, members and invites only: no meal data.
+// - accountType on a user is write-once.
+// - Rollups and alerts are created by the server only (the admin SDK bypasses these rules).
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
+
+    function signedIn() { return request.auth != null; }
+    function uid() { return request.auth.uid; }
+    function fam(fid) { return /databases/$(database)/documents/families/$(fid); }
+    function memberPath(fid, u) { return /databases/$(database)/documents/families/$(fid)/members/$(u); }
+    function revokedPath(fid, u) { return /databases/$(database)/documents/families/$(fid)/revoked/$(u); }
+
+    function isActive(fid) {
+      return signedIn()
+        && exists(memberPath(fid, uid()))
+        && get(memberPath(fid, uid())).data.active == true
+        && !exists(revokedPath(fid, uid()));
+    }
+    function myRole(fid) { return get(memberPath(fid, uid())).data.role; }
+
+    function teamRoles() { return ['therapist', 'dietitian', 'pediatrician', 'psychiatrist']; }
+    function allRoles() { return ['caregiver', 'teen', 'therapist', 'dietitian', 'pediatrician', 'psychiatrist', 'coordinator']; }
+
+    function isCaregiver(fid) { return isActive(fid) && myRole(fid) == 'caregiver'; }
+    function isTeam(fid) { return isActive(fid) && myRole(fid) in teamRoles(); }
+    function isLead(fid) { return isActive(fid) && myRole(fid) == 'therapist'; }
+    function isCoordinator(fid) { return isActive(fid) && myRole(fid) == 'coordinator'; }
+    function isTeen(fid) { return isActive(fid) && myRole(fid) == 'teen'; }
+    // Caregivers and clinicians: everyone who may see meal data.
+    function seesRecord(fid) { return isCaregiver(fid) || isTeam(fid); }
+
+    function accountType() { return get(/databases/$(database)/documents/users/$(uid())).data.accountType; }
+
+    function onlyKeys(keys) { return request.resource.data.keys().hasOnly(keys); }
+    function changed() { return request.resource.data.diff(resource.data).affectedKeys(); }
+    function changedOnly(keys) { return changed().hasOnly(keys); }
+    function isoDate(v) { return v is string && v.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$'); }
+    function stampedByMe() { return request.resource.data.by == uid() && request.resource.data.at == request.time; }
+
+    // ── Users: an index only; rules never trust it for access ────────────────
+
+    match /users/{userId} {
+      allow read: if signedIn() && uid() == userId;
+      allow create: if signedIn() && uid() == userId
+        && onlyKeys(['email', 'accountType', 'families'])
+        && request.resource.data.accountType in ['family', 'clinician'];
+      allow update: if signedIn() && uid() == userId
+        && onlyKeys(['email', 'accountType', 'families'])
+        && request.resource.data.accountType == resource.data.accountType;
+      allow delete: if false;
+    }
+
+    // ── Family codes: let a clinician find a family; caregivers manage them ──
+
+    match /familyCodes/{code} {
+      allow get: if signedIn();
+      allow list: if false;
+      allow create: if signedIn() && onlyKeys(['familyId', 'createdBy'])
+        && request.resource.data.createdBy == uid()
+        && isCaregiver(request.resource.data.familyId);
+      allow update: if false;
+      allow delete: if signedIn() && isCaregiver(resource.data.familyId);
+    }
+
+    // ── Invites: caregivers invite anyone; a coordinator invites team members ──
+
+    match /invites/{code} {
+      allow get: if signedIn();
+      allow list: if false;
+      allow create: if signedIn()
+        && onlyKeys(['familyId', 'role', 'createdBy', 'expiresAt'])
+        && request.resource.data.createdBy == uid()
+        && request.resource.data.role in allRoles()
+        && request.resource.data.expiresAt is timestamp
+        && (isCaregiver(request.resource.data.familyId)
+            || (isCoordinator(request.resource.data.familyId)
+                && request.resource.data.role in teamRoles().concat(['coordinator'])));
+      // The joiner marks it used, once, before it expires.
+      allow update: if signedIn()
+        && !('usedBy' in resource.data)
+        && resource.data.expiresAt > request.time
+        && changedOnly(['usedBy'])
+        && request.resource.data.usedBy == uid();
+      allow delete: if signedIn() && resource.data.createdBy == uid();
+    }
+
+    // ── The family ───────────────────────────────────────────────────────────
+
+    match /families/{fid} {
+      allow read: if isActive(fid);
+      // A family account creates a family, then joins it as the first caregiver.
+      allow create: if signedIn() && accountType() == 'family'
+        && onlyKeys(['createdBy', 'createdAt', 'program', 'profile'])
+        && request.resource.data.createdBy == uid()
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.program == 'anorexia-fbt'
+        && (!('profile' in request.resource.data) || validProfile(request.resource.data.profile));
+      // Caregivers write the child's profile; the lead therapist writes program, phase and weight sharing.
+      allow update: if (isCaregiver(fid) && changedOnly(['profile']) && validProfile(request.resource.data.profile))
+        || (isLead(fid) && changedOnly(['program', 'phase', 'measurementsShared'])
+            && request.resource.data.program == 'anorexia-fbt'
+            && (!('phase' in changed()) || validPhase(request.resource.data.phase))
+            && (!('measurementsShared' in changed()) || request.resource.data.measurementsShared is bool));
+      allow delete: if false;
+
+      function validProfile(p) {
+        return p.keys().hasOnly(['name', 'birthYear', 'treatmentStart'])
+          && p.name is string && p.name.size() > 0 && p.name.size() <= 40
+          && (!('birthYear' in p) || (p.birthYear is int && p.birthYear >= 1990 && p.birthYear <= 2100))
+          && (!('treatmentStart' in p) || isoDate(p.treatmentStart));
+      }
+      function validPhase(ph) {
+        return ph.keys().hasOnly(['value', 'since', 'setBy'])
+          && ph.value in [1, 2, 3, 'maintenance']
+          && ph.setBy == uid() && ph.since == request.time;
+      }
+
+      // ── Members ─────────────────────────────────────────────────────────────
+      match /members/{memberId} {
+        allow read: if isActive(fid);
+
+        // Joining as yourself, with proof.
+        allow create: if signedIn() && memberId == uid()
+          && !exists(revokedPath(fid, uid()))
+          && onlyKeys(['role', 'active', 'addedAt', 'addedBy', 'household', 'via'])
+          && request.resource.data.active == true
+          && request.resource.data.addedBy == uid()
+          && request.resource.data.addedAt == request.time
+          && request.resource.data.role in allRoles()
+          && (joinsAsCreator() || joinsByInvite() || joinsByCode());
+
+        // Caregivers manage anyone; a coordinator manages team members; anyone may leave.
+        allow update: if (isCaregiver(fid) && changedOnly(['active', 'role', 'household'])
+              && request.resource.data.role in allRoles())
+          || (isCoordinator(fid) && resource.data.role in teamRoles()
+              && changedOnly(['active', 'role']) && request.resource.data.role in teamRoles())
+          || (signedIn() && memberId == uid() && changedOnly(['active']) && request.resource.data.active == false);
+        allow delete: if false;
+
+        function joinsAsCreator() {
+          return getAfter(fam(fid)).data.createdBy == uid()
+            && request.resource.data.role == 'caregiver'
+            && !('via' in request.resource.data);
+        }
+        function joinsByInvite() {
+          let invPath = /databases/$(database)/documents/invites/$(request.resource.data.via.invite);
+          let inv = get(invPath).data;
+          return request.resource.data.via.keys().hasOnly(['invite'])
+            && inv.familyId == fid
+            && inv.role == request.resource.data.role
+            && inv.expiresAt > request.time
+            && !('usedBy' in inv)
+            && getAfter(invPath).data.usedBy == uid();
+        }
+        function joinsByCode() {
+          return request.resource.data.via.keys().hasOnly(['familyCode'])
+            && get(/databases/$(database)/documents/familyCodes/$(request.resource.data.via.familyCode)).data.familyId == fid
+            && request.resource.data.role in teamRoles()
+            && accountType() == 'clinician';
+        }
+      }
+
+      // ── Removal: caregivers only, and it outranks membership ────────────────
+      match /revoked/{memberId} {
+        allow read, write: if isCaregiver(fid);
+      }
+
+      // ── The record: append-only events ──────────────────────────────────────
+      match /events/{eventId} {
+        allow read: if seesRecord(fid);
+        allow create: if seesRecord(fid)
+          && onlyKeys(['type', 'date', 'meal', 'value', 'by', 'at', 'v', 'ref'])
+          && stampedByMe()
+          && request.resource.data.v == 1
+          && isoDate(request.resource.data.date)
+          && (!('meal' in request.resource.data) || request.resource.data.meal in ['breakfast', 'lunch', 'snack', 'dinner'])
+          && ((isCaregiver(fid) && request.resource.data.type in caregiverEvents())
+              || (isTeam(fid) && request.resource.data.type in teamEvents()));
+        allow update, delete: if false;
+
+        function caregiverEvents() {
+          return ['meal.outcome', 'meal.foods', 'meal.distress', 'meal.time', 'hardMeal.start', 'hardMeal.tagIn',
+                  'hardMeal.end', 'debrief', 'note.caregiver', 'supplement.given', 'sos.open'];
+        }
+        function teamEvents() { return ['note.read', 'sos.resolve', 'phase.change']; }
+      }
+
+      // ── The plan: each item owned by a role; history is append-only ────────
+      match /plan/{itemId} {
+        allow read: if seesRecord(fid);
+        allow create: if isTeam(fid) && validPlanItem()
+          && request.resource.data.version == 1
+          && (request.resource.data.ownerRole == myRole(fid) || isLead(fid));
+        allow update: if isTeam(fid) && validPlanItem()
+          && request.resource.data.ownerRole == resource.data.ownerRole
+          && request.resource.data.version == resource.data.version + 1
+          && (resource.data.ownerRole == myRole(fid) || isLead(fid));
+        allow delete: if false;
+
+        function validPlanItem() {
+          return onlyKeys(['kind', 'body', 'ownerRole', 'phase', 'version', 'updatedAt', 'updatedBy'])
+            && request.resource.data.ownerRole in teamRoles()
+            && request.resource.data.updatedBy == uid()
+            && request.resource.data.updatedAt == request.time;
+        }
+      }
+      match /planHistory/{entryId} {
+        allow read: if seesRecord(fid);
+        allow create: if isTeam(fid) && stampedByMe();
+        allow update, delete: if false;
+      }
+
+      // ── Clinic measurements: team only; caregivers see weight if the lead shares it ──
+      match /measurements/{mId} {
+        allow read: if isTeam(fid)
+          || (isCaregiver(fid) && get(fam(fid)).data.get('measurementsShared', false) == true
+              && resource.data.kind == 'weight');
+        allow create: if isTeam(fid)
+          && onlyKeys(['kind', 'value', 'unit', 'by', 'at'])
+          && stampedByMe()
+          && request.resource.data.kind in ['weight', 'heartRate', 'bloodPressure']
+          && request.resource.data.value is number;
+        allow update, delete: if false;
+      }
+
+      // ── Each team member's own session marks ───────────────────────────────
+      match /sessions/{markId} {
+        allow read: if isTeam(fid);
+        allow create: if isTeam(fid) && onlyKeys(['kind', 'by', 'at']) && stampedByMe();
+        allow update, delete: if false;
+      }
+
+      // ── Weekly caregiver check-ins: one per caregiver per week ─────────────
+      match /checkins/{checkinId} {
+        allow read: if seesRecord(fid);
+        allow create, update: if isCaregiver(fid)
+          && checkinId.matches('^' + uid() + '_[0-9]{4}-W[0-9]{2}$')
+          && onlyKeys(['by', 'week', 'strain', 'support'])
+          && request.resource.data.by == uid()
+          && request.resource.data.strain in [1, 2, 3, 4, 5]
+          && request.resource.data.support in [1, 2, 3, 4, 5];
+        allow delete: if false;
+      }
+
+      // ── Team notes: hidden from the family's screens, not secret (framework section 7) ──
+      match /teamNotes/{noteId} {
+        allow read: if isTeam(fid);
+        allow create: if isTeam(fid) && onlyKeys(['body', 'by', 'role', 'at'])
+          && stampedByMe() && request.resource.data.role == myRole(fid)
+          && request.resource.data.body is string && request.resource.data.body.size() <= 4000;
+        allow update: if isTeam(fid) && resource.data.by == uid() && changedOnly(['body'])
+          && request.resource.data.body is string && request.resource.data.body.size() <= 4000;
+        allow delete: if false;
+      }
+
+      // ── Teen proposals (phase 2 on): the teen proposes, a caregiver decides ──
+      match /proposals/{pId} {
+        allow read: if seesRecord(fid) || (isTeen(fid) && resource.data.by == uid());
+        allow create: if isTeen(fid)
+          && get(fam(fid)).data.get('phase', {'value': 1}).value != 1
+          && onlyKeys(['meal', 'text', 'by', 'at'])
+          && stampedByMe()
+          && request.resource.data.text is string && request.resource.data.text.size() <= 200;
+        allow update: if isCaregiver(fid) && !('decision' in resource.data)
+          && changedOnly(['decision', 'decidedBy', 'decidedAt'])
+          && request.resource.data.decision in ['approved', 'declined']
+          && request.resource.data.decidedBy == uid()
+          && request.resource.data.decidedAt == request.time;
+        allow delete: if false;
+      }
+
+      // ── Created by the server (Worker, admin SDK) only ─────────────────────
+      match /alerts/{alertId} {
+        allow read: if isTeam(fid);
+        allow update: if isTeam(fid) && !('ackBy' in resource.data)
+          && changedOnly(['ackBy', 'ackAt'])
+          && request.resource.data.ackBy == uid() && request.resource.data.ackAt == request.time;
+        allow create, delete: if false;
+      }
+      match /rollups/{week} {
+        allow read: if seesRecord(fid);
+        allow write: if false;
+      }
+    }
+  }
+}

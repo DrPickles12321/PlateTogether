@@ -71,7 +71,8 @@ npm run build     # production build
 npm run preview   # preview the production build
 npm test          # run the Vitest suite
 npm run lint      # ESLint
-npm run test:rules  # security-rules tests in the Firebase emulator (see below)
+npm run test:rules  # Realtime Database rules tests in the Firebase emulator (see below)
+npm run test:firestore  # Firestore rules tests for the coming family record (firestore.rules)
 ```
 
 ### Testing the security rules
