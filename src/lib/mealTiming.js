@@ -3,10 +3,10 @@
 // a core recovery signal, so this surfaces it for the clinician.
 
 const MEALS = [
-  { key: 'breakfast', label: 'Breakfast', icon: '☀️' },
-  { key: 'lunch',     label: 'Lunch',     icon: '🥗' },
-  { key: 'snack',     label: 'Snack',     icon: '🍎' },
-  { key: 'dinner',    label: 'Dinner',    icon: '🌙' },
+  { key: 'breakfast', label: 'Breakfast' },
+  { key: 'lunch',     label: 'Lunch' },
+  { key: 'snack',     label: 'Snack' },
+  { key: 'dinner',    label: 'Dinner' },
 ]
 
 // Mirrors DEFAULT_MEAL_TIMES in FirebaseDataContext; used when a day has no
@@ -49,7 +49,6 @@ export function computeMealTiming(mealTimesByDate = {}, mealStatuses = {}, allMe
     return {
       key: m.key,
       label: m.label,
-      icon: m.icon,
       loggedDays,
       typicalTime: loggedDays ? toLabel(median(mins)) : null,
       spreadMin,

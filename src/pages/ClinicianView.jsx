@@ -124,19 +124,19 @@ export function ParentNotesPanel({ notes = [], onMarkRead, hiddenNoteIds = [], o
                         Hide?{' '}
                         <button
                           onClick={() => { onHideNote(note.date); setConfirmHideDate(null) }}
-                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--coral)', fontWeight: 700, fontSize: 12, padding: 0, fontFamily: 'inherit' }}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--coral)', fontWeight: 700, fontSize: 14, padding: '0 6px', minHeight: 44, fontFamily: 'inherit' }}
                         >Yes</button>
                         {' / '}
                         <button
                           onClick={() => setConfirmHideDate(null)}
-                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-light)', fontSize: 12, padding: 0, fontFamily: 'inherit' }}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-light)', fontSize: 14, padding: '0 6px', minHeight: 44, fontFamily: 'inherit' }}
                         >Cancel</button>
                       </span>
                     ) : (
                       <button
                         onClick={() => setConfirmHideDate(note.date)}
                         title="Hide from my view"
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-light)', fontSize: 12, padding: 0, fontFamily: 'inherit' }}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-light)', fontSize: 14, padding: '0 6px', minHeight: 44, fontFamily: 'inherit' }}
                       >Hide</button>
                     )
                   )}
@@ -174,7 +174,7 @@ export function ParentNotesPanel({ notes = [], onMarkRead, hiddenNoteIds = [], o
                     onClick={() => onUnhideNote(note.date)}
                     style={{
                       flexShrink: 0, background: 'none', border: '1px solid var(--border-mid)',
-                      borderRadius: 20, padding: '3px 9px', fontSize: 12, fontWeight: 600,
+                      borderRadius: 'var(--radius)', padding: '6px 12px', minHeight: 44, fontSize: 14, fontWeight: 600,
                       color: 'var(--mint)', cursor: 'pointer', fontFamily: "'Lato', sans-serif",
                     }}
                   >Restore</button>
@@ -435,15 +435,15 @@ export default function ClinicianView() {
                 <span style={{ display: 'inline-flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
                   <span style={{ fontSize: 14, color: 'var(--text-mid)' }}>Unlink this family?</span>
                   <button type="button" onClick={() => { removePatient(viewingPatientUid); setConfirmUnlink(false) }}
-                    style={{ minHeight: 40, border: 'none', borderRadius: 'var(--radius)', padding: '6px 12px', background: 'var(--st-refused)', color: 'white', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
+                    style={{ minHeight: 44, border: 'none', borderRadius: 'var(--radius)', padding: '6px 12px', background: 'var(--st-refused)', color: 'white', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
                   >Yes, unlink</button>
                   <button type="button" onClick={() => setConfirmUnlink(false)}
-                    style={{ minHeight: 40, border: '1px solid var(--border-mid)', borderRadius: 'var(--radius)', padding: '6px 12px', background: 'white', color: 'var(--text-dark)', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
+                    style={{ minHeight: 44, border: '1px solid var(--border-mid)', borderRadius: 'var(--radius)', padding: '6px 12px', background: 'white', color: 'var(--text-dark)', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
                   >Cancel</button>
                 </span>
               ) : (
                 <button type="button" onClick={() => setConfirmUnlink(true)}
-                  style={{ minHeight: 40, border: 'none', background: 'none', padding: '4px', color: 'var(--text-mid)', fontSize: 14, cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: 3 }}
+                  style={{ minHeight: 44, border: 'none', background: 'none', padding: '4px', color: 'var(--text-mid)', fontSize: 14, cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: 3 }}
                 >Unlink</button>
               )
             )}
@@ -459,7 +459,7 @@ export default function ClinicianView() {
               id="clinician-add-code"
               value={addCodeInput}
               onChange={e => { setAddCodeInput(e.target.value.toUpperCase()); setAddCodeError('') }}
-              placeholder="8 letters or numbers"
+              placeholder="Family code"
               maxLength={8}
               autoComplete="off"
               aria-describedby={addCodeError ? 'clinician-add-error' : undefined}

@@ -113,7 +113,6 @@ export default function NutritionalTargets() {
                 padding: '10px 28px', borderRadius: 'var(--radius)', border: 'none',
                 background: 'var(--ink)',
                 color: 'white', fontWeight: 600, fontSize: 14, cursor: 'pointer',
-                boxShadow: '0 2px 8px rgba(35,64,142,0.28)',
                 fontFamily: "var(--font-ui)", transition: 'opacity 0.15s',
               }}
               onMouseEnter={e => { e.currentTarget.style.opacity = '0.88' }}

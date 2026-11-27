@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
-import { computeInsightsFromMealItems, computeNutritionInsightsFromMealItems } from '../lib/insights'
+import { computeInsightsFromMealItems, computeNutritionInsightsFromMealItems, getWeekIsoDates } from '../lib/insights'
+import { localIsoDate } from '../lib/constants'
 import { FLAG_CONFIG } from './nutrition/FlagChip'
 
 const MEAL_LABELS = { breakfast: 'breakfasts', lunch: 'lunches', dinner: 'dinners', snack: 'snacks' }
@@ -37,15 +38,15 @@ function Stat({ label, value, subtext, accent }) {
 }
 
 export default function WeeklyInsights({ allMealItems, mealStatuses }) {
-  const hasAnyLoggedFood = allMealItems && Object.values(allMealItems).some(
+  const hasAnyLoggedFood = (allMealItems && Object.values(allMealItems).some(
     dayMeals => Object.values(dayMeals).some(
       items => Array.isArray(items) && items.length > 0
     )
-  )
+  )) || Object.keys(mealStatuses || {}).length > 0
 
   const insights = useMemo(() => {
     return hasAnyLoggedFood
-      ? computeInsightsFromMealItems(allMealItems, mealStatuses)
+      ? computeInsightsFromMealItems(allMealItems, mealStatuses, getWeekIsoDates(0).filter(d => d <= localIsoDate()))
       : { totalLogs: 0, okay: 0, difficult: 0, refused: 0, hardestMealType: null, topRefusedCategory: null }
   }, [allMealItems, mealStatuses, hasAnyLoggedFood])
 
@@ -59,7 +60,7 @@ export default function WeeklyInsights({ allMealItems, mealStatuses }) {
     {
       label: 'Meals logged',
       value: insights.totalLogs,
-      subtext: 'past 7 days',
+      subtext: 'this week so far',
       accent: 'var(--border-mid)',
     },
     {

@@ -4,7 +4,7 @@ import { getWeekIsoDates } from '../lib/insights'
 import { localIsoDate } from '../lib/constants'
 import { SectionCard } from '../pages/ClinicianView'
 
-const STATUS_LABEL = { difficult: 'partly finished', refused: 'refused' }
+const STATUS_LABEL = { okay: 'finished', difficult: 'partly finished', refused: 'refused', skipped: 'skipped' }
 
 function day(iso) {
   return new Date(iso + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
@@ -64,7 +64,7 @@ export default function SessionPrepCard({ mealStatuses, mealDistress, allMealIte
           <ul style={{ margin: 0, paddingLeft: 18 }}>
             {prep.challengeAttempts.map(a => (
               <li key={`${a.date}-${a.meal}-${a.name}`}>
-                {a.name} at {a.mealLabel.toLowerCase()}, {day(a.date)}{a.status ? ` (meal: ${STATUS_LABEL[a.status] || a.status})` : ''}
+                {a.name} at {a.mealLabel.toLowerCase()}, {day(a.date)}{a.status ? ` (meal ${STATUS_LABEL[a.status] || 'logged'})` : ''}
               </li>
             ))}
           </ul>

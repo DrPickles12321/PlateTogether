@@ -49,9 +49,9 @@ export default function WelcomeModal({ role }) {
         aria-modal="true"
         style={{ background: '#fff', borderRadius: 'var(--radius)', maxWidth: 420, width: '100%', padding: '28px 24px', boxShadow: '0 14px 44px rgba(0,0,0,0.25)' }}
       >
-        <h3 className="font-hand" style={{ margin: '0 0 4px', fontSize: 26, fontWeight: 600, color: 'var(--text-dark)' }}>
+        <h2 className="font-hand" style={{ margin: '0 0 4px', fontSize: 26, fontWeight: 600, color: 'var(--text-dark)' }}>
           Welcome to Plate Together
-        </h3>
+        </h2>
         <p style={{ fontSize: 14, color: 'var(--text-mid)', margin: '0 0 18px', lineHeight: 1.5 }}>
           {role === 'parent'
             ? 'A calm, private way to track meals and share them with your care team.'
@@ -80,7 +80,6 @@ export default function WelcomeModal({ role }) {
             width: '100%', border: 'none', borderRadius: 'var(--radius)', padding: '13px 0',
             background: 'var(--ink)',
             color: '#fff', fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
-            boxShadow: '0 4px 14px rgba(35,64,142,0.3)',
           }}
         >Get started</button>
       </div>

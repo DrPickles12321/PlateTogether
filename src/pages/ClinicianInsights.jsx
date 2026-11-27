@@ -59,7 +59,6 @@ export default function ClinicianInsights() {
               <div style={{ display: 'grid', gap: 8 }}>
                 {mealTiming.meals.filter(m => m.loggedDays > 0).map(m => (
                   <div key={m.key} style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: 15, width: 20, textAlign: 'center' }}>{m.icon}</span>
                     <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-dark)', width: 78 }}>{m.label}</span>
                     <span style={{ fontSize: 13, color: 'var(--text-mid)' }}>~{m.typicalTime}</span>
                     <span style={{ fontSize: 12, color: 'var(--text-light)' }}>· {m.loggedDays} day{m.loggedDays === 1 ? '' : 's'}</span>

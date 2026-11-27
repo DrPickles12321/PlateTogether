@@ -1,18 +1,25 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useId, useRef } from 'react'
+import { openLayer, isTopLayer } from '../lib/layerStack'
 import Icon from './Icon'
 import { createPortal } from 'react-dom'
 
 export default function Modal({ isOpen, onClose, title, children, zIndex = 50 }) {
   const closeBtnRef = useRef(null)
 
+  const layerId = useId()
+  const onCloseRef = useRef(onClose)
+  useEffect(() => { onCloseRef.current = onClose })
+
+  // Keyed on isOpen only, so re-renders don't reorder the layer stack; Escape closes the top layer.
   useEffect(() => {
     if (!isOpen) return
+    const closeLayer = openLayer(layerId)
     document.body.style.overflow = 'hidden'
     closeBtnRef.current?.focus()
-    function handleKeyDown(e) { if (e.key === 'Escape') onClose() }
+    function handleKeyDown(e) { if (e.key === 'Escape' && isTopLayer(layerId)) onCloseRef.current() }
     document.addEventListener('keydown', handleKeyDown)
-    return () => { document.removeEventListener('keydown', handleKeyDown); document.body.style.overflow = '' }
-  }, [isOpen, onClose])
+    return () => { document.removeEventListener('keydown', handleKeyDown); document.body.style.overflow = ''; closeLayer() }
+  }, [isOpen, layerId])
 
   if (!isOpen) return null
 

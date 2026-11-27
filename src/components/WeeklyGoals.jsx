@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import Icon from './Icon'
 import { lookupNutrition } from '../lib/nutritionService'
 import { useNutritionalTargets } from '../contexts/NutritionalTargetsContext'
+import { getWeekIsoDates } from '../lib/insights'
 
 const PRODUCE_G_PER_SERVING = 80
 
@@ -55,7 +56,9 @@ export default function WeeklyGoals({ allMealItems }) {
     const MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack']
 
     if (hasAnyLoggedFood) {
-      for (const dateStr of Object.keys(allMealItems)) {
+      // Weekly goals count this calendar week only, not every week ever logged.
+      const week = new Set(getWeekIsoDates(0))
+      for (const dateStr of Object.keys(allMealItems).filter(d => week.has(d))) {
         const dayMeals = allMealItems[dateStr] || {}
         for (const mealType of MEAL_TYPES) {
           const items = dayMeals[mealType] || []
@@ -74,8 +77,9 @@ export default function WeeklyGoals({ allMealItems }) {
     }
   }, [allMealItems, hasAnyLoggedFood])
 
+  const thisWeek = new Set(getWeekIsoDates(0))
   const totalFilled = hasAnyLoggedFood
-    ? Object.values(allMealItems).reduce((acc, dayMeals) =>
+    ? Object.entries(allMealItems).filter(([d]) => thisWeek.has(d)).map(([, m]) => m).reduce((acc, dayMeals) =>
         acc + ['breakfast', 'lunch', 'dinner', 'snack'].filter(
           mt => Array.isArray(dayMeals[mt]) && dayMeals[mt].length > 0
         ).length, 0)
@@ -166,7 +170,7 @@ export default function WeeklyGoals({ allMealItems }) {
 
       {totalFilled > 0 && (
         <p style={{ fontSize: 13, color: 'var(--text-light)', textAlign: 'center', marginTop: 14, fontStyle: 'italic' }}>
-          Based on {totalFilled} logged meal{totalFilled !== 1 ? 's' : ''} this week
+          Based on {totalFilled} meal{totalFilled !== 1 ? 's' : ''} with foods written down this week
         </p>
       )}
     </section>

@@ -65,7 +65,7 @@ export default function Navbar() {
               <button
                 onClick={signOutOfApp}
                 style={{
-                  minHeight: 40, padding: '6px 12px', fontSize: 14, fontWeight: 600, color: 'var(--text-mid)',
+                  minHeight: 44, padding: '6px 12px', fontSize: 14, fontWeight: 600, color: 'var(--text-mid)',
                   background: 'none', border: '1px solid var(--border-mid)', borderRadius: 'var(--radius)', cursor: 'pointer',
                 }}
               >

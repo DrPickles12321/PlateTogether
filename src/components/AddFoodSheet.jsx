@@ -159,7 +159,7 @@ export default function AddFoodSheet({ open, onClose, mealLabel, mealItems = [],
               flex: 1, padding: '9px 4px', borderRadius: 'var(--radius)', border: 'none',
               background: tab === t.key ? 'white' : 'transparent',
               color: tab === t.key ? 'var(--coral)' : 'var(--text-light)',
-              fontWeight: 600, fontSize: 13, cursor: 'pointer', minHeight: 40,
+              fontWeight: 600, fontSize: 13, cursor: 'pointer', minHeight: 44,
               boxShadow: tab === t.key ? '0 1px 5px rgba(29,33,43,0.08)' : 'none',
               fontFamily: "var(--font-ui)", transition: 'all 0.15s',
             }}
@@ -188,7 +188,7 @@ export default function AddFoodSheet({ open, onClose, mealLabel, mealItems = [],
                       key={opt.key}
                       onClick={() => setSortMode(opt.key)}
                       style={{
-                        flex: 1, padding: '7px 4px', borderRadius: 'var(--radius)', minHeight: 36,
+                        flex: 1, padding: '7px 4px', borderRadius: 'var(--radius)', minHeight: 44,
                         fontSize: 12, fontWeight: 600, cursor: 'pointer',
                         border: `1.5px solid ${active ? 'var(--coral)' : 'var(--border)'}`,
                         background: active ? 'var(--coral-light)' : 'white',
