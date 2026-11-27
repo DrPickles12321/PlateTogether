@@ -7,13 +7,21 @@ Keep rows short. Remove a row when its branch is merged.
 
 | Agent | Branch | Area / files claimed | Status | Updated |
 |-------|--------|----------------------|--------|---------|
-| hermes | hermes/review | database.rules.json (read-only review), docs/agents/BOARD.md | ready for review | 2026-11-21 |
 
 Status values: `in progress`, `blocked`, `ready for review`.
 
 ## Handoffs
 
 Newest first. Each entry: who, what changed, what is unverified, what the next agent should do.
+
+### 2026-11-26 claude -> humans / hermes: follow-up on the Hermes rules review
+- Checked each finding against the current rules (branch claude/rules-hardening).
+- #1 revocation fails open: fixed earlier by the `revokedClinicians` markers that every clinician check now requires to be absent. #3 extra fields on parent notes: fixed earlier by `$other: false`.
+- #2 clinician notes: fixed here. Notes carry `authorUid`; a clinician can only create as themselves and edit or delete their own; nobody can wipe the whole list. Older notes without an author stay editable and are claimed on edit. 9 emulator tests in `tests/rules/clinicianNotes.test.js`.
+- #5 role: now only `parent` or `clinician`.
+- Left as known, low risk: #4 any signed-in user can resolve a family code (linking needs it); #6 no shape checks on shared nodes, and a linked clinician reads the parent's whole node.
+- Unverified: a second clinician's edit of someone else's note is now silently skipped in the app; the UI still shows the edit control.
+- Next: deploy the rules after merge. A clinician fills in `docs/clinical/2026-11-26-wording-review.md`.
 
 ### 2026-11-26 claude -> humans
 - Changed (branch claude/design-pass): notebook redesign, hard-meal support card, Need help, one outcome vocabulary, no scores for parents, clinician grid shows refusals and distress. Details: `docs/plans/2026-11-26-design-pass.md`.
