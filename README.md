@@ -125,6 +125,7 @@ a shared plan, carried out by a team, with early warnings. The design, with the 
 
 - **Done:** fast meal logging, families ordered by need, Worth talking about, care plan, child profile with
   FBT phase, printable session summary, "since your last session". Anorexia is the only program.
+- **Decided:** storage moves to Firestore with Identity Platform (both on Google's BAA list); team-only notes exist but aren't secret from families; working defaults for weight, the teen's role and alerts.
 - **Now (phase A, no code):** interviews with FBT clinicians and parents
   ([interview guide](docs/clinical/2026-11-27-fbt-interview-guide.md)), the storage decision, and clinician
   reviews of the [wording](docs/clinical/2026-11-26-wording-review.md) and

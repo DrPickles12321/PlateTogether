@@ -149,7 +149,10 @@ That loses who logged it, when, what changed, and any link to the plan. In the n
 event that is added, never overwritten**, and screens show the latest event per meal. For parents, the logging
 flow stays the same few taps.
 
-### Shape (proposed, for approval; storage decision first)
+### Shape (in Firestore; see section 8)
+
+Each line below is a Firestore collection or document under `families/{familyId}`; `{id}` entries are documents
+in a subcollection.
 
 ```
 families/{familyId}/
@@ -167,6 +170,7 @@ families/{familyId}/
   checkins/{caregiverUid}/{isoWeek}  { strain: 1-5, support: 1-5 }    caregivers
   alerts/{id}    { type, toRole, createdAt, ackBy?, ackAt?, escalatedAt? }
   rollups/{isoWeek}  pre-summed week, written by the Worker only
+  teamNotes/{id} { body, by, role, at }                               team only; see "Team-only notes"
 users/{uid}      { email, accountType: family|clinician, families/{familyId}: role }
 invites/{code}   { familyId, role, createdBy, expiresAt, usedBy? }
 ```
@@ -203,15 +207,32 @@ food names, then discarded, and only after the BAA); location or passive trackin
   coordinator.
 - The teen can't read events, plan internals, measurements or signals. A coordinator reads members and invites
   only, no meal data.
-- **Realtime Database read rules cascade** (read access to a node grants every child), so per-role visibility
-  needs separate subtrees with their own read rules and no read at `families/{familyId}` itself. Firestore has
-  per-document rules and queries, which fit this better; this feeds the storage decision.
+- Rules are written per collection in Firestore, so each role's visibility is its own rule; the family document
+  itself holds no sensitive fields. (In Realtime Database read access cascades to every child, which made this
+  awkward; one reason for the move.)
+- Team notes are readable and writable by active team members only, each note editable only by its author.
+
+### Team-only notes (decided 2026-11-27, with limits)
+
+Clinicians need somewhere to coordinate ("pediatrician: vitals fine, keep phase 1"), so team notes exist, but
+they are **hidden from the family's screens, not secret from the family**:
+
+- Under HIPAA a parent is usually the child's personal representative and can ask for the child's records,
+  subject to state law [24][25]. Only psychotherapy notes kept separate from the medical record are excluded
+  [24], and those belong in the therapist's own system, not in Plate Together.
+- Withholding records from a parent can count as information blocking under the 21st Century Cures Act unless an
+  exception applies; whether teen confidentiality qualifies is contested and depends on state law [26][27].
+- So the screen says plainly: "Team notes aren't shown in the family's app, but the family can ask for their
+  records, which may include them." Team notes can be exported for a records request.
+- Things a teen tells a clinician in confidence don't go in the app at all; they stay in the clinic's record.
+- A clinic's privacy officer and a lawyer should check this before the pilot (roadmap G).
 
 ### Migration
 
-A one-time script turns each existing meal slot into one event marked "by the original parent, time unknown",
-moves profile, plan items and links into `families/`, dry run first, then `--apply` (the pattern used for the
-revocation flags). The app then reads only the new shape.
+One move, done once: from Realtime Database `users/{uid}/…` to Firestore `families/…`. A script reads the old
+data and writes the new shape; each existing meal slot becomes one event marked "by the original parent, time
+unknown". Dry run first, then `--apply` (the pattern used for the revocation flags). The app then reads only
+Firestore, and the old Realtime Database data is kept read-only until a human deletes it.
 
 ### Cost
 
@@ -220,9 +241,17 @@ Worker writes a weekly rollup so an 8-week view doesn't download every event.
 
 ## 8. How it is built
 
-- **Storage:** decided before the move (roadmap A2). Stay on Realtime Database or move to Firestore; check which
-  Firebase products Google's BAA covers before deciding (**unchecked**; Firestore is believed covered, Realtime
-  Database may not be).
+- **Storage: Firestore, with sign-in upgraded to Identity Platform** (decided 2026-11-27). Google's HIPAA page
+  lists Firestore and Identity Platform as covered by its BAA [28]; Realtime Database and plain Firebase
+  Authentication are not on that list, and Firebase's own terms prohibit health data in them without Google's
+  written consent [29]. Identity Platform is the same sign-in SDK with an upgrade in the console; keep health
+  data out of profile fields such as display names [28].
+- **Other services and the BAA:** Firebase Hosting serves only the app's code, never health data. Cloud
+  Messaging is not covered, so push text never contains health or meal content (already a rule). The Cloudflare
+  Worker sees meal data when it calls the AI model, so before real families either Cloudflare and the model
+  provider sign BAAs, or AI features stay off for real data (roadmap G).
+- **Cost:** Firestore and Identity Platform have free tiers that should cover a pilot, but a BAA needs a Google
+  Cloud billing account; check pricing before signing.
 - **Logic:** every signal and config in `src/lib/` as pure functions with tests next to them, as today.
 - **Notifications:** web push via Firebase Cloud Messaging (free); scheduled checks (reminders, alert fallbacks,
   relapse watch, rollups) as a Cloudflare Worker cron trigger (free tier). Notification text never includes meal
@@ -230,14 +259,24 @@ Worker writes a weekly rollup so an 8-week view doesn't download every event.
 - **Privacy gate:** no real families before the BAAs, de-identification for any model call, and an audit log
   (roadmap phase G).
 
-## 9. Open decisions
+## 9. Decisions
 
-1. **Storage** (founders): Realtime Database or Firestore, after checking BAA coverage.
-2. **Weight in the app** (clinician): clinician-recorded, clinician chooses if parents see it, never the teen.
-3. **The teen's role** (clinician): none in phase 1, propose-and-approve in phase 2, own check-ins after.
-4. **Alert routing** (clinician): who gets which signal, and how fast.
-5. **The session guide's content** (clinician): which points per phase and session.
-6. **Team-only notes** (founders + clinician): families may have a legal right to read their records.
+**Decided 2026-11-27 (founders):**
+1. **Storage:** Firestore with Identity Platform (section 8).
+2. **Team-only notes:** yes, hidden from the family's screens but not secret, with the limits in section 7.
+
+**Working defaults, accepted by the founders; a clinician confirms them in the interviews:**
+3. **Weight:** recorded by clinicians at visits; parents see it only if the clinician turns that on; the teen
+   never sees it in the app.
+4. **The teen's role:** nothing about food in phase 1; propose-and-approve in phase 2; own check-ins and goals
+   in phase 3 and maintenance.
+5. **Alerts:** support requests and hard-meal patterns to the lead therapist; medical warning signs to the
+   therapist and the pediatrician, with the fixed call-now message to the family; a reminder to the lead if an
+   alert is not acknowledged within 24 hours. Every threshold is editable by the family's clinician.
+
+**Still open:**
+6. **The session guide's content** (clinician): which points per phase and session.
+7. **Clinician statistics** (clinician): the metrics draft.
 
 ## Sources
 
@@ -264,6 +303,12 @@ Worker writes a weekly rollup so an 8-week view doesn't download every event.
 21. Kosmerly, Waller & Robinson, clinician adherence to FBT. https://eprints.whiterose.ac.uk/85467
 22. Recovery Record for Families (App Store). https://apps.apple.com/app/id1552498936
 23. Telehealth FBT pilot. https://pubmed.ncbi.nlm.nih.gov/28801943/
+24. HHS: parents and a child's psychotherapy notes. https://www.hhs.gov/hipaa/for-professionals/faq/does-parent-have-right-receive-copy-psychotherapy-notes-about-childs-mental-health-treatment.html
+25. HHS OCR letter on parental access to minors' records. https://www.hhs.gov/sites/default/files/ocr-letter-hipaa-privacy-rule-and-parental-access-to-minor-childrens-medical-records.pdf
+26. AAP, pediatric information blocking use cases. https://www.aap.org/en/practice-management/health-information-technology/pediatric-information-blocking-use-cases/
+27. Information blocking and adolescent confidentiality. https://pmc.ncbi.nlm.nih.gov/articles/PMC8791761
+28. Google Cloud, HIPAA compliance (covered products, Identity Platform guidance). https://docs.cloud.google.com/docs/security/compliance/hipaa
+29. Secondary summary of Firebase BAA coverage (Realtime Database and Firebase Auth not covered). https://www.hipaavault.com/resources/is-firebase-hipaa-compliant/
 
 Figures were checked against abstracts and summaries, not every full text. Check the full paper before quoting
 a number in a pitch.
