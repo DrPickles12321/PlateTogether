@@ -1,224 +1,275 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Icon from './Icon'
 import BottomSheet from './BottomSheet'
-import AddFoodInput from './AddFoodInput'
 import Modal from './Modal'
 import NutritionFacts from './NutritionFacts'
 import { SuggestedFoods } from './FoodSidebar'
 import { useFirebaseData } from '../contexts/FirebaseDataContext'
 import { useAppMode } from '../hooks/useAppMode'
+import { COMMON_FOODS } from '../data/commonFoods'
+import { searchFoods } from '../lib/foodData'
+import { usualFoods, searchFamilyFoods, canAddAsNew, newFoodSuggestions, tidyName, showNewFoods } from '../lib/foodSearch'
 
-const CAT_DOT = { familiar: 'var(--mint)', working_on: 'var(--peach)', challenge: 'var(--pink)' }
-
-const CAT_ORDER = ['familiar', 'working_on', 'challenge']
-const CAT_LABEL = { familiar: 'Familiar', working_on: 'Working on', challenge: 'Challenge' }
-
-const GROUP_ORDER = ['grain', 'produce', 'protein', 'dairy', 'mixed']
-const GROUP_LABEL = { grain: 'Grains', produce: 'Fruits & veggies', protein: 'Protein', dairy: 'Dairy', mixed: 'Other' }
-
-const SORT_OPTIONS = [
-  { key: 'category', label: 'Category' },
-  { key: 'group', label: 'Food group' },
-  { key: 'name', label: 'Name' },
+// Adding food to a meal in as few taps as possible. Before anything is typed, the family's usual
+// foods for this meal are at the top, so most meals are a few taps. One search box finds the
+// family's own foods first and only offers a new food when nothing matches.
+const TYPES = [
+  { key: 'familiar', label: 'Familiar' },
+  { key: 'working_on', label: 'Working on' },
+  { key: 'challenge', label: 'Challenge' },
 ]
+const TYPE_LABEL = { working_on: 'Working on', challenge: 'Challenge' }
+const label13 = { fontSize: 13, fontWeight: 600, color: 'var(--ink)', margin: '18px 0 6px' }
+const list = { listStyle: 'none', margin: 0, padding: 0, borderTop: '1px solid var(--rule)', borderBottom: '1px solid var(--rule)', background: 'white' }
 
-const byName = (a, b) => a.name.localeCompare(b.name)
-
-// Build the section list (each { label, foods }) for the chosen sort mode.
-function buildSections(foods, sortMode) {
-  if (sortMode === 'name') {
-    return [{ label: null, foods: [...foods].sort(byName) }]
-  }
-  if (sortMode === 'group') {
-    // The USDA-enriched group persisted on the food; foods without one go under Other.
-    const withZone = foods.map(f => ({ ...f, _zone: f.group || 'mixed' }))
-    return GROUP_ORDER
-      .map(z => ({ label: GROUP_LABEL[z], foods: withZone.filter(f => f._zone === z).sort(byName) }))
-      .filter(s => s.foods.length > 0)
-  }
-  // category (default)
-  return CAT_ORDER
-    .map(c => ({ label: CAT_LABEL[c], foods: foods.filter(f => f.category === c).sort(byName) }))
-    .filter(s => s.foods.length > 0)
-}
-
-function FoodRow({ food, added, onTap, onInfo }) {
+function FoodRow({ food, added, onTap, onInfo, last }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-      <button
-        onClick={() => onTap(food)}
-        style={{
-          display: 'flex', alignItems: 'center', gap: 9, flex: 1, minWidth: 0,
-          background: added ? 'var(--mint-light)' : 'white',
-          border: `1.5px solid ${added ? 'var(--mint-mid)' : 'var(--border)'}`,
-          borderRadius: 'var(--radius)', padding: '11px 12px', minHeight: 46,
-          textAlign: 'left', cursor: 'pointer', fontFamily: "var(--font-ui)",
-          transition: 'background 0.12s, border-color 0.12s',
-        }}
-      >
-        <span style={{ width: 9, height: 9, borderRadius: '50%', flexShrink: 0, background: CAT_DOT[food.category] }} />
-        <span style={{ fontSize: 14, color: 'var(--text-dark)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{food.name}</span>
-        {added && <span style={{ fontSize: 15, color: 'var(--mint)', fontWeight: 700, flexShrink: 0 }}><Icon name="tick" size={14} /></span>}
+    <li style={{ display: 'flex', alignItems: 'center', borderBottom: last ? 'none' : '1px solid var(--rule)' }}>
+      <button type="button" onClick={() => onTap(food)} aria-pressed={added} style={{
+        flex: 1, minWidth: 0, minHeight: 48, display: 'flex', alignItems: 'center', gap: 12, padding: '6px 12px',
+        border: 'none', background: 'transparent', textAlign: 'left', cursor: 'pointer', color: 'var(--text-dark)',
+      }}>
+        <span aria-hidden="true" style={{
+          flexShrink: 0, width: 24, height: 24, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: added ? 'var(--ink)' : 'transparent', border: added ? 'none' : '1.5px solid var(--border-mid)', color: 'var(--on-ink)',
+        }}>{added && <Icon name="tick" size={14} strokeWidth={2.6} />}</span>
+        <span style={{ flex: 1, minWidth: 0 }}>
+          <span style={{ display: 'block', fontSize: 16, lineHeight: 1.3, overflowWrap: 'anywhere' }}>{food.name}</span>
+          {TYPE_LABEL[food.category] && <span style={{ display: 'block', fontSize: 13, color: 'var(--text-light)' }}>{TYPE_LABEL[food.category]}</span>}
+        </span>
       </button>
-      <button
-        onClick={() => onInfo(food)}
-        aria-label={`Nutrition facts for ${food.name}`}
-        style={{
-          flexShrink: 0, width: 44, minHeight: 46, borderRadius: 'var(--radius)',
-          border: '1.5px solid var(--border)', background: 'white',
-          color: 'var(--text-light)', fontSize: 17, cursor: 'pointer',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontFamily: 'var(--font-hand)', fontStyle: 'italic', fontWeight: 700,
-        }}
-      >i</button>
-    </div>
+      {onInfo && (
+        <button type="button" onClick={() => onInfo(food)} aria-label={`Nutrition facts for ${food.name}`} style={{
+          flexShrink: 0, width: 44, minHeight: 48, border: 'none', borderLeft: '1px solid var(--rule)', background: 'transparent',
+          color: 'var(--text-light)', fontSize: 15, fontWeight: 700, fontStyle: 'italic', cursor: 'pointer',
+        }}>i</button>
+      )}
+    </li>
   )
 }
 
-function MyFoodsPicker({ foods, sortMode, inMealIds, onTap, onInfo }) {
-  if (foods.length === 0) {
-    return (
-      <p style={{ fontSize: 12, color: 'var(--text-light)', fontStyle: 'italic', padding: '4px 2px' }}>
-        No foods in your list yet — add one above.
-      </p>
-    )
-  }
-  const sections = buildSections(foods, sortMode)
+function NewRow({ name, hint, onTap, last }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      {sections.map((section, si) => (
-        <div key={section.label || `s${si}`} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          {section.label && (
-            <div style={{
-              fontSize: 12, fontWeight: 700, color: 'var(--text-light)',
-             padding: '2px 2px 0',
-            }}>{section.label}</div>
-          )}
-          {section.foods.map(food => (
-            <FoodRow key={food.id} food={food} added={inMealIds.has(food.id)} onTap={onTap} onInfo={onInfo} />
-          ))}
-        </div>
-      ))}
-    </div>
+    <li style={{ borderBottom: last ? 'none' : '1px solid var(--rule)' }}>
+      <button type="button" onClick={onTap} style={{
+        width: '100%', minHeight: 48, display: 'flex', alignItems: 'center', gap: 12, padding: '6px 12px',
+        border: 'none', background: 'transparent', textAlign: 'left', cursor: 'pointer', color: 'var(--text-dark)',
+      }}>
+        <span aria-hidden="true" style={{ flexShrink: 0, width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ink)' }}><Icon name="plus" size={18} strokeWidth={2.2} /></span>
+        <span style={{ flex: 1, minWidth: 0, fontSize: 16 }}>{name}</span>
+        {hint && <span style={{ flexShrink: 0, fontSize: 13, color: 'var(--text-light)' }}>{hint}</span>}
+      </button>
+    </li>
   )
 }
 
-export default function AddFoodSheet({ open, onClose, mealLabel, mealItems = [], onAddToMeal, onRemoveFromMeal }) {
+export default function AddFoodSheet({ open, onClose, mealLabel, mealKey, date, allMealItems = {}, mealItems = [], onAddToMeal, onRemoveFromMeal }) {
   const { foodItems, addFoodItem, setFoodNutrition, resetFoodNutrition, assignedChallenges } = useFirebaseData()
   const { hideNutritionNumbers } = useAppMode()
-  const [tab, setTab] = useState('mine')
-  const [sortMode, setSortMode] = useState('category')
+  const [query, setQuery] = useState('')
+  const [newType, setNewType] = useState('familiar')
+  const [usda, setUsda] = useState({ q: '', results: [] })
+  const [showIdeas, setShowIdeas] = useState(false)
   const [factsFood, setFactsFood] = useState(null)
+  const inputRef = useRef(null)
 
-  // Keep the facts modal bound to the live food record (so edits/reset reflect).
   const factsLive = factsFood ? foodItems.find(f => f.id === factsFood.id) || factsFood : null
-
   const inMealIds = new Set(mealItems.map(f => f.id))
+  const trimmed = query.trim()
+  const ctx = { foods: foodItems, allMealItems, date, mealType: mealKey }
+  const usual = usualFoods(ctx)
+  const matches = searchFamilyFoods({ ...ctx, query: trimmed })
+  const existingNames = foodItems.map(f => f.name)
+  const usdaResults = usda.q === trimmed ? usda.results : []
+  const newOk = showNewFoods(trimmed, matches.length)
+  const others = newOk ? newFoodSuggestions({ query: trimmed, curated: COMMON_FOODS, usda: usdaResults, existingNames }) : []
+  const offerNew = newOk && canAddAsNew(trimmed, foodItems)
+  const searchingUsda = newOk && usda.q !== trimmed
+  const usualIds = new Set(usual.map(f => f.id))
+  const rest = [...foodItems].filter(f => !usualIds.has(f.id)).sort((a, b) => a.name.localeCompare(b.name))
+
+  // USDA results for foods the family doesn't have yet, after a short pause in typing.
+  useEffect(() => {
+    if (!newOk) return
+    let cancelled = false
+    const t = setTimeout(async () => {
+      const results = await searchFoods(trimmed, 8).catch(() => [])
+      if (!cancelled) setUsda({ q: trimmed, results })
+    }, 350)
+    return () => { cancelled = true; clearTimeout(t) }
+  }, [trimmed, newOk])
+
+  function reset() {
+    setQuery('')
+    setNewType('familiar')
+  }
+
+  function close() {
+    reset()
+    setShowIdeas(false)
+    onClose()
+  }
 
   function toggle(food) {
     if (inMealIds.has(food.id)) onRemoveFromMeal(food)
     else onAddToMeal(food)
   }
 
-  function handleAddNewOrSuggested(payload) {
-    const food = addFoodItem(payload)
-    if (food) onAddToMeal(food)
+  function pickFromSearch(food) {
+    toggle(food)
+    reset()
+    inputRef.current?.focus()
   }
 
-  const existingNames = foodItems.map(f => f.name)
+  function addNew(payload) {
+    const food = addFoodItem({ category: newType, ...payload, name: tidyName(payload.name) })
+    if (food) onAddToMeal(food)
+    reset()
+    inputRef.current?.focus()
+  }
+
+  function onKeyDown(e) {
+    if (e.key !== 'Enter') return
+    e.preventDefault()
+    if (matches.length) pickFromSearch(matches[0])
+    else if (offerNew) addNew({ name: trimmed })
+  }
 
   return (
     <>
-    <BottomSheet
-      open={open}
-      onClose={onClose}
-      title={`Add to ${mealLabel}`}
-      footer={
-        <button
-          onClick={onClose}
+      <BottomSheet
+        open={open}
+        onClose={close}
+        title={`Add to ${mealLabel.toLowerCase()}`}
+        footer={
+          <button type="button" onClick={close} style={{
+            width: '100%', minHeight: 52, borderRadius: 'var(--radius)', border: 'none',
+            background: 'var(--ink)', color: 'var(--on-ink)', fontSize: 17, fontWeight: 600, cursor: 'pointer',
+          }}>{mealItems.length ? `Done · ${mealItems.length} in ${mealLabel.toLowerCase()}` : 'Done'}</button>
+        }
+      >
+        {/* A steady height, so the sheet doesn't jump while results narrow as you type. */}
+        <div style={{ minHeight: '58vh' }}>
+        <label htmlFor="food-search" style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)' }}>Search your foods or add a new one</label>
+        <input
+          id="food-search" ref={inputRef} type="search" value={query} autoComplete="off" enterKeyHint="done"
+          onChange={e => setQuery(e.target.value)} onKeyDown={onKeyDown}
+          placeholder="Search your foods or add a new one"
           style={{
-            width: '100%', padding: '13px', borderRadius: 'var(--radius)', border: 'none',
-            background: 'var(--ink)',
-            color: 'white', fontSize: 14, fontWeight: 600, cursor: 'pointer',
-            fontFamily: "var(--font-ui)", minHeight: 44,
+            boxSizing: 'border-box', width: '100%', minHeight: 48, padding: '0 14px', fontSize: 16,
+            border: '1.5px solid var(--border-mid)', borderRadius: 'var(--radius)', background: 'white', color: 'var(--text-dark)',
           }}
-        >
-          Done
-        </button>
-      }
-    >
-      <div style={{
-        display: 'flex', gap: 4, background: 'var(--surface-warm)',
-        borderRadius: 'var(--radius)', padding: 3, marginBottom: 14,
-      }}>
-        {[{ key: 'mine', label: 'My List' }, { key: 'suggested', label: 'Suggested' }].map(t => (
-          <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
-            style={{
-              flex: 1, padding: '9px 4px', borderRadius: 'var(--radius)', border: 'none',
-              background: tab === t.key ? 'white' : 'transparent',
-              color: tab === t.key ? 'var(--coral)' : 'var(--text-light)',
-              fontWeight: 600, fontSize: 13, cursor: 'pointer', minHeight: 44,
-              boxShadow: tab === t.key ? '0 1px 5px rgba(29,33,43,0.08)' : 'none',
-              fontFamily: "var(--font-ui)", transition: 'all 0.15s',
-            }}
-          >{t.label}</button>
-        ))}
-      </div>
-
-      {tab === 'mine' ? (
-        <>
-          {/* Add-a-food input on top so it's visible above the keyboard and new
-              foods appear in the list below it. */}
-          <AddFoodInput onAddFood={handleAddNewOrSuggested} existingFoodNames={existingNames} />
-          <div style={{ height: 1, background: 'var(--border)', margin: '14px 0' }} />
-
-          {foodItems.length > 0 && (
-            <div style={{ marginBottom: 12 }}>
-              <div style={{
-                fontSize: 12, fontWeight: 700, color: 'var(--text-light)',
-               marginBottom: 6,
-              }}>Sort by</div>
-              <div style={{ display: 'flex', gap: 5 }}>
-                {SORT_OPTIONS.map(opt => {
-                  const active = sortMode === opt.key
-                  return (
-                    <button
-                      key={opt.key}
-                      onClick={() => setSortMode(opt.key)}
-                      style={{
-                        flex: 1, padding: '7px 4px', borderRadius: 'var(--radius)', minHeight: 44,
-                        fontSize: 12, fontWeight: 600, cursor: 'pointer',
-                        border: `1.5px solid ${active ? 'var(--coral)' : 'var(--border)'}`,
-                        background: active ? 'var(--coral-light)' : 'white',
-                        color: active ? 'var(--coral)' : 'var(--text-light)',
-                        fontFamily: "var(--font-ui)", transition: 'all 0.15s',
-                      }}
-                    >{opt.label}</button>
-                  )
-                })}
-              </div>
-            </div>
-          )}
-
-          <MyFoodsPicker foods={foodItems} sortMode={sortMode} inMealIds={inMealIds} onTap={toggle} onInfo={hideNutritionNumbers ? null : setFactsFood} />
-        </>
-      ) : (
-        <SuggestedFoods onAdd={handleAddNewOrSuggested} existingNames={existingNames} buttonSize={40} assignedChallenges={assignedChallenges} />
-      )}
-    </BottomSheet>
-
-    {/* Rendered as a sibling (not inside the transformed sheet) and above it */}
-    <Modal isOpen={!!factsLive} onClose={() => setFactsFood(null)} title={factsLive ? `Nutrition · ${factsLive.name}` : ''} zIndex={70}>
-      {factsLive && (
-        <NutritionFacts
-          food={factsLive}
-          onSave={nutrition => setFoodNutrition(factsLive.id, nutrition)}
-          onReset={() => resetFoodNutrition(factsLive.id)}
         />
-      )}
-    </Modal>
+
+        {mealItems.length > 0 && (
+          <div aria-label={`In ${mealLabel.toLowerCase()}`} role="group" style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
+            {mealItems.map(f => (
+              <button key={f.id || f.name} type="button" onClick={() => onRemoveFromMeal(f)} aria-label={`Remove ${f.name}`} style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6, minHeight: 36, padding: '0 8px 0 12px',
+                border: 'none', borderRadius: 'var(--radius)', background: 'var(--ink-light)', color: 'var(--ink-hover)',
+                fontSize: 14, fontWeight: 600, cursor: 'pointer',
+              }}>{f.name}<Icon name="close" size={14} /></button>
+            ))}
+          </div>
+        )}
+
+        {trimmed ? (
+          <>
+            {matches.length > 0 && (
+              <section aria-labelledby="your-matches">
+                <h3 id="your-matches" style={label13}>Your foods</h3>
+                <ul style={list}>
+                  {matches.map((f, i) => (
+                    <FoodRow key={f.id} food={f} added={inMealIds.has(f.id)} onTap={pickFromSearch}
+                      onInfo={hideNutritionNumbers ? null : setFactsFood} last={i === matches.length - 1} />
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            {(offerNew || others.length > 0) && (
+              <section aria-labelledby="new-foods">
+                <h3 id="new-foods" style={label13}>{matches.length ? 'Or add a new food' : 'Add a new food'}</h3>
+                <div role="group" aria-label="Type for a new food" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 4, marginBottom: 8 }}>
+                  {TYPES.map(t => (
+                    <button key={t.key} type="button" aria-pressed={newType === t.key} onClick={() => setNewType(t.key)} style={{
+                      minHeight: 40, borderRadius: 'var(--radius)', fontSize: 14, fontWeight: 600, cursor: 'pointer',
+                      border: `1.5px solid ${newType === t.key ? 'var(--ink)' : 'var(--border)'}`,
+                      background: newType === t.key ? 'var(--ink-light)' : 'white', color: newType === t.key ? 'var(--ink-hover)' : 'var(--text-mid)',
+                    }}>{t.label}</button>
+                  ))}
+                </div>
+                <ul style={list}>
+                  {offerNew && <NewRow name={`Add "${tidyName(trimmed)}"`}onTap={() => addNew({ name: trimmed })} last={others.length === 0} />}
+                  {others.map((s, i) => (
+                    <NewRow key={s.name} name={s.name} hint={s.nutrition ? 'USDA' : null}
+                      onTap={() => addNew({ name: s.name, ...(s.group || s.nutrition ? { group: s.group, nutrition: s.nutrition } : {}) })}
+                      last={i === others.length - 1} />
+                  ))}
+                </ul>
+                <p role="status" style={{ fontSize: 13, color: 'var(--text-light)', minHeight: 18, marginTop: 6 }}>
+                  {searchingUsda ? 'Looking up more foods…' : ''}
+                </p>
+              </section>
+            )}
+
+            {matches.length === 0 && !offerNew && others.length === 0 && (
+              <p style={{ fontSize: 15, color: 'var(--text-mid)', marginTop: 14 }}>Type at least two letters to add a new food.</p>
+            )}
+          </>
+        ) : (
+          <>
+            {usual.length > 0 && (
+              <section aria-labelledby="usual">
+                <h3 id="usual" style={label13}>Usually at {mealLabel.toLowerCase()}</h3>
+                <ul style={list}>
+                  {usual.map((f, i) => (
+                    <FoodRow key={f.id} food={f} added={inMealIds.has(f.id)} onTap={toggle}
+                      onInfo={hideNutritionNumbers ? null : setFactsFood} last={i === usual.length - 1} />
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            {rest.length > 0 && (
+              <section aria-labelledby="all-foods">
+                <h3 id="all-foods" style={label13}>{usual.length ? 'All your other foods' : 'Your foods'}</h3>
+                <ul style={list}>
+                  {rest.map((f, i) => (
+                    <FoodRow key={f.id} food={f} added={inMealIds.has(f.id)} onTap={toggle}
+                      onInfo={hideNutritionNumbers ? null : setFactsFood} last={i === rest.length - 1} />
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            {foodItems.length === 0 && (
+              <p style={{ fontSize: 15, color: 'var(--text-mid)', lineHeight: 1.5, marginTop: 14 }}>
+                No foods yet. Type one above to add it, or browse ideas below.
+              </p>
+            )}
+
+            <button type="button" onClick={() => setShowIdeas(s => !s)} aria-expanded={showIdeas} style={{
+              display: 'flex', alignItems: 'center', gap: 6, minHeight: 44, marginTop: 10, padding: 0,
+              border: 'none', background: 'none', color: 'var(--ink)', fontSize: 15, fontWeight: 600, cursor: 'pointer',
+            }}><Icon name={showIdeas ? 'up' : 'down'} size={16} />Browse food ideas</button>
+            {showIdeas && (
+              <SuggestedFoods onAdd={payload => addNew(payload)} existingNames={existingNames} buttonSize={40} assignedChallenges={assignedChallenges} />
+            )}
+          </>
+        )}
+        </div>
+      </BottomSheet>
+
+      <Modal isOpen={!!factsLive} onClose={() => setFactsFood(null)} title={factsLive ? `Nutrition · ${factsLive.name}` : ''} zIndex={70}>
+        {factsLive && (
+          <NutritionFacts
+            food={factsLive}
+            onSave={nutrition => setFoodNutrition(factsLive.id, nutrition)}
+            onReset={() => resetFoodNutrition(factsLive.id)}
+          />
+        )}
+      </Modal>
     </>
   )
 }

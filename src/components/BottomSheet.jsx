@@ -48,7 +48,8 @@ export default function BottomSheet({ open, onClose, title, children, footer }) 
             exit={{ y: '100%' }}
             transition={{ type: 'spring', stiffness: 380, damping: 32 }}
             style={{
-              position: 'fixed', left: 0, right: 0, bottom: 0, zIndex: 61,
+              // Full width on phones; a centred 640px sheet on wider screens so rows stay readable.
+              position: 'fixed', left: 0, right: 0, bottom: 0, zIndex: 61, maxWidth: 640, marginInline: 'auto',
               background: 'white', borderRadius: '20px 20px 0 0',
               boxShadow: '0 -8px 30px rgba(29,33,43,0.18)',
               maxHeight: '85dvh', display: 'flex', flexDirection: 'column',
@@ -72,7 +73,7 @@ export default function BottomSheet({ open, onClose, title, children, footer }) 
                   onClick={onClose}
                   aria-label="Close"
                   style={{
-                    width: 32, height: 32, borderRadius: '50%', border: 'none',
+                    width: 44, height: 44, marginRight: -6, borderRadius: '50%', border: 'none',
                     background: 'var(--surface-warm)', color: 'var(--text-light)',
                     fontSize: 18, cursor: 'pointer', display: 'flex',
                     alignItems: 'center', justifyContent: 'center', flexShrink: 0,
