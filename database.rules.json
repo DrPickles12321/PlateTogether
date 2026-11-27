@@ -33,6 +33,26 @@
         "mealTimes":           { ".write": "auth.uid === $uid" },
         "supplementLog":       { ".write": "auth.uid === $uid" },
         "foodItems":           { ".write": "auth.uid === $uid" },
+        "usualMeals": {
+          ".write": "auth.uid === $uid",
+          "$mealId": {
+            ".validate": "newData.hasChildren(['id', 'name', 'mealType', 'foods', 'createdAt']) && newData.child('id').val() === $mealId",
+            "id": { ".validate": "newData.isString()" },
+            "name": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 60" },
+            "mealType": { ".validate": "newData.val() === 'breakfast' || newData.val() === 'lunch' || newData.val() === 'snack' || newData.val() === 'dinner'" },
+            "createdAt": { ".validate": "newData.isString()" },
+            "foods": {
+              "$i": {
+                ".validate": "$i.matches(/^([0-9]|1[01])$/) && newData.hasChildren(['name', 'category'])",
+                "id": { ".validate": "newData.isString()" },
+                "name": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 80" },
+                "category": { ".validate": "newData.val() === 'familiar' || newData.val() === 'working_on' || newData.val() === 'challenge'" },
+                "$other": { ".validate": false }
+              }
+            },
+            "$other": { ".validate": false }
+          }
+        },
         "clinicianNotesRead":  { ".write": "auth.uid === $uid" },
         "savedClinicianNotes": { ".write": "auth.uid === $uid" },
         "hiddenClinicianNoteIds": { ".write": "auth.uid === $uid" },

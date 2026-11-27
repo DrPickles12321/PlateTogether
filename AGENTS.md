@@ -58,7 +58,8 @@ Top-level nodes: `familyCodes/{code} -> parentUid` and `users/{uid}`.
 Under `users/{uid}` (parent or clinician): `email`, `role` (write-once), `familyCode`, `consent`.
 
 Parent-owned data: `mealLogs`, `mealTimes`, `supplementLog`, `foodItems`, `insights`, `lastResetWeek`,
-`parentNotes/{date}`, `hiddenClinicianNoteIds`, `hiddenParentNoteIds`, `clinicianNotesRead`, `savedClinicianNotes`.
+`parentNotes/{date}`, `hiddenClinicianNoteIds`, `hiddenParentNoteIds`, `clinicianNotesRead`, `savedClinicianNotes`,
+`usualMeals/{id}` (`{ id, name, mealType, foods: [{ id, name, category }], createdAt }`, shape checked in the rules).
 
 Linking: a clinician holds `users/{clinicianUid}/patients/{parentUid}` (must prove the family `code`); the parent
 holds `users/{parentUid}/careTeam/{clinicianUid}` with an `active` flag. Revoking access sets `active=false`;

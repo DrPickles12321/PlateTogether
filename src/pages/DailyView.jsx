@@ -1461,6 +1461,7 @@ export default function DailyView() {
           allMealItems={allMealItems}
           mealItems={mealItems[addFoodSheetMeal] || []}
           onAddToMeal={food => addFoodToMeal(addFoodSheetMeal, food)}
+          onAddManyToMeal={foods => addFoodsToMeal(addFoodSheetMeal, foods)}
           onRemoveFromMeal={food => removeFoodFromMeal(addFoodSheetMeal, food)}
         />
 
@@ -1663,6 +1664,7 @@ export default function DailyView() {
         allMealItems={allMealItems}
         mealItems={mealItems[addFoodSheetMeal] || []}
         onAddToMeal={food => addFoodToMeal(addFoodSheetMeal, food)}
+          onAddManyToMeal={foods => addFoodsToMeal(addFoodSheetMeal, foods)}
         onRemoveFromMeal={food => removeFoodFromMeal(addFoodSheetMeal, food)}
       />
 
