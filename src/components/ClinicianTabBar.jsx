@@ -8,7 +8,7 @@ const TABS = [
   { to: '/clinician/notes',     label: 'Notes',     icon: 'notes' },
 ]
 
-// The family's file, tabbed like a case folder. `variant="desktop"` sits above the page;
+// The family's file, in tabs. `variant="desktop"` sits above the page;
 // `variant="mobile"` is a fixed bottom bar matching the parent's. Both read one route list.
 export default function ClinicianTabBar({ variant }) {
   const { pathname } = useLocation()
@@ -45,7 +45,7 @@ export default function ClinicianTabBar({ variant }) {
   }
 
   return (
-    <nav aria-label="Family file" style={{ display: 'flex', alignItems: 'flex-end', gap: 4, borderBottom: '1px solid var(--rule-strong)', marginBottom: 16 }}>
+    <nav aria-label="Family file" style={{ display: 'flex', alignItems: 'flex-end', gap: 8, borderBottom: '1px solid var(--rule)', marginBottom: 4 }}>
       {TABS.map(tab => {
         const isActive = pathname === tab.to || pathname.startsWith(tab.to + '/')
         return (
@@ -54,13 +54,10 @@ export default function ClinicianTabBar({ variant }) {
             to={tab.to}
             aria-current={isActive ? 'page' : undefined}
             style={{
-              display: 'flex', alignItems: 'center', gap: 8, minHeight: 44, padding: '8px 16px',
+              display: 'flex', alignItems: 'center', gap: 8, minHeight: 48, padding: '8px 4px',
               fontSize: 15, fontWeight: isActive ? 700 : 500, textDecoration: 'none',
               color: isActive ? 'var(--ink)' : 'var(--text-mid)',
-              background: isActive ? 'white' : 'transparent',
-              border: isActive ? '1px solid var(--rule-strong)' : '1px solid transparent',
-              borderBottom: isActive ? '1px solid white' : '1px solid transparent',
-              borderRadius: 'var(--radius) var(--radius) 0 0', marginBottom: -1,
+              borderBottom: `3px solid ${isActive ? 'var(--ink)' : 'transparent'}`, marginBottom: -1, marginRight: 16,
             }}
           >
             <Icon name={tab.icon} size={18} />

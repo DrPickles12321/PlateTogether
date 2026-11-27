@@ -160,11 +160,10 @@ p { margin: 0; }
 .clv-reveal.clv-visible { opacity: 1; }
 
 .clv-section-title {
-  font-family: var(--font-hand);
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 17px;
+  font-weight: 700;
   color: var(--text-dark);
-  margin: 0 0 10px;
+  margin: 0 0 8px;
 }
 
 .clv-pill-btn {

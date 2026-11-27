@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
-import { ref, onValue, set, update, get } from 'firebase/database'
+import { ref, onValue, set, update, get, query, orderByKey, startAt } from 'firebase/database'
 import { deleteUser } from 'firebase/auth'
 import { db, auth } from '../firebase'
 import { useAuth } from './AuthContext'
@@ -9,6 +9,7 @@ import { quickLogPatch } from '../lib/quickLog'
 import { resolveViewingPatient, viewingStorageKey, visibleCareTeam } from '../lib/viewingPatient'
 import { normalizeCarePlan } from '../lib/carePlan'
 import { buildUsualMeal } from '../lib/usualMeals'
+import { getWeekIsoDates } from '../lib/insights'
 
 const FirebaseDataContext = createContext(null)
 
@@ -108,6 +109,7 @@ export function FirebaseDataProvider({ children }) {
   const [ownNutritionDisplay, setOwnNutritionDisplay] = useState(null) // clinician's number switch (parent view)
   const [patientNutritionDisplay, setPatientNutritionDisplay] = useState(null) // ...for the viewed family
   const [patientsWithOpenSos, setPatientsWithOpenSos] = useState({})   // { uid: true }
+  const [patientWeekData, setPatientWeekData]         = useState({})   // { uid: { mealLogs, parentNotes } } this week, for the family list
   const [patientFbMealData, setPatientFbMealData]     = useState({})
   const [patientMealTimesByDate, setPatientMealTimesByDate] = useState({})
   const [patientNutritionalTargets, setPatientNutritionalTargets] = useState(null)
@@ -359,6 +361,22 @@ export function FirebaseDataProvider({ children }) {
         setPatientsWithOpenSos(prev => ({ ...prev, [p.uid]: hasOpen }))
       })
     )
+    return () => unsubs.forEach(u => u())
+  }, [patients])
+
+  // ── This week's meals and parent notes for every linked family (clinician family list) ──
+  // Only this week's meal logs are read (a query from Monday), so the extra reads stay small.
+  // A family that removed access simply drops out of the list's reasons. Entries for families no
+  // longer in `patients` are left in place; the list only looks up current families.
+  useEffect(() => {
+    if (!patients.length) return
+    const monday = getWeekIsoDates(0)[0]
+    const put = (pUid, key, value) => setPatientWeekData(prev => ({ ...prev, [pUid]: { ...(prev[pUid] || {}), [key]: value } }))
+    const ignore = () => {}
+    const unsubs = patients.flatMap(p => [
+      onValue(query(ref(db, `users/${p.uid}/mealLogs`), orderByKey(), startAt(monday)), snap => put(p.uid, 'mealLogs', snap.val() || {}), ignore),
+      onValue(ref(db, `users/${p.uid}/parentNotes`), snap => put(p.uid, 'parentNotes', snap.val() || {}), ignore),
+    ])
     return () => unsubs.forEach(u => u())
   }, [patients])
 
@@ -919,6 +937,7 @@ export function FirebaseDataProvider({ children }) {
       sendSos,
       patientSos,
       patientsWithOpenSos,
+      patientWeekData,
       acknowledgeSos,
     }}>
       {children}
