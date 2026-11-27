@@ -1,12 +1,12 @@
 // Logic for the three-tap meal log: pick a meal, say how it went, say how hard it was.
 // Kept free of Firebase and React so it is easy to test.
 
-// "Partly" maps to the existing 'difficult' status so trends and the clinician
+// "Ate some" maps to the existing 'difficult' status so trends and the clinician
 // views keep working without a data-model change. Confirm this mapping with a clinician.
 export const OUTCOMES = [
-  { key: 'finished', label: 'Finished', status: 'okay' },
-  { key: 'partly',   label: 'Partly',   status: 'difficult' },
-  { key: 'refused',  label: 'Refused',  status: 'refused' },
+  { key: 'finished', label: 'Ate it all', status: 'okay' },
+  { key: 'partly',   label: 'Ate some', status: 'difficult' },
+  { key: 'refused',  label: "Didn't eat", status: 'refused' },
 ]
 
 export const STATUS_TO_OUTCOME = { okay: 'finished', difficult: 'partly', refused: 'refused' }

@@ -1,11 +1,13 @@
 // One vocabulary for how a meal went, used on every screen. The stored values stay
 // okay / difficult / refused / skipped; only the words and marks shown here change.
-// "Partly" maps to `difficult` (an open clinician question, see PRODUCT.md).
+// "Ate some" maps to `difficult` (an open clinician question, see PRODUCT.md).
+// Plain words a parent would say at the table, and one ink for all four: the mark's shape
+// (full dot, half dot, empty ring, dash) carries the difference, not a good/bad colour.
 export const OUTCOME_META = {
-  okay:      { label: 'Finished', mark: 'tick',  color: 'var(--st-okay)',    bg: 'var(--st-okay-bg)' },
-  difficult: { label: 'Partly',   mark: 'half',  color: 'var(--st-some)',    bg: 'var(--st-some-bg)' },
-  refused:   { label: 'Refused',  mark: 'cross', color: 'var(--st-refused)', bg: 'var(--st-refused-bg)' },
-  skipped:   { label: 'Skipped',  mark: 'dash',  color: 'var(--st-skipped)', bg: 'var(--st-skipped-bg)' },
+  okay:      { label: 'Ate it all', hint: 'All or nearly all of the plate',  mark: 'all',  color: 'var(--st-okay)',    bg: 'var(--st-okay-bg)' },
+  difficult: { label: 'Ate some',   hint: 'Part of the plate',               mark: 'some', color: 'var(--st-some)',    bg: 'var(--st-some-bg)' },
+  refused:   { label: "Didn't eat", hint: 'None of it, or left the table',   mark: 'none', color: 'var(--st-refused)', bg: 'var(--st-refused-bg)' },
+  skipped:   { label: 'Not served', hint: "We didn't sit down for this one", mark: 'skip', color: 'var(--st-skipped)', bg: 'var(--st-skipped-bg)' },
 }
 
 export const OUTCOME_ORDER = ['okay', 'difficult', 'refused', 'skipped']

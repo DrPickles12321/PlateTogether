@@ -6,7 +6,8 @@ import { useIsMobile } from '../hooks/useIsMobile'
 import { useAppMode } from '../hooks/useAppMode'
 import BottomSheet from '../components/BottomSheet'
 import Icon, { OutcomeMark } from '../components/Icon'
-import { OUTCOME_META } from '../lib/outcomes'
+import { OUTCOME_META, OUTCOME_ORDER } from '../lib/outcomes'
+import { weekHighlights } from '../lib/weekHighlights'
 
 const DAYS = [
   { key: 'mon', label: 'Mon', full: 'Monday'    },
@@ -223,94 +224,116 @@ export default function WeeklyView() {
   const sheetMacros = sheetDay ? macrosByDay[sheetDay] : null
   const sheetHasData = sheetMacros && (sheetMacros.protein + sheetMacros.carbs + sheetMacros.fruitsVeggies) > 0
   const weekLabel = weekOffset === 0 ? 'This week' : weekOffset === -1 ? 'Last week' : weekOffset === 1 ? 'Next week'
-    : `${shortDate(weekDates.mon)} – ${shortDate(weekDates.sun)}`
-  const cols = isMobile ? '76px repeat(4, minmax(0, 1fr))' : '120px repeat(4, minmax(0, 1fr))'
+    : 'That week'
+  const rangeLabel = `${shortDate(weekDates.mon)} to ${shortDate(weekDates.sun)}`
+  const highlights = weekHighlights({ mealStatuses, dates: DAYS.map(d => weekDates[d.key]), today: TODAY_ISO })
+  const cols = isMobile ? '78px repeat(7, minmax(0, 1fr))' : '120px repeat(7, minmax(0, 1fr))'
+  const edge = isMobile
+    ? { borderTop: '1px solid var(--rule)', borderBottom: '1px solid var(--rule)' }
+    : { border: '1px solid var(--rule)' }
+  const label13 = { fontSize: 13, fontWeight: 600, color: 'var(--ink)', padding: '18px 20px 6px' }
   const navBtn = {
     width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
-    borderRadius: 'var(--radius)', border: '1px solid var(--border-mid)', background: 'white',
-    color: 'var(--text-dark)', cursor: 'pointer',
+    borderRadius: 'var(--radius)', border: '1px solid rgba(250,249,246,0.35)', background: 'transparent',
+    color: 'var(--on-ink)', cursor: 'pointer',
   }
 
-  // The week as a page of the notebook: one line per day, a pen mark per meal. Facts only,
-  // no totals, percentages or streaks (PRODUCT.md: facts, not scores).
+  // The week: a forest band, a few plain sentences, then one mark per meal in one ink. Facts
+  // only, no totals, percentages or streaks (PRODUCT.md: facts, not scores).
   return (
-    <div style={{ padding: isMobile ? '12px 0 24px' : '24px 8px', maxWidth: 760, margin: '0 auto', width: '100%' }}>
-      <div style={{ padding: isMobile ? '0 16px' : 0 }}>
-        <h1 className="font-hand" style={{ fontSize: 32, fontWeight: 600, lineHeight: 1.1 }}>The week</h1>
-        <p style={{ fontSize: 15, color: 'var(--text-mid)', margin: '4px 0 14px' }}>
-          {hideNutritionNumbers ? 'How each meal went.' : 'How each meal went. Tap a day for its nutrition summary.'}
-        </p>
-        <Link to="/parent/stats" style={{ display: 'inline-flex', alignItems: 'center', minHeight: 44, fontSize: 15, fontWeight: 700, marginBottom: 6 }}>Read this week's summary</Link>
-        <nav aria-label="Change week" style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+    <div style={{ paddingTop: isMobile ? 0 : 12, paddingBottom: 24, maxWidth: 760, margin: '0 auto', width: '100%' }}>
+      <section aria-labelledby="week-title" style={{ background: 'var(--ink)', color: 'var(--on-ink)', padding: '16px 20px 18px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 12 }}>
+        <div>
+          <p style={{ fontSize: 15, color: 'var(--on-ink-soft)' }}>{rangeLabel}</p>
+          <h1 id="week-title" style={{ fontSize: 34, fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--on-ink)' }}>{weekLabel}</h1>
+        </div>
+        <nav aria-label="Change week" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          {weekOffset !== 0 && (
+            <button onClick={() => setWeekOffset(0)} style={{ border: 'none', background: 'none', color: 'var(--on-ink)', fontSize: 15, fontWeight: 600, textDecoration: 'underline', textUnderlineOffset: 3, cursor: 'pointer', minHeight: 44, padding: '0 6px' }}>This week</button>
+          )}
           <button onClick={() => setWeekOffset(o => o - 1)} aria-label="Previous week" style={navBtn}><Icon name="left" /></button>
           <button onClick={() => setWeekOffset(o => o + 1)} aria-label="Next week" style={navBtn}><Icon name="right" /></button>
-          <span style={{ fontSize: 15, fontWeight: 700, marginLeft: 4 }}>{weekLabel}</span>
-          {weekOffset !== 0 && (
-            <button onClick={() => setWeekOffset(0)} style={{ border: 'none', background: 'none', color: 'var(--ink)', fontSize: 15, fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: 3, cursor: 'pointer', minHeight: 44 }}>This week</button>
-          )}
         </nav>
-      </div>
+      </section>
 
-      <div role="table" aria-label="Meals by day" style={{
-        background: 'white', borderTop: '1px solid var(--rule-strong)', borderBottom: '1px solid var(--rule-strong)',
-        ...(isMobile ? {} : { border: '1px solid var(--rule-strong)', borderRadius: 'var(--radius)' }),
-      }}>
-        <div role="row" style={{ display: 'grid', gridTemplateColumns: cols, borderBottom: '1px solid var(--rule-strong)', background: 'var(--surface-warm)' }}>
-          <div role="columnheader" />
-          {MEALS.map(meal => (
-            <div role="columnheader" key={meal.key} style={{ padding: '10px 2px', textAlign: 'center', fontSize: 13, fontWeight: 700, color: 'var(--text-dark)' }}>
-              {isMobile ? meal.short : meal.label}
-            </div>
-          ))}
-        </div>
-        {DAYS.map(day => {
-          const dateIso = weekDates[day.key]
-          const isToday = dateIso === TODAY_ISO
-          const isFuture = dateIso > TODAY_ISO
-          const dayNum = new Date(dateIso + 'T12:00:00').getDate()
-          const label = (
-            <>
-              <span className="font-hand" style={{ fontSize: 17, fontWeight: 600, display: 'block', lineHeight: 1.1 }}>{day.label}</span>
-              <span style={{ fontSize: 13, color: 'var(--text-mid)' }}>{dayNum}{isToday ? ' · today' : ''}</span>
-            </>
-          )
-          return (
-            <div role="row" key={day.key} style={{
-              display: 'grid', gridTemplateColumns: cols, borderBottom: '1px solid var(--rule)',
-              background: isToday ? 'var(--ink-light)' : 'transparent',
-            }}>
-              <div role="rowheader" style={{ display: 'flex', alignItems: 'center', padding: '0 4px 0 12px', borderRight: '1px solid var(--margin)' }}>
-                {hideNutritionNumbers ? (
-                  <div style={{ padding: '8px 0' }}>{label}</div>
-                ) : (
-                  <button
-                    ref={el => { headerRefs.current[day.key] = el }}
-                    onClick={() => handleDayClick(day.key)}
-                    aria-label={`${day.full}: nutrition summary`}
-                    style={{ all: 'unset', cursor: 'pointer', minHeight: 52, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}
-                  >{label}</button>
-                )}
-              </div>
-              {MEALS.map(meal => {
-                const status = mealStatuses[dateIso]?.[meal.key] || null
-                const m = OUTCOME_META[status]
+      {highlights.length > 0 && (
+        <section aria-labelledby="highlights">
+          <h2 id="highlights" style={label13}>Highlights</h2>
+          <ul style={{ ...edge, listStyle: 'none', margin: 0, padding: '0 0 0 20px', background: 'white' }}>
+            {highlights.map((h, i) => (
+              <li key={h.topic} style={{ padding: '11px 20px 11px 0', borderBottom: i < highlights.length - 1 ? '1px solid var(--rule)' : 'none' }}>
+                <span style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--text-light)' }}>{h.topic}</span>
+                <span style={{ display: 'block', marginTop: 2, fontSize: 17, lineHeight: 1.35 }}>{h.text}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <section aria-labelledby="meals-grid">
+        <h2 id="meals-grid" style={label13}>Meals</h2>
+        <div style={{ ...edge, background: 'white', padding: '8px 14px 12px' }}>
+          <div role="table" aria-labelledby="meals-grid">
+            <div role="row" style={{ display: 'grid', gridTemplateColumns: cols, alignItems: 'center' }}>
+              <span role="columnheader" />
+              {DAYS.map(day => {
+                const dateIso = weekDates[day.key]
+                const isToday = dateIso === TODAY_ISO
+                const text = (
+                  <>
+                    <span style={{ display: 'block', fontSize: 13, fontWeight: isToday ? 700 : 500 }}>{isMobile ? day.label.slice(0, 1) : day.label}</span>
+                    <span style={{ display: 'block', fontSize: 12, color: 'var(--text-light)' }}>{new Date(dateIso + 'T12:00:00').getDate()}</span>
+                  </>
+                )
+                const style = { width: '100%', minHeight: 44, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: isToday ? 'var(--ink)' : 'var(--text-mid)' }
                 return (
-                  <div role="cell" key={meal.key} style={{
-                    minHeight: 56, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2,
-                    color: m ? m.color : 'var(--text-mid)', fontSize: 12, fontWeight: 700,
-                  }}>
-                    {m ? (
-                      <><OutcomeMark mark={m.mark} size={18} color={m.color} /><span>{m.label}</span></>
-                    ) : (
-                      <span style={{ fontWeight: 400 }}>{isFuture ? '' : 'Not logged'}</span>
+                  <span role="columnheader" key={day.key}>
+                    {hideNutritionNumbers ? <span style={style}>{text}</span> : (
+                      <button
+                        ref={el => { headerRefs.current[day.key] = el }}
+                        onClick={() => handleDayClick(day.key)}
+                        aria-label={`${day.full}: nutrition summary`}
+                        style={{ ...style, border: 'none', background: 'none', padding: 0, cursor: 'pointer' }}
+                      >{text}</button>
                     )}
-                  </div>
+                  </span>
                 )
               })}
             </div>
-          )
-        })}
-      </div>
+            {MEALS.map(meal => (
+              <div role="row" key={meal.key} style={{ display: 'grid', gridTemplateColumns: cols, alignItems: 'center' }}>
+                <span role="rowheader" style={{ fontSize: 15, paddingLeft: 6, minHeight: 40, display: 'flex', alignItems: 'center' }}>{meal.label}</span>
+                {DAYS.map(day => {
+                  const dateIso = weekDates[day.key]
+                  const status = mealStatuses[dateIso]?.[meal.key] || null
+                  const m = OUTCOME_META[status]
+                  const word = m ? m.label : dateIso > TODAY_ISO ? 'Not yet' : 'Not logged'
+                  return (
+                    <span role="cell" key={day.key} aria-label={`${day.full} ${meal.label.toLowerCase()}: ${word}`} style={{
+                      minHeight: 40, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      background: dateIso === TODAY_ISO ? 'var(--ink-light)' : 'transparent',
+                    }}>
+                      <OutcomeMark mark={m ? m.mark : 'later'} size={18} color={m ? m.color : undefined} />
+                    </span>
+                  )
+                })}
+              </div>
+            ))}
+          </div>
+          <ul aria-label="Key" style={{ listStyle: 'none', margin: '10px 0 0', padding: '10px 6px 0', borderTop: '1px solid var(--rule)', display: 'flex', flexWrap: 'wrap', gap: '6px 16px', fontSize: 13, color: 'var(--text-mid)' }}>
+            {OUTCOME_ORDER.map(key => (
+              <li key={key} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <OutcomeMark mark={OUTCOME_META[key].mark} size={14} color={OUTCOME_META[key].color} />{OUTCOME_META[key].label}
+              </li>
+            ))}
+          </ul>
+        </div>
+        {!hideNutritionNumbers && (
+          <p style={{ fontSize: 13, color: 'var(--text-light)', padding: '6px 20px 0' }}>Tap a day for its nutrition summary.</p>
+        )}
+      </section>
+
+      <Link to="/parent/stats" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 44, marginTop: 8, fontSize: 15, fontWeight: 600 }}>Read this week's summary</Link>
 
       <BottomSheet open={!hideNutritionNumbers && !!sheetDay} onClose={() => setSheetDay(null)} title={sheetDayObj?.full || ''}>
         <h3 style={{ textAlign: 'center', fontSize: 15, fontWeight: 700, marginBottom: 12 }}>Daily nutrition summary</h3>

@@ -1,60 +1,64 @@
-@import url("https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Shantell+Sans:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap");
 @import "tailwindcss";
 
-/* The family's meal notebook. Composition-book paper, blue rules, one rose margin line,
-   graphite text, ballpoint ink for the parent's own entries and the main action, highlighter
-   only for "look at this". */
+/* Forest and sage. Warm white page, forest green for the one main action and the top band,
+   soft sage for support panels, muted apricot only for "now" and gentle flags. Sections are
+   square and run edge to edge; only buttons and inputs are slightly rounded. */
 :root {
-  --font-ui: 'Atkinson Hyperlegible Next', ui-sans-serif, system-ui, sans-serif;
-  --font-hand: 'Shantell Sans', 'Atkinson Hyperlegible Next', ui-sans-serif, sans-serif;
+  --font-ui: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-hand: var(--font-ui);
 
   --paper: #FFFFFF;
-  --desk: #F2F4F7;
-  --rule: #D6E0F0;
-  --rule-strong: #B9C8E2;
-  --margin: #E9B3B3;
+  --desk: #FAF9F6;
+  --rule: #E4E5E1;
+  --rule-strong: #D6D8D2;
+  --margin: #E4E5E1;
 
-  --ink: #23408E;
-  --ink-hover: #1A3170;
-  --ink-light: #EAEFF9;
-  --ink-mid: #A7B7DD;
+  --ink: #345B4B;
+  --ink-hover: #24443A;
+  --ink-light: #E3EBE5;
+  --ink-mid: #B9CBBF;
+  --on-ink: #FAF9F6;
+  --on-ink-soft: #D4E0D8;
 
-  --highlight: #FFEE8A;
-  --highlight-ink: #5C4600;
+  --apricot: #EBC5A5;
+  --highlight: #F6E4D4;
+  --highlight-ink: #6E4122;
 
-  /* Meal outcomes. Each also has a mark and a word; colour is never the only signal. */
-  --st-okay: #23408E;
-  --st-okay-bg: #EAEFF9;
-  --st-some: #7A5200;
-  --st-some-bg: #FBF0D6;
-  --st-refused: #9C2F1C;
-  --st-refused-bg: #F9E3DE;
-  --st-skipped: #545B69;
-  --st-skipped-bg: #EEF0F3;
+  /* Meal outcomes share one ink on purpose: a refused meal is not drawn as a failure and a
+     finished one is not drawn as a win. The mark shape and the word tell them apart. */
+  --st-okay: #3E443F;
+  --st-okay-bg: #EFEEEA;
+  --st-some: #3E443F;
+  --st-some-bg: #EFEEEA;
+  --st-refused: #3E443F;
+  --st-refused-bg: #EFEEEA;
+  --st-skipped: #3E443F;
+  --st-skipped-bg: #EFEEEA;
 
   /* Older token names, kept so every screen moves to the new palette at once. */
   --coral: var(--ink);
   --coral-light: var(--ink-light);
   --coral-mid: var(--ink-mid);
-  --peach: #7A5200;
-  --peach-light: #FBF0D6;
-  --peach-mid: #E2C27A;
-  --pink: #9C2F1C;
-  --pink-light: #F9E3DE;
-  --pink-mid: #E3A797;
-  --mint: #2E6A4E;
-  --mint-light: #E2F1E8;
-  --mint-mid: #9CC9B1;
+  --peach: #8A5530;
+  --peach-light: #F6E4D4;
+  --peach-mid: #E0B68F;
+  --pink: #8A5530;
+  --pink-light: #F6E4D4;
+  --pink-mid: #E0B68F;
+  --mint: #345B4B;
+  --mint-light: #E3EBE5;
+  --mint-mid: #B9CBBF;
 
-  --text-dark: #1D212B;
-  --text-mid: #464D5B;
-  --text-light: #626A79;
+  --text-dark: #252825;
+  --text-mid: #4A504A;
+  --text-light: #6B706B;
 
-  --border: #E1E6EE;
-  --border-mid: #C9D1DD;
+  --border: #E4E5E1;
+  --border-mid: #CFD1CB;
 
   --surface: var(--paper);
-  --surface-warm: #F7F9FC;
+  --surface-warm: #F3F1EC;
 
   --radius: 6px;
 
@@ -95,8 +99,8 @@ body {
 
 a { color: var(--ink); text-underline-offset: 3px; }
 
-/* Handwritten voice: day headings, section titles, the parent's own notes. */
-.font-lora, .font-hand { font-family: var(--font-hand); letter-spacing: -0.01em; }
+/* Display voice for page titles and day headings: the same family, tighter and bolder. */
+.font-lora, .font-hand { font-family: var(--font-hand); font-weight: 700; letter-spacing: -0.02em; }
 
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -129,7 +133,7 @@ p { margin: 0; }
   to { transform: rotate(360deg); }
 }
 
-/* The one authored moment: a written line settles onto the page like ink drying. */
+/* A just-saved line settles in. */
 @keyframes inkSettle {
   from { opacity: 0.35; filter: blur(1.5px); }
   to   { opacity: 1; filter: blur(0); }

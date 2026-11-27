@@ -18,14 +18,14 @@ export default function AccountView() {
     <div style={{ padding: isMobile ? '12px 16px 24px' : '24px 32px', maxWidth: 600, margin: '0 auto', width: '100%' }}>
       <h1 className="font-hand" style={{ fontSize: 32, fontWeight: 600, lineHeight: 1.1 }}>Account</h1>
       <p style={{ fontSize: 15, color: 'var(--text-mid)', margin: '4px 0 20px' }}>
-        Who can see your notebook, and your account settings.
+        Who can see your meal log, and your account settings.
       </p>
 
       {familyCode && (
         <section style={{ marginBottom: 24 }}>
           <h2 style={h3}>Family code</h2>
           <p style={{ fontSize: 15, color: 'var(--text-mid)', lineHeight: 1.5, marginBottom: 10 }}>
-            Give this code to your clinician so they can see your notebook.
+            Give this code to your clinician so they can see your meal log.
           </p>
           <div style={{
             display: 'inline-block', padding: '10px 16px', borderRadius: 'var(--radius)',

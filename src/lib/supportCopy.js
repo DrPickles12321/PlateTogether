@@ -21,8 +21,8 @@ export const HARD_MEAL = {
 // care team. Emergency numbers stay behind "When to get help": refusals are expected in recovery,
 // and a teen may be reading over the parent's shoulder.
 export const REFUSAL = {
-  title: mealLabel => `${mealLabel} was refused.`,
-  saved: "That's saved. Here is what your plan says to do now.",
+  title: mealLabel => `${mealLabel} didn't happen today.`,
+  saved: "That's saved. Hard meals are part of recovery, not a failure. Here is what your plan says to do now.",
   planHeading: 'If a meal is refused',
   planSource: 'Written by your clinician.',
   noPlan: "Your clinician hasn't written a plan for this yet. Ask about it at your next session, and let them know about this meal below.",
@@ -38,7 +38,7 @@ export const REFUSAL = {
 export function weekMessage({ logged = 0, hard = 0 } = {}) {
   if (logged === 0) return 'Nothing written down yet this week. Log a meal on the Today page and it will show up here.'
   if (hard > 0) return 'This week had some hard meals. That is part of recovery, and you kept going.'
-  return 'You kept the notebook going this week. Bring anything on your mind to your next session.'
+  return 'You kept writing meals down this week. Bring anything on your mind to your next session.'
 }
 
 // The note attached to the care-team message, so the clinician knows which meal it was about.
