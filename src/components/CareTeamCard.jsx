@@ -25,7 +25,7 @@ export default function CareTeamCard({ careTeam = [], onRevoke, onReEnable }) {
     <section style={{ marginTop: 8, paddingTop: 20, borderTop: '1px solid var(--rule)' }}>
       <h2 style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-dark)', marginBottom: 6 }}>Care team</h2>
       <p style={{ fontSize: 15, color: 'var(--text-mid)', lineHeight: 1.5, margin: '0 0 8px' }}>
-        Clinicians who can see your notebook. You can remove access at any time, and it takes effect straight away.
+        Clinicians who can see your meal log. You can remove access at any time, and it takes effect straight away.
       </p>
 
       {active.length === 0 ? (

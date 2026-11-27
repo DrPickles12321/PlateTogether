@@ -35,26 +35,25 @@ export default function Icon({ name, size = 20, strokeWidth = 1.75, style, label
   )
 }
 
-// How a meal went, as a pen mark: tick, half circle, cross, dash. Always shown with a word.
+// How a meal went, as one of four marks in one ink: a full dot (ate it all), a half dot (ate
+// some), an empty ring (didn't eat), a dash (not served). 'next' is the apricot "up next" ring
+// and 'later' a small faint dot for meals still to come (never a ring, which means "didn't eat"). Always shown with a word nearby.
 export function OutcomeMark({ mark, size = 18, color = 'currentColor' }) {
   const s = { flexShrink: 0, display: 'block' }
-  if (mark === 'half') {
-    return (
-      <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" style={s}>
-        <circle cx="12" cy="12" r="7.5" fill="none" stroke={color} strokeWidth="2" />
-        <path d="M12 4.5a7.5 7.5 0 0 0 0 15z" fill={color} />
-      </svg>
-    )
-  }
-  const d = {
-    tick: 'M5 12.5l4.5 4.5L19 7',
-    cross: 'M6.5 6.5l11 11M17.5 6.5l-11 11',
-    dash: 'M6 12h12',
-  }[mark]
+  const ring = { cx: 12, cy: 12, r: 7.5, strokeWidth: 2 }
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5"
-      strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={s}>
-      <path d={d} />
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" style={s}>
+      {mark === 'all' && <circle {...ring} fill={color} stroke={color} />}
+      {mark === 'some' && (
+        <>
+          <circle {...ring} fill="none" stroke={color} />
+          <path d="M12 4.5a7.5 7.5 0 0 1 0 15z" fill={color} />
+        </>
+      )}
+      {mark === 'none' && <circle {...ring} fill="none" stroke={color} />}
+      {mark === 'skip' && <path d="M6 12h12" stroke={color} strokeWidth="2.2" strokeLinecap="round" />}
+      {mark === 'next' && <circle {...ring} fill="var(--highlight)" stroke="var(--apricot)" strokeWidth="2.4" />}
+      {mark === 'later' && <circle cx="12" cy="12" r="2.5" fill="var(--border-mid)" />}
     </svg>
   )
 }

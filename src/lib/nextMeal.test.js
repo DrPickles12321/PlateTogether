@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { pickNextMeal, shortTime, loggedCount } from './nextMeal'
+import { pickNextMeal, shortTime, loggedCount, timeUntil } from './nextMeal'
 import { normalizeCarePlan, linesFromText, hasPlan, MAX_LINES } from './carePlan'
 
 describe('pickNextMeal', () => {
@@ -50,5 +50,24 @@ describe('care plan', () => {
   it("turns a clinician's text box into lines", () => {
     expect(linesFromText('One\n\n Two \n')).toEqual(['One', 'Two'])
     expect(linesFromText(Array.from({ length: 10 }, (_, i) => `L${i}`).join('\n'))).toHaveLength(MAX_LINES)
+  })
+})
+
+describe('timeUntil', () => {
+  const at = (h, m) => { const d = new Date(2026, 10, 26, h, m); return d }
+  it('rounds to five minutes under an hour', () => {
+    expect(timeUntil('18:30', at(17, 52))).toBe('In about 40 minutes')
+  })
+  it('says a few minutes when it is close', () => {
+    expect(timeUntil('18:30', at(18, 24))).toBe('In a few minutes')
+  })
+  it('uses hours further out', () => {
+    expect(timeUntil('18:30', at(16, 0))).toBe('In about 3 hours')
+    expect(timeUntil('18:30', at(17, 20))).toBe('In about 1 hour')
+  })
+  it('stays quiet once the time has passed or is far away', () => {
+    expect(timeUntil('18:30', at(18, 45))).toBe('')
+    expect(timeUntil('18:30', at(8, 0))).toBe('')
+    expect(timeUntil('', at(8, 0))).toBe('')
   })
 })

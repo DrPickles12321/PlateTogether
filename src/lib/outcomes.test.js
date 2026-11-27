@@ -51,7 +51,7 @@ describe('needsSupport', () => {
 
 describe('outcome vocabulary', () => {
   it('has one word for each stored status', () => {
-    expect(OUTCOME_ORDER.map(outcomeLabel)).toEqual(['Finished', 'Partly', 'Refused', 'Skipped'])
+    expect(OUTCOME_ORDER.map(outcomeLabel)).toEqual(['Ate it all', 'Ate some', "Didn't eat", 'Not served'])
     expect(outcomeLabel('unknown')).toBe('')
   })
 

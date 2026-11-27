@@ -9,6 +9,7 @@ import LoginScreen from './components/LoginScreen'
 import ParentView from './pages/ParentView'
 import DailyView from './pages/DailyView'
 import NextMealView from './pages/NextMealView'
+import LogMealView from './pages/LogMealView'
 import RefusalPlanView from './pages/RefusalPlanView'
 import WeeklyView from './pages/WeeklyView'
 import StatsView from './pages/StatsView'
@@ -68,6 +69,7 @@ function AppLayout() {
         <Route path="/parent" element={<ParentView />}>
           <Route index element={<Navigate to="next" replace />} />
           <Route path="next" element={<NextMealView />} />
+          <Route path="next/log/:meal" element={<LogMealView />} />
           <Route path="next/refused/:date/:meal" element={<RefusalPlanView />} />
           <Route path="daily" element={<DailyView />} />
           <Route path="weekly" element={<WeeklyView />} />

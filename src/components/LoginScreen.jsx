@@ -71,10 +71,10 @@ export default function LoginScreen() {
   const heading = (
     <div style={{ marginBottom: 22 }}>
       <h2 className="font-hand" style={{ fontSize: 28, fontWeight: 600, color: 'var(--text-dark)', lineHeight: 1.15, marginBottom: 6 }}>
-        {mode === 'signin' ? 'Welcome back' : 'Start a notebook'}
+        {mode === 'signin' ? 'Welcome back' : 'Create an account'}
       </h2>
       <p style={{ fontSize: 15, color: 'var(--text-mid)', lineHeight: 1.5 }}>
-        {mode === 'signin' ? 'Sign in to your notebook.' : 'Set up your account to get started.'}
+        {mode === 'signin' ? "Sign in to your family's account." : 'Set up your account to get started.'}
       </p>
     </div>
   )
@@ -182,7 +182,7 @@ export default function LoginScreen() {
     }}>
       <h1 className="font-hand" style={{ fontSize: isMobile ? 34 : 44, fontWeight: 600, color: 'var(--ink)', lineHeight: 1.05 }}>Plate Together</h1>
       <p style={{ fontSize: 15, color: 'var(--text-mid)', lineHeight: 1.5, marginTop: 8, paddingTop: 8, borderTop: '1px solid var(--rule)' }}>
-        A meal notebook for families in eating disorder recovery, shared with their care team.
+        Meal support for families in eating disorder recovery, shared with their care team.
       </p>
     </div>
   )

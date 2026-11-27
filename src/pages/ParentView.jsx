@@ -37,8 +37,8 @@ export default function ParentView() {
   } = useFirebaseData()
 
   useEffect(() => {
-    const page = PAGE_TITLES[pathname] || 'Plate Together'
-    document.title = `${page} · Plate Together`
+    const match = Object.keys(PAGE_TITLES).find(p => pathname === p || pathname.startsWith(p + '/'))
+    document.title = match ? `${PAGE_TITLES[match]} · Plate Together` : 'Plate Together'
   }, [pathname])
 
   return (

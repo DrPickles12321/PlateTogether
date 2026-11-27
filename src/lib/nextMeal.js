@@ -23,6 +23,19 @@ export function shortTime(hhmm = '') {
   return `${hour}:${String(m).padStart(2, '0')}`
 }
 
+// "In about 40 minutes" under the next meal's time. Empty when the time has passed or is
+// more than four hours away, so the screen never nags about a meal that is late.
+export function timeUntil(hhmm = '', now = new Date()) {
+  if (!/^\d{1,2}:\d{2}$/.test(hhmm)) return ''
+  const [h, m] = hhmm.split(':').map(Number)
+  const diff = h * 60 + m - (now.getHours() * 60 + now.getMinutes())
+  if (diff <= 0 || diff >= 240) return ''
+  if (diff < 10) return 'In a few minutes'
+  if (diff < 60) return `In about ${Math.round(diff / 5) * 5} minutes`
+  const hours = Math.round(diff / 60)
+  return `In about ${hours} hour${hours === 1 ? '' : 's'}`
+}
+
 export function loggedCount(statuses = {}) {
   return NEXT_MEALS.filter(m => statuses[m.key]).length
 }
