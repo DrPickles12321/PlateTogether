@@ -4,6 +4,7 @@ import { RevealSection } from './ClinicianView'
 import WeeklyGrid from '../components/WeeklyGrid'
 import SosAlert from '../components/SosAlert'
 import WorthTalkingAbout from '../components/WorthTalkingAbout'
+import { familyName } from '../lib/childProfile'
 
 export default function ClinicianOverview() {
   const {
@@ -17,6 +18,7 @@ export default function ClinicianOverview() {
     patientSos,
     acknowledgeSos,
     patientsWithOpenSos,
+    childProfile,
   } = useFirebaseData()
   const { setSelectedDay } = useOutletContext()
 
@@ -24,7 +26,7 @@ export default function ClinicianOverview() {
     <>
       <SosAlert
         sos={patientSos}
-        patientEmail={patients.find(p => p.uid === viewingPatientUid)?.email || 'Patient'}
+        patientEmail={familyName(childProfile, patients.find(p => p.uid === viewingPatientUid)?.email)}
         onAcknowledge={acknowledgeSos}
       />
       <div style={{ marginTop: 20 }}>

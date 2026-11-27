@@ -58,6 +58,18 @@
         "hiddenClinicianNoteIds": { ".write": "auth.uid === $uid" },
         "hiddenParentNoteIds":    { ".write": "auth.uid === $uid" },
         "consent":             { ".write": "auth.uid === $uid" },
+        "childProfile": {
+          ".write": "auth.uid === $uid",
+          "name": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 40" },
+          "birthYear": { ".validate": "newData.isNumber() && newData.val() >= 1990 && newData.val() <= 2100" },
+          "treatmentStart": { ".validate": "newData.isString() && newData.val().matches(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/)" },
+          "phase": {
+            ".write": "root.child('users/' + auth.uid + '/patients/' + $uid).exists() && !root.child('users/' + $uid + '/revokedClinicians/' + auth.uid).exists() && root.child('users/' + $uid + '/careTeam/' + auth.uid + '/active').val() !== false",
+            ".validate": "(newData.val() === 1 || newData.val() === 2 || newData.val() === 3) && (auth.uid !== $uid || newData.val() === data.val())"
+          },
+          "updatedAt": { ".validate": "newData.isString()" },
+          "$other": { ".validate": false }
+        },
 
         "nutritionalTargets":    { ".write": "auth.uid === $uid || (root.child('users/' + auth.uid + '/patients/' + $uid).exists() && !root.child('users/' + $uid + '/revokedClinicians/' + auth.uid).exists() && root.child('users/' + $uid + '/careTeam/' + auth.uid + '/active').val() !== false)" },
         "prescribedSupplements": { ".write": "auth.uid === $uid || (root.child('users/' + auth.uid + '/patients/' + $uid).exists() && !root.child('users/' + $uid + '/revokedClinicians/' + auth.uid).exists() && root.child('users/' + $uid + '/careTeam/' + auth.uid + '/active').val() !== false)" },

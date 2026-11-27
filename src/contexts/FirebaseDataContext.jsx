@@ -108,6 +108,7 @@ export function FirebaseDataProvider({ children }) {
   const [patientCarePlan, setPatientCarePlan]         = useState(() => normalizeCarePlan(null)) // viewed patient's meal plan
   const [ownNutritionDisplay, setOwnNutritionDisplay] = useState(null) // clinician's number switch (parent view)
   const [patientNutritionDisplay, setPatientNutritionDisplay] = useState(null) // ...for the viewed family
+  const [ownChildProfile, setOwnChildProfile]         = useState(null) // the child's name, age, start, phase (parent view)
   const [patientsWithOpenSos, setPatientsWithOpenSos] = useState({})   // { uid: true }
   const [patientWeekData, setPatientWeekData]         = useState({})   // { uid: { mealLogs, parentNotes } } this week, for the family list
   const [patientFbMealData, setPatientFbMealData]     = useState({})
@@ -138,6 +139,7 @@ export function FirebaseDataProvider({ children }) {
       setViewingChoice({ owner: null, patient: null })
       setOwnPrescribedSupplements([])
       setCareTeam([])
+      setOwnChildProfile(null)
       return
     }
 
@@ -228,6 +230,10 @@ export function FirebaseDataProvider({ children }) {
 
     unsubs.push(onValue(ref(db, `${base}/nutritionDisplay`), snap => {
       setOwnNutritionDisplay(snap.val() || null)
+    }))
+
+    unsubs.push(onValue(ref(db, `${base}/childProfile`), snap => {
+      setOwnChildProfile(snap.val() || null)
     }))
 
     unsubs.push(onValue(ref(db, `${base}/assignedChallenges`), snap => {
@@ -376,6 +382,7 @@ export function FirebaseDataProvider({ children }) {
     const unsubs = patients.flatMap(p => [
       onValue(query(ref(db, `users/${p.uid}/mealLogs`), orderByKey(), startAt(monday)), snap => put(p.uid, 'mealLogs', snap.val() || {}), ignore),
       onValue(ref(db, `users/${p.uid}/parentNotes`), snap => put(p.uid, 'parentNotes', snap.val() || {}), ignore),
+      onValue(ref(db, `users/${p.uid}/childProfile`), snap => put(p.uid, 'profile', snap.val() || null), ignore),
     ])
     return () => unsubs.forEach(u => u())
   }, [patients])
@@ -395,6 +402,7 @@ export function FirebaseDataProvider({ children }) {
   const assignedChallenges     = viewingPatientUid ? patientAssignedChallenges : ownAssignedChallenges
   const carePlan               = viewingPatientUid ? patientCarePlan : ownCarePlan
   const nutritionDisplay       = viewingPatientUid ? patientNutritionDisplay : ownNutritionDisplay
+  const childProfile           = viewingPatientUid ? (patientWeekData[viewingPatientUid]?.profile || null) : ownChildProfile
 
   // ── Write functions ────────────────────────────────────────────────────────
 
@@ -479,6 +487,21 @@ export function FirebaseDataProvider({ children }) {
       updatedAt: new Date().toISOString(),
       updatedBy: uid,
     })
+  }
+
+  // The parent's part of the child profile (lib/childProfile.js cleans it first). An update, so the
+  // phase a clinician set is kept; a null field is removed.
+  function saveChildProfile({ name, birthYear, treatmentStart }) {
+    if (!uid || viewingPatientUid) return Promise.resolve()
+    return update(ref(db, `users/${uid}/childProfile`), {
+      name, birthYear: birthYear ?? null, treatmentStart: treatmentStart ?? null, updatedAt: new Date().toISOString(),
+    })
+  }
+
+  // The FBT phase is the clinician's call; only a linked, active clinician can write it.
+  function setChildPhase(phase) {
+    if (!viewingPatientUid || !uid) return Promise.resolve()
+    return set(ref(db, `users/${viewingPatientUid}/childProfile/phase`), phase || null)
   }
 
   function removeAssignedChallenge(id) {
@@ -928,6 +951,9 @@ export function FirebaseDataProvider({ children }) {
       saveCarePlan,
       nutritionDisplay,
       setNutritionDisplay,
+      childProfile,
+      saveChildProfile,
+      setChildPhase,
       addAssignedChallenge,
       removeAssignedChallenge,
       careTeam,
