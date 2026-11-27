@@ -219,7 +219,7 @@ function DropZone({ mealType, items, onRemove, onFoodClick, selectedFoodIndex, i
 
 // ─── Meal card ────────────────────────────────────────────────────────────────
 
-function MealCard({ meal, items, onRemove, latestLog, onQuickLog, time, onTimeChange, selectedFoodIndex, onFoodClick, onFoodStatusSet, onFoodPortionSet, distress, onDistressSet }) {
+function MealCard({ meal, items, onRemove, latestLog, onQuickLog, time, onTimeChange, selectedFoodIndex, onFoodClick, onFoodStatusSet, onFoodPortionSet, distress, onDistressSet, onOpenAddFood }) {
   const loggedStatus = latestLog?.status || null
   const initialTime = parseTimeValue(time)
   const [pendingTime, setPendingTime] = useState(initialTime)
@@ -315,6 +315,12 @@ function MealCard({ meal, items, onRemove, latestLog, onQuickLog, time, onTimeCh
             selectedFoodIndex={selectedFoodIndex}
             isSkipped={loggedStatus === 'skipped'}
           />
+          {/* Dragging from the sidebar still works; this is the way that doesn't need a drag. */}
+          <button type="button" onClick={onOpenAddFood} style={{
+            display: 'inline-flex', alignItems: 'center', gap: 6, minHeight: 44, padding: '0 14px',
+            borderRadius: 'var(--radius)', border: '1.5px solid var(--ink)', background: 'white',
+            color: 'var(--ink)', fontSize: 14, fontWeight: 600, cursor: 'pointer',
+          }}><Icon name="plus" size={16} />Add food</button>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             {OUTCOME_ORDER.map(key => {
               const opt = OUTCOME_META[key]
@@ -1450,6 +1456,9 @@ export default function DailyView() {
           open={addFoodSheetMeal != null}
           onClose={() => setAddFoodSheetMeal(null)}
           mealLabel={MEALS.find(m => m.key === addFoodSheetMeal)?.label || ''}
+          mealKey={addFoodSheetMeal}
+          date={selectedDate}
+          allMealItems={allMealItems}
           mealItems={mealItems[addFoodSheetMeal] || []}
           onAddToMeal={food => addFoodToMeal(addFoodSheetMeal, food)}
           onRemoveFromMeal={food => removeFoodFromMeal(addFoodSheetMeal, food)}
@@ -1570,6 +1579,7 @@ export default function DailyView() {
                     onTimeChange={(mealType, value) => updateMealTime(selectedDate, mealType, value)}
                     distress={distress}
                     onDistressSet={patch => setMealDistress(selectedDate, meal.key, patch)}
+                    onOpenAddFood={() => setAddFoodSheetMeal(meal.key)}
                     selectedFoodIndex={selectedFood?.mealType === meal.key ? selectedFood.index : null}
                     onFoodClick={index => setSelectedFood(
                       selectedFood?.mealType === meal.key && selectedFood?.index === index
@@ -1643,6 +1653,18 @@ export default function DailyView() {
       </div>
 
       <HelpSheet key={helpNote} open={helpOpen} defaultNote={helpNote} onClose={() => setHelpOpen(false)} />
+
+      <AddFoodSheet
+        open={addFoodSheetMeal != null}
+        onClose={() => setAddFoodSheetMeal(null)}
+        mealLabel={MEALS.find(m => m.key === addFoodSheetMeal)?.label || ''}
+        mealKey={addFoodSheetMeal}
+        date={selectedDate}
+        allMealItems={allMealItems}
+        mealItems={mealItems[addFoodSheetMeal] || []}
+        onAddToMeal={food => addFoodToMeal(addFoodSheetMeal, food)}
+        onRemoveFromMeal={food => removeFoodFromMeal(addFoodSheetMeal, food)}
+      />
 
       <DragOverlay modifiers={[snapCenterToCursor]} dropAnimation={{ duration: 180, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' }}>
         {activeDrag ? <FoodCardPreview name={activeDrag.name} category={activeDrag.category} floating /> : null}
