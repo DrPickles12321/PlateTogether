@@ -1,10 +1,14 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Icon from '../components/Icon'
-import { Outlet, useLocation } from 'react-router-dom'
+import { Outlet } from 'react-router-dom'
 import { useFirebaseData } from '../contexts/FirebaseDataContext'
 import WelcomeModal from '../components/WelcomeModal'
 import DailyNutritionSummary from '../components/nutrition/DailyNutritionSummary'
 import ClinicianTabBar from '../components/ClinicianTabBar'
+import FamilyList from '../components/FamilyList'
+import { familySummary, sortFamilies } from '../lib/familyTriage'
+import { getWeekIsoDates } from '../lib/insights'
+import { localIsoDate } from '../lib/constants'
 import { useIsMobile } from '../hooks/useIsMobile'
 
 // ─── Shared helpers, used across the clinician sub-pages ───────────────────
@@ -29,7 +33,7 @@ export function RevealSection({ children, eyebrow, delay = 0, style = {} }) {
     <section
       ref={ref}
       className={`clv-reveal${delay ? ` d${delay}` : ''}`}
-      style={{ marginTop: 32, ...style }}
+      style={{ marginTop: 24, ...style }}
     >
       {eyebrow && <h2 className="clv-section-title">{eyebrow}</h2>}
       {children}
@@ -41,9 +45,8 @@ export function SectionCard({ children, style = {} }) {
   return (
     <div style={{
       background: 'var(--surface)',
-      borderRadius: 'var(--radius)',
-      border: '1px solid var(--rule-strong)',
-      padding: '20px 22px',
+      border: '1px solid var(--rule)',
+      padding: '18px 20px',
       ...style,
     }}>
       {children}
@@ -372,6 +375,7 @@ export default function ClinicianView() {
     addPatientByCode,
     removePatient,
     patientsWithOpenSos,
+    patientWeekData,
     allMealItems: parentMealItems,
   } = useFirebaseData()
 
@@ -381,9 +385,25 @@ export default function ClinicianView() {
   const [confirmUnlink, setConfirmUnlink] = useState(false)
   const [selectedDay, setSelectedDay] = useState(null)
   const isMobile = useIsMobile()
-  const { pathname } = useLocation()
 
-  useEffect(() => { document.title = 'Dashboard · Plate Together' }, [])
+  useEffect(() => { document.title = 'Families · Plate Together' }, [])
+
+  // Every linked family with a plain-words summary of its week, most in need first.
+  const families = useMemo(() => {
+    const weekDates = getWeekIsoDates(0)
+    const today = localIsoDate()
+    return sortFamilies(patients.map(p => ({
+      uid: p.uid,
+      name: p.email || 'Family',
+      summary: familySummary({
+        mealLogs: patientWeekData[p.uid]?.mealLogs,
+        parentNotes: patientWeekData[p.uid]?.parentNotes,
+        sosOpen: !!patientsWithOpenSos[p.uid],
+        weekDates, today,
+      }),
+    })))
+  }, [patients, patientWeekData, patientsWithOpenSos])
+  const current = families.find(f => f.uid === viewingPatientUid) || null
 
   async function handleAddPatient(e) {
     e.preventDefault()
@@ -395,124 +415,136 @@ export default function ClinicianView() {
     else { setAddCodeInput('') }
   }
 
+  function select(uid) {
+    setViewingPatientUid(uid || null)
+    setConfirmUnlink(false)
+  }
+
   const showTabs = viewingPatientUid && !patientAccessDenied
 
-  return (
-    <div style={{ maxWidth: 1280, width: '100%', margin: '0 auto', minWidth: 0, boxSizing: 'border-box', padding: isMobile ? '16px 16px 96px' : '28px 40px 80px' }}>
-
-      {/* ── Page header: which family's file is open, and how to add one ── */}
-      <div style={{
-        display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: isMobile ? 16 : 32,
-        flexWrap: 'wrap', paddingBottom: 18, borderBottom: '1px solid var(--rule-strong)', marginBottom: 20,
-      }}>
-        <div style={{ minWidth: 0, flex: isMobile ? '1 1 100%' : '1 1 auto' }}>
-          <h1 className="font-hand" style={{ fontSize: isMobile ? 30 : 36, fontWeight: 600, lineHeight: 1.1, marginBottom: 10 }}>
-            Family files
-          </h1>
-          <label htmlFor="clinician-patient" style={{ display: 'block', fontSize: 14, fontWeight: 700, color: 'var(--text-dark)', marginBottom: 6 }}>
-            Viewing
-          </label>
-          <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-            <select
-              id="clinician-patient"
-              value={viewingPatientUid || ''}
-              onChange={e => { setViewingPatientUid(e.target.value || null); setConfirmUnlink(false) }}
-              style={{
-                minHeight: 44, padding: '8px 36px 8px 12px', borderRadius: 'var(--radius)',
-                border: '1.5px solid var(--border-mid)', fontSize: 15, color: 'var(--text-dark)', background: 'white',
-                cursor: 'pointer', minWidth: isMobile ? 0 : 280, width: isMobile ? '100%' : 'auto', appearance: 'none',
-                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23464D5B' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`,
-                backgroundRepeat: 'no-repeat', backgroundPosition: 'right 14px center',
-              }}
-            >
-              <option value="">Choose a family</option>
-              {patients.map(p => (
-                <option key={p.uid} value={p.uid}>{p.email}{patientsWithOpenSos[p.uid] ? ' (asked for support)' : ''}</option>
-              ))}
-            </select>
-            {viewingPatientUid && (
-              confirmUnlink ? (
-                <span style={{ display: 'inline-flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: 14, color: 'var(--text-mid)' }}>Unlink this family?</span>
-                  <button type="button" onClick={() => { removePatient(viewingPatientUid); setConfirmUnlink(false) }}
-                    style={{ minHeight: 44, border: 'none', borderRadius: 'var(--radius)', padding: '6px 12px', background: 'var(--st-refused)', color: 'white', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
-                  >Yes, unlink</button>
-                  <button type="button" onClick={() => setConfirmUnlink(false)}
-                    style={{ minHeight: 44, border: '1px solid var(--border-mid)', borderRadius: 'var(--radius)', padding: '6px 12px', background: 'white', color: 'var(--text-dark)', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
-                  >Cancel</button>
-                </span>
-              ) : (
-                <button type="button" onClick={() => setConfirmUnlink(true)}
-                  style={{ minHeight: 44, border: 'none', background: 'none', padding: '4px', color: 'var(--text-mid)', fontSize: 14, cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: 3 }}
-                >Unlink</button>
-              )
-            )}
-          </div>
-        </div>
-
-        <form onSubmit={handleAddPatient} style={{ width: isMobile ? '100%' : 'auto' }}>
-          <label htmlFor="clinician-add-code" style={{ display: 'block', fontSize: 14, fontWeight: 700, color: 'var(--text-dark)', marginBottom: 6 }}>
-            Add a family by code
-          </label>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <input
-              id="clinician-add-code"
-              value={addCodeInput}
-              onChange={e => { setAddCodeInput(e.target.value.toUpperCase()); setAddCodeError('') }}
-              placeholder="Family code"
-              maxLength={8}
-              autoComplete="off"
-              aria-describedby={addCodeError ? 'clinician-add-error' : undefined}
-              style={{
-                minHeight: 44, padding: '8px 12px', borderRadius: 'var(--radius)', border: '1.5px solid var(--border-mid)',
-                fontSize: 16, color: 'var(--text-dark)', width: isMobile ? 'auto' : 190, flex: isMobile ? 1 : 'none',
-                fontWeight: 600, letterSpacing: '0.08em', background: 'white',
-              }}
-            />
-            <button type="submit" disabled={addCodeLoading || addCodeInput.length < 6} className="clv-pill-btn filled" style={{ minHeight: 44 }}>
-              {addCodeLoading ? 'Adding…' : 'Add'}
-            </button>
-          </div>
-          {addCodeError && (
-            <p id="clinician-add-error" role="alert" style={{ fontSize: 14, color: 'var(--st-refused)', marginTop: 6 }}>{addCodeError}</p>
-          )}
-        </form>
+  const addFamilyForm = (
+    <form onSubmit={handleAddPatient} style={{ padding: isMobile ? 0 : '14px 16px' }}>
+      <label htmlFor="clinician-add-code" style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--ink)', marginBottom: 6 }}>
+        Add a family by code
+      </label>
+      <div style={{ display: 'flex', gap: 8 }}>
+        <input
+          id="clinician-add-code"
+          value={addCodeInput}
+          onChange={e => { setAddCodeInput(e.target.value.toUpperCase()); setAddCodeError('') }}
+          placeholder="Family code"
+          maxLength={8}
+          autoComplete="off"
+          aria-describedby={addCodeError ? 'clinician-add-error' : undefined}
+          style={{
+            minHeight: 44, padding: '8px 12px', borderRadius: 'var(--radius)', border: '1.5px solid var(--border-mid)',
+            fontSize: 16, color: 'var(--text-dark)', flex: 1, minWidth: 0,
+            fontWeight: 600, letterSpacing: '0.08em', background: 'white',
+          }}
+        />
+        <button type="submit" disabled={addCodeLoading || addCodeInput.length < 6} className="clv-pill-btn filled" style={{ minHeight: 44 }}>
+          {addCodeLoading ? 'Adding…' : 'Add'}
+        </button>
       </div>
+      {addCodeError && (
+        <p id="clinician-add-error" role="alert" style={{ fontSize: 14, color: 'var(--danger)', marginTop: 6 }}>{addCodeError}</p>
+      )}
+    </form>
+  )
 
-      {/* ── No patient selected ─────────────────────────────────────────── */}
-      {!viewingPatientUid ? (
-        <div style={{ padding: '16px 0 40px' }}>
-          <p style={{ fontSize: 15, color: 'var(--text-mid)', maxWidth: '60ch' }}>
-            Choose a family above to open their file. Families give you their code from the Account page of their app.
+  // The open family's file: a forest band with who it is and why they're on the list, then the tabs.
+  const file = !viewingPatientUid ? (
+    <div style={{ padding: isMobile ? '8px 0' : '40px 32px' }}>
+      <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: '-0.02em' }}>Choose a family</h1>
+      <p style={{ fontSize: 15, color: 'var(--text-mid)', maxWidth: '56ch', marginTop: 6, lineHeight: 1.5 }}>
+        {isMobile ? 'Pick a family above' : 'Pick a family from the list'} to open their file. Families most in need of you are listed first, with the reason.
+        Families give you their code from the Account page of their app.
+      </p>
+    </div>
+  ) : patientAccessDenied ? (
+    <div style={{ margin: isMobile ? '8px 0' : 24, padding: '18px 20px', border: '1px solid var(--rule)', background: 'var(--highlight)' }}>
+      <h1 style={{ fontWeight: 700, fontSize: 17, marginBottom: 4 }}>Access removed</h1>
+      <p style={{ fontSize: 14, color: 'var(--text-mid)', lineHeight: 1.55, margin: '0 0 12px' }}>
+        {current?.name || 'This family'} has removed your access to their logs. If this was a mistake, ask them to grant you access again, then tap Try again.
+      </p>
+      <button type="button" onClick={() => retryPatientAccess?.()} className="clv-pill-btn">Try again</button>
+    </div>
+  ) : (
+    <>
+      <section aria-labelledby="family-title" style={{ background: 'var(--ink)', color: 'var(--on-ink)', padding: isMobile ? '16px 16px 18px' : '20px 28px 22px', margin: isMobile ? '0 -16px' : 0 }}>
+        <p style={{ fontSize: 14, color: 'var(--on-ink-soft)' }}>Family file</p>
+        <h1 id="family-title" style={{ fontSize: isMobile ? 24 : 30, fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--on-ink)', overflowWrap: 'anywhere' }}>{current?.name}</h1>
+        {current && (
+          <p style={{ fontSize: 15, color: 'var(--on-ink-soft)', marginTop: 4 }}>
+            {current.summary.reasons.length ? current.summary.reasons.join(' · ') : current.summary.reason}
           </p>
+        )}
+        <div style={{ marginTop: 8 }}>
+          {confirmUnlink ? (
+            <span style={{ display: 'inline-flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 14 }}>Unlink this family?</span>
+              <button type="button" onClick={() => { removePatient(viewingPatientUid); setConfirmUnlink(false) }}
+                style={{ minHeight: 40, border: 'none', borderRadius: 'var(--radius)', padding: '6px 12px', background: 'var(--on-ink)', color: 'var(--danger)', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
+              >Yes, unlink</button>
+              <button type="button" onClick={() => setConfirmUnlink(false)}
+                style={{ minHeight: 40, border: '1px solid var(--on-ink-soft)', borderRadius: 'var(--radius)', padding: '6px 12px', background: 'transparent', color: 'var(--on-ink)', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
+              >Cancel</button>
+            </span>
+          ) : (
+            <button type="button" onClick={() => setConfirmUnlink(true)}
+              style={{ minHeight: 40, border: 'none', background: 'none', padding: 0, color: 'var(--on-ink-soft)', fontSize: 14, cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: 3 }}
+            >Unlink family</button>
+          )}
         </div>
-      ) : patientAccessDenied ? (
-        <div style={{
-          marginTop: 16, padding: '20px 24px', borderRadius: 'var(--radius)',
-          border: '1.5px solid var(--pink-mid)', background: 'var(--pink-light)',
-          display: 'flex', alignItems: 'flex-start', gap: 14,
-        }}>
-          
-          <div>
-            <div style={{ fontWeight: 700, fontSize: 15, color: 'var(--text-dark)', marginBottom: 4 }}>
-              Access removed
-            </div>
-            <p style={{ fontSize: 13.5, color: 'var(--text-mid)', lineHeight: 1.55, margin: '0 0 12px' }}>
-              {patients.find(p => p.uid === viewingPatientUid)?.email || 'This patient'} has removed your access
-              to their logs. If this was a mistake, ask them to grant you access again — then tap Try again.
-            </p>
-            <button
-              type="button"
-              onClick={() => retryPatientAccess?.()}
-              style={{ border: '1px solid var(--pink)', background: 'white', color: 'var(--pink)', borderRadius: 8, padding: '6px 14px', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
-            >Try again</button>
-          </div>
-        </div>
-      ) : (
+      </section>
+      <div style={{ padding: isMobile ? '0' : '0 28px 40px' }}>
+        {!isMobile && <ClinicianTabBar variant="desktop" />}
+        <Outlet context={{ setSelectedDay }} />
+      </div>
+    </>
+  )
+
+  return (
+    <div style={{ width: '100%', boxSizing: 'border-box', padding: isMobile ? '0 16px 96px' : 0 }}>
+      {isMobile ? (
         <>
-          {!isMobile && <ClinicianTabBar variant="desktop" />}
-          <Outlet context={{ setSelectedDay }} />
+          <div style={{ padding: '14px 0', display: 'grid', gap: 12 }}>
+            <div>
+              <label htmlFor="clinician-patient" style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--ink)', marginBottom: 6 }}>Family</label>
+              <select
+                id="clinician-patient"
+                value={viewingPatientUid || ''}
+                onChange={e => select(e.target.value)}
+                style={{
+                  width: '100%', minHeight: 44, padding: '8px 36px 8px 12px', borderRadius: 'var(--radius)',
+                  border: '1.5px solid var(--border-mid)', fontSize: 15, color: 'var(--text-dark)', background: 'white',
+                  cursor: 'pointer', appearance: 'none',
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23464D5B' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`,
+                  backgroundRepeat: 'no-repeat', backgroundPosition: 'right 14px center',
+                }}
+              >
+                <option value="">Choose a family</option>
+                {families.map(f => (
+                  <option key={f.uid} value={f.uid}>{f.name}{f.summary.priority ? ` (${f.summary.reason.toLowerCase()})` : ''}</option>
+                ))}
+              </select>
+            </div>
+            {!viewingPatientUid && addFamilyForm}
+          </div>
+          {file}
         </>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: '300px minmax(0, 1fr)', minHeight: 'calc(100vh - 61px)', maxWidth: 1400, margin: '0 auto' }}>
+          <aside aria-labelledby="families-title" style={{ background: 'white', borderRight: '1px solid var(--rule)', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ padding: '22px 16px 12px' }}>
+              <h2 id="families-title" style={{ fontSize: 22, fontWeight: 700, letterSpacing: '-0.01em' }}>Families</h2>
+              <p style={{ fontSize: 13, color: 'var(--text-light)', marginTop: 2 }}>Who needs you most comes first.</p>
+            </div>
+            <FamilyList families={families} selectedUid={viewingPatientUid} onSelect={select} />
+            <div style={{ marginTop: 'auto', borderTop: '1px solid var(--rule)' }}>{addFamilyForm}</div>
+          </aside>
+          <main style={{ minWidth: 0 }}>{file}</main>
+        </div>
       )}
 
       {selectedDay && (

@@ -3,6 +3,7 @@ import { useFirebaseData } from '../contexts/FirebaseDataContext'
 import { RevealSection } from './ClinicianView'
 import WeeklyGrid from '../components/WeeklyGrid'
 import SosAlert from '../components/SosAlert'
+import WorthTalkingAbout from '../components/WorthTalkingAbout'
 
 export default function ClinicianOverview() {
   const {
@@ -15,6 +16,7 @@ export default function ClinicianOverview() {
     viewingPatientUid,
     patientSos,
     acknowledgeSos,
+    patientsWithOpenSos,
   } = useFirebaseData()
   const { setSelectedDay } = useOutletContext()
 
@@ -25,6 +27,15 @@ export default function ClinicianOverview() {
         patientEmail={patients.find(p => p.uid === viewingPatientUid)?.email || 'Patient'}
         onAcknowledge={acknowledgeSos}
       />
+      <div style={{ marginTop: 20 }}>
+        <WorthTalkingAbout
+          mealStatuses={parentMealStatuses}
+          mealDistress={parentMealDistress}
+          allMealItems={parentMealItems}
+          parentNotes={parentNotes}
+          sosOpen={!!patientsWithOpenSos[viewingPatientUid]}
+        />
+      </div>
       <RevealSection eyebrow="Week at a glance">
         <WeeklyGrid
           onDayClick={(day, date) => setSelectedDay({ key: day, date })}
