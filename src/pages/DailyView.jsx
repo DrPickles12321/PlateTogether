@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useState, useMemo } from 'react'
-import { useOutletContext } from 'react-router-dom'
+import { useNavigate, useOutletContext } from 'react-router-dom'
 import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors, useDroppable } from '@dnd-kit/core'
 import FoodSidebar from '../components/FoodSidebar'
 import FoodCardPreview from '../components/FoodCardPreview'
@@ -1212,6 +1212,7 @@ export default function DailyView() {
   const [addFoodSheetMeal, setAddFoodSheetMeal] = useState(null)
   const [quickLogMealKey, setQuickLogMealKey] = useState(null)
   const [helpOpen, setHelpOpen] = useState(false)
+  const navigate = useNavigate()
   const [helpNote, setHelpNote] = useState('')
   const [dismissedSupport, setDismissedSupport] = useState(() => new Set())
   const isMobile = useIsMobile()
@@ -1420,6 +1421,7 @@ export default function DailyView() {
                   {showSupport && (
                     <div style={{ padding: `8px 10px 12px ${MARGIN + 8}px`, borderBottom: '1px solid var(--rule)' }}>
                       <HardMomentCard
+                        onPlan={() => navigate(`/parent/next/refused/${selectedDate}/${meal.key}`)}
                         onMessage={() => openHelp(hardMealNote({ mealLabel: meal.label, dateLabel: shortDate(selectedDate), outcomeLabel: outcomeLabel(localStatus) }))}
                         onHelp={() => openHelp('')}
                         onDismiss={() => dismissSupport(supportKey)}
@@ -1580,6 +1582,7 @@ export default function DailyView() {
                   {showSupport && (
                     <div style={{ padding: `10px 16px 14px ${DESK_MARGIN + 16}px`, borderBottom: '1px solid var(--rule)' }}>
                       <HardMomentCard
+                        onPlan={() => navigate(`/parent/next/refused/${selectedDate}/${meal.key}`)}
                         onMessage={() => openHelp(hardMealNote({ mealLabel: meal.label, dateLabel: shortDate(selectedDate), outcomeLabel: outcomeLabel(localStatus) }))}
                         onHelp={() => openHelp('')}
                         onDismiss={() => dismissSupport(supportKey)}

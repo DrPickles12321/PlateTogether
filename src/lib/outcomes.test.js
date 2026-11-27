@@ -1,6 +1,23 @@
 import { describe, it, expect } from 'vitest'
 import { needsSupport, outcomeLabel, OUTCOME_META, OUTCOME_ORDER } from './outcomes'
-import { HARD_MEAL, hardMealNote, weekMessage } from './supportCopy'
+import { HARD_MEAL, hardMealNote, weekMessage, REFUSAL } from './supportCopy'
+
+describe('refusal screen wording', () => {
+  const all = Object.values(REFUSAL).map(v => (typeof v === 'function' ? v('Dinner') : v)).join(' ')
+
+  it('gives no numbers and no food or weight talk', () => {
+    expect(all).not.toMatch(/\d/)
+    expect(all).not.toMatch(/calor|weigh|burn|compensat|portion|diet/i)
+  })
+
+  it('does not put emergency numbers in front of every refusal', () => {
+    expect(all).not.toMatch(/911|988/)
+  })
+
+  it('never invents steps when the clinician has not written any', () => {
+    expect(REFUSAL.noPlan).toMatch(/clinician/)
+  })
+})
 
 describe('weekMessage', () => {
   it('does not praise a week that had hard meals', () => {

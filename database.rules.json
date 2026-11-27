@@ -55,7 +55,16 @@
         },
         "clinicianNotes":        { ".write": "root.child('users/' + auth.uid + '/patients/' + $uid).exists() && !root.child('users/' + $uid + '/revokedClinicians/' + auth.uid).exists() && root.child('users/' + $uid + '/careTeam/' + auth.uid + '/active').val() !== false" },
         "sos":                   { ".write": "auth.uid === $uid || (root.child('users/' + auth.uid + '/patients/' + $uid).exists() && !root.child('users/' + $uid + '/revokedClinicians/' + auth.uid).exists() && root.child('users/' + $uid + '/careTeam/' + auth.uid + '/active').val() !== false)" },
-        "assignedChallenges":    { ".write": "auth.uid === $uid || (root.child('users/' + auth.uid + '/patients/' + $uid).exists() && !root.child('users/' + $uid + '/revokedClinicians/' + auth.uid).exists() && root.child('users/' + $uid + '/careTeam/' + auth.uid + '/active').val() !== false)" }
+        "assignedChallenges":    { ".write": "auth.uid === $uid || (root.child('users/' + auth.uid + '/patients/' + $uid).exists() && !root.child('users/' + $uid + '/revokedClinicians/' + auth.uid).exists() && root.child('users/' + $uid + '/careTeam/' + auth.uid + '/active').val() !== false)" },
+        "carePlan": {
+          ".write": "auth.uid === $uid || (root.child('users/' + auth.uid + '/patients/' + $uid).exists() && !root.child('users/' + $uid + '/revokedClinicians/' + auth.uid).exists() && root.child('users/' + $uid + '/careTeam/' + auth.uid + '/active').val() !== false)",
+          ".validate": "newData.hasChildren(['updatedAt', 'updatedBy'])",
+          "tableReminders": { "$i": { ".validate": "newData.isString() && newData.val().length <= 200" } },
+          "refusalSteps": { "$i": { ".validate": "newData.isString() && newData.val().length <= 200" } },
+          "updatedAt": { ".validate": "newData.isString()" },
+          "updatedBy": { ".validate": "newData.isString() && newData.val() === auth.uid" },
+          "$other": { ".validate": false }
+        }
       }
     }
   }

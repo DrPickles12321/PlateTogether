@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect, useRef, useCallback } from 'react'
-import { useOutletContext } from 'react-router-dom'
+import { Link, useOutletContext } from 'react-router-dom'
 import { lookupNutrition } from '../lib/nutritionService'
 import { getWeekDates, localIsoDate } from '../lib/constants'
 import { useIsMobile } from '../hooks/useIsMobile'
@@ -240,6 +240,7 @@ export default function WeeklyView() {
         <p style={{ fontSize: 15, color: 'var(--text-mid)', margin: '4px 0 14px' }}>
           {hideNutritionNumbers ? 'How each meal went.' : 'How each meal went. Tap a day for its nutrition summary.'}
         </p>
+        <Link to="/parent/stats" style={{ display: 'inline-flex', alignItems: 'center', minHeight: 44, fontSize: 15, fontWeight: 700, marginBottom: 6 }}>Read this week's summary</Link>
         <nav aria-label="Change week" style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
           <button onClick={() => setWeekOffset(o => o - 1)} aria-label="Previous week" style={navBtn}><Icon name="left" /></button>
           <button onClick={() => setWeekOffset(o => o + 1)} aria-label="Next week" style={navBtn}><Icon name="right" /></button>

@@ -8,6 +8,8 @@ import Navbar from './components/Navbar'
 import LoginScreen from './components/LoginScreen'
 import ParentView from './pages/ParentView'
 import DailyView from './pages/DailyView'
+import NextMealView from './pages/NextMealView'
+import RefusalPlanView from './pages/RefusalPlanView'
 import WeeklyView from './pages/WeeklyView'
 import StatsView from './pages/StatsView'
 import NotesView from './pages/NotesView'
@@ -62,9 +64,11 @@ function AppLayout() {
     <>
       {pathname !== '/' && <Navbar />}
       <Routes>
-        <Route path="/" element={<Navigate to="/parent/daily" replace />} />
+        <Route path="/" element={<Navigate to="/parent/next" replace />} />
         <Route path="/parent" element={<ParentView />}>
-          <Route index element={<Navigate to="daily" replace />} />
+          <Route index element={<Navigate to="next" replace />} />
+          <Route path="next" element={<NextMealView />} />
+          <Route path="next/refused/:date/:meal" element={<RefusalPlanView />} />
           <Route path="daily" element={<DailyView />} />
           <Route path="weekly" element={<WeeklyView />} />
           <Route path="stats" element={<StatsView />} />
