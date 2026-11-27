@@ -122,7 +122,8 @@ The plan is in [docs/plans/2026-11-26-roadmap.md](docs/plans/2026-11-26-roadmap.
 - **Done:** phase 0 (open items, except the clinician wording review), phase 1 (fast food entry: usual meals, family foods first) and phase 2 (USDA nutrition data, cached, with a clinician switch for showing numbers to parents). The clinician screens were redesigned around families ordered by need.
 - **Now, phase 3: statistics for clinicians.** It starts with a decision a clinician has to make: which numbers to show. The draft to react to is [docs/clinical/2026-11-27-clinician-metrics-draft.md](docs/clinical/2026-11-27-clinician-metrics-draft.md). The agreed list then becomes one tested module, `src/lib/clinicianStats.js`.
 - **Waiting on a clinician:** the wording review in [docs/clinical/2026-11-26-wording-review.md](docs/clinical/2026-11-26-wording-review.md) and the metrics draft above.
-- **Later:** phase 4 (the gate before any AI sees patient data: BAA, storage, compliance) and phase 5 (a clinician assistant grounded in vetted sources).
+- **Now, phase 3A: ready to pitch.** A child profile so clinicians see names instead of emails, a printable session summary, and a "since your last session" marker.
+- **Later:** phase 4 (the gate before real families: BAA and storage, both caregivers on one family, a care team with roles for therapist, dietitian and pediatrician, clinic invites, meal reminders; see [docs/plans/2026-11-27-care-team.md](docs/plans/2026-11-27-care-team.md)) and phase 5 (a clinician assistant grounded in vetted sources).
 - **Known gap:** `npm run lint` reports existing errors (mostly in `agent/` and older contexts). New code is kept lint-clean.
 
 ## More docs
