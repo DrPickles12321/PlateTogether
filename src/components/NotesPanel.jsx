@@ -15,12 +15,17 @@ function toDateKey(isoString) {
   return isNaN(d.getTime()) ? 'unknown' : localIsoDate(d)
 }
 
-export default function NotesPanel({ notes, mode, onSave, onDelete, notesReadByParent = {} }) {
+export default function NotesPanel({ notes, mode, onSave, onDelete, notesReadByParent = {}, currentUid = null }) {
   const [confirmDelete, setConfirmDelete] = useState(false)
   const today = localIsoDate()
 
+  // A clinician only edits their own note for today (database rules refuse anyone else's);
+  // older notes without an author still count as theirs to edit.
+  const editable = mode === 'clinician' && currentUid
+    ? notes.filter(n => !n.authorUid || n.authorUid === currentUid)
+    : notes
   const byDay = {}
-  for (const note of notes) {
+  for (const note of editable) {
     const key = toDateKey(note.created_at)
     if (!byDay[key] || new Date(note.created_at) > new Date(byDay[key].created_at)) {
       byDay[key] = note

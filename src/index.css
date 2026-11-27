@@ -22,6 +22,8 @@
   --on-ink-soft: #D4E0D8;
 
   --apricot: #EBC5A5;
+  /* Emergencies only (the Call 911 button), never meal outcomes. */
+  --danger: #A3352B;
   --highlight: #F6E4D4;
   --highlight-ink: #6E4122;
 

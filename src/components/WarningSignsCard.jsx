@@ -26,7 +26,7 @@ export function CallButton({ href, children, tone }) {
         display: 'flex', alignItems: 'center', gap: 10, minHeight: 48, padding: '10px 14px',
         borderRadius: 'var(--radius)', textDecoration: 'none', fontWeight: 700, fontSize: 15,
         color: tone === 'urgent' ? 'white' : 'var(--ink)',
-        background: tone === 'urgent' ? 'var(--st-refused)' : 'var(--ink-light)',
+        background: tone === 'urgent' ? 'var(--danger)' : 'var(--ink-light)',
         border: tone === 'urgent' ? 'none' : '1.5px solid var(--ink-mid)',
       }}
     >
