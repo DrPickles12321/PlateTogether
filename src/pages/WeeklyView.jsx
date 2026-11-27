@@ -3,7 +3,7 @@ import { Link, useOutletContext } from 'react-router-dom'
 import { lookupNutrition } from '../lib/nutritionService'
 import { getWeekDates, localIsoDate } from '../lib/constants'
 import { useIsMobile } from '../hooks/useIsMobile'
-import { useAppMode } from '../hooks/useAppMode'
+import { useNutritionVisibility } from '../hooks/useNutritionVisibility'
 import BottomSheet from '../components/BottomSheet'
 import Icon, { OutcomeMark } from '../components/Icon'
 import { OUTCOME_META, OUTCOME_ORDER } from '../lib/outcomes'
@@ -163,7 +163,7 @@ function DayPopover({ day, macros, style, popoverRef }) {
 export default function WeeklyView() {
   const { mealStatuses = {}, allMealItems = {}, weekOffset = 0, setWeekOffset } = useOutletContext()
   const isMobile = useIsMobile()
-  const { hideNutritionNumbers } = useAppMode()
+  const { hideNutritionNumbers } = useNutritionVisibility()
   const [openDay, setOpenDay]         = useState(null)
   const [sheetDay, setSheetDay]       = useState(null)
   const [popoverPos, setPopoverPos]   = useState({ top: 0, left: 0 })

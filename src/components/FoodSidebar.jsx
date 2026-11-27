@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import Icon from './Icon'
 import { useDraggable } from '@dnd-kit/core'
 import { useFirebaseData } from '../contexts/FirebaseDataContext'
-import { useAppMode } from '../hooks/useAppMode'
+import { useNutritionVisibility } from '../hooks/useNutritionVisibility'
 import { searchFamilyFoods, canAddAsNew, showNewFoods, tidyName } from '../lib/foodSearch'
 import { localIsoDate } from '../lib/constants'
 import Modal from './Modal'
@@ -26,7 +26,7 @@ function FoodCard({ food, onDelete, onChangeCategory }) {
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [showNutrition, setShowNutrition] = useState(false)
   const { setFoodNutrition, resetFoodNutrition } = useFirebaseData()
-  const { hideNutritionNumbers } = useAppMode()
+  const { hideNutritionNumbers } = useNutritionVisibility()
   const menuRef = useRef(null)
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: food.id, data: { food } })
 
