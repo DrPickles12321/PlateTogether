@@ -142,10 +142,34 @@ preset "safe" or "challenge" labels: the parent picks the type (Familiar, Workin
 - **Q12.** Is a neutral list like this helpful for a new family, or could any suggestion feel like pressure?
   Should the family's clinician be able to set these instead?
 
+## 8. "This meal is hard" (the calm screen)
+
+A parent at the table taps "This meal is hard" under the Log button on Next meal. The screen shows the
+clinician's own table lines one at a time, in large type, with "When to get help" always at the top. The app
+adds no advice of its own: with no lines it shows only the steady line (8.6) and says so (8.7). The time line
+counts up in whole minutes and never sets a target.
+
+| # | Where | Text | Keep / Change / Cut |
+|---|---|---|---|
+| 8.1 | Button on Next meal | "This meal is hard" / under it: "Your plan, one line at a time" | |
+| 8.2 | Heading | "Dinner, one line at a time" (meal name changes) | |
+| 8.3 | Over each line | "From your clinician", and "2 of 4" | |
+| 8.4 | Buttons | "Next line", "Back", and on the last line "Start again" | |
+| 8.5 | Under the heading | "Just sat down", then "At the table 6 min" | |
+| 8.6 | No lines yet: heading and line | "Dinner is hard right now" / "Hard meals happen in recovery. You don't have to work this out alone." | |
+| 8.7 | No lines yet | "Your clinician hasn't written lines to read at the table yet. Ask about it at your next session." | |
+| 8.8 | Bottom | "The meal is over" / "Then write down how it went." (opens the log for this meal) | |
+
+- **Q13.** Is a count of time at the table helpful, or could it add pressure? Should it be hidden by default?
+- **Q14.** With no clinician lines, should the app show a few general FBT lines (written with a clinician)
+  instead of only saying none are written yet?
+- **Q15.** Should "This meal is hard" also tell the other parent (planned with several caregivers), and should
+  a clinician see how often it was used?
+
 ---
 
 **Reviewer:** ______________________  **Role / license:** ______________________  **Date:** __________
 
-Where to change things after review: outcome words in `src/lib/outcomes.js`; refusal and hard-meal text in
+Where to change things after review: outcome words in `src/lib/outcomes.js`; refusal, hard-meal and calm-screen text in
 `src/lib/supportCopy.js`; warning signs in `src/components/WarningSignsCard.jsx`; week highlights in
 `src/lib/weekHighlights.js`; starter ideas in `src/lib/starterFoods.js`; chat replies in `src/lib/aiSafety.js`.

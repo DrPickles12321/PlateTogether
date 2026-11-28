@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { needsSupport, outcomeLabel, OUTCOME_META, OUTCOME_ORDER } from './outcomes'
-import { HARD_MEAL, hardMealNote, weekMessage, REFUSAL } from './supportCopy'
+import { HARD_MEAL, hardMealNote, weekMessage, REFUSAL, CALM, timeAtTable } from './supportCopy'
 
 describe('refusal screen wording', () => {
   const all = Object.values(REFUSAL).map(v => (typeof v === 'function' ? v('Dinner') : v)).join(' ')
@@ -79,5 +79,25 @@ describe('hard-meal wording', () => {
   it('names the meal in the message to the clinician', () => {
     expect(hardMealNote({ mealLabel: 'Dinner', dateLabel: 'Thu, Nov 26', outcomeLabel: 'Refused' }))
       .toBe('Hard dinner on Thu, Nov 26 (refused).')
+  })
+})
+
+describe('calm screen wording', () => {
+  const all = Object.values(CALM).map(v => (typeof v === 'function' ? v('Dinner', 4) : v)).join(' ')
+
+  it('gives no food or weight talk and no instruction to eat', () => {
+    expect(all).not.toMatch(/calor|weigh|burn|compensat|portion|diet|finish|must|should/i)
+  })
+
+  it('counts time at the table up in whole minutes, with no target', () => {
+    const start = Date.parse('2026-11-28T18:00:00Z')
+    expect(timeAtTable(start, start)).toBe('Just sat down')
+    expect(timeAtTable(start, start + 59_000)).toBe('Just sat down')
+    expect(timeAtTable(start, start + 6 * 60_000 + 40_000)).toBe('At the table 6 min')
+    expect(timeAtTable(start, start - 5000)).toBe('Just sat down')
+  })
+
+  it('shows the position among the clinician\'s lines from one', () => {
+    expect(CALM.position(0, 3)).toBe('1 of 3')
   })
 })

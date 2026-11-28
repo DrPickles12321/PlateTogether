@@ -10,6 +10,7 @@ import DailyView from './pages/DailyView'
 import NextMealView from './pages/NextMealView'
 import LogMealView from './pages/LogMealView'
 import RefusalPlanView from './pages/RefusalPlanView'
+import HardMealView from './pages/HardMealView'
 import WeeklyView from './pages/WeeklyView'
 import StatsView from './pages/StatsView'
 import NotesView from './pages/NotesView'
@@ -71,6 +72,7 @@ function AppLayout() {
           <Route path="next" element={<NextMealView />} />
           <Route path="next/log/:meal" element={<LogMealView />} />
           <Route path="next/refused/:date/:meal" element={<RefusalPlanView />} />
+          <Route path="next/hard/:meal" element={<HardMealView />} />
           <Route path="daily" element={<DailyView />} />
           <Route path="weekly" element={<WeeklyView />} />
           <Route path="stats" element={<StatsView />} />
