@@ -7,6 +7,8 @@ import { localIsoDate } from '../lib/constants'
 import { OUTCOME_META, OUTCOME_ORDER } from '../lib/outcomes'
 import { familyName, profileDetails } from '../lib/childProfile'
 import { DEBRIEF } from '../lib/supportCopy'
+import { byVisit } from '../lib/measurements'
+import { earlyResponse, earlyResponseText } from '../lib/earlyResponse'
 
 // The family's week on one page, to read before a session or print for one. Its own route outside
 // the clinician layout, so the printout has no sidebar or tabs. Facts from the family's logs only.
@@ -27,6 +29,7 @@ export default function ClinicianSummary() {
   const {
     viewingPatientUid, patients, patientAccessDenied, childProfile,
     mealStatuses, mealDistress, allMealItems, parentNotesArray, hardMeals,
+    measurements, familySessions, earlyResponseSettings,
   } = useFirebaseData()
   const today = localIsoDate()
   const family = patients.find(p => p.uid === viewingPatientUid)
@@ -64,6 +67,7 @@ export default function ClinicianSummary() {
   }
 
   const { prep, days, notes, hardMeals: hardMealList } = summary
+  const early = earlyResponseText(earlyResponse({ visits: byVisit(measurements), sessions: familySessions, config: earlyResponseSettings }))
   const details = profileDetails(childProfile, today)
   const counted = OUTCOME_ORDER.filter(k => prep.counts[k])
 
@@ -97,6 +101,13 @@ export default function ClinicianSummary() {
           </p>
         ) : <p style={muted}>Nothing logged in these days.</p>}
         {prep.hardestMeal && <p style={{ ...muted, marginTop: 4 }}>Hardest meal: {prep.hardestMeal.label.toLowerCase()} ({prep.hardestMeal.count}).</p>}
+      </section>
+
+      <section style={section}>
+        <h2 style={h2}>Early response</h2>
+        <p style={body}>{early.headline}</p>
+        {early.evidence.length > 0 && <p style={{ ...muted, marginTop: 4 }}>{early.evidence.join(' ')}</p>}
+        <p style={{ ...muted, fontSize: 13, marginTop: 4 }}>For the care team only; a prompt to review, not a verdict.</p>
       </section>
 
       <section style={section}>
