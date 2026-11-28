@@ -4,7 +4,9 @@ import { useFirebaseData } from '../contexts/FirebaseDataContext'
 import { useIsMobile } from '../hooks/useIsMobile'
 import { NEXT_MEALS } from '../lib/nextMeal'
 import { localIsoDate } from '../lib/constants'
-import { CALM, HARD_MEAL, hardMealNote, timeAtTable } from '../lib/supportCopy'
+import { CALM, HARD_MEAL, TAG_IN, hardMealNote, timeAtTable } from '../lib/supportCopy'
+import { otherCaregivers } from '../lib/tagIn'
+import { loggerName } from '../lib/firestoreViews'
 import Icon from '../components/Icon'
 import HelpSheet from '../components/HelpSheet'
 
@@ -14,7 +16,8 @@ import HelpSheet from '../components/HelpSheet'
 // reader but the next tap. Opening and closing it are recorded for the debrief and the session summary.
 export default function HardMealView() {
   const { meal = '' } = useParams()
-  const { carePlan, startHardMeal, endHardMeal } = useFirebaseData()
+  const { carePlan, startHardMeal, endHardMeal, tagIn, caregivers = [], familyId } = useFirebaseData()
+  const [asked, setAsked] = useState(false)
   const navigate = useNavigate()
   const isMobile = useIsMobile()
   const mealInfo = NEXT_MEALS.find(m => m.key === meal)
@@ -25,11 +28,12 @@ export default function HardMealView() {
   const [now, setNow] = useState(startedAt)
   const hardMealRef = useRef(null)
 
-  // Recorded once per visit, even when React runs effects twice in development.
+  // Recorded once per visit, even when React runs effects twice in development, and only once the family has
+  // loaded (opening this screen straight from its link, or a refresh, starts before it has).
   useEffect(() => {
-    if (!mealInfo || hardMealRef.current) return
+    if (!mealInfo || hardMealRef.current || familyId === null) return
     hardMealRef.current = startHardMeal(meal) || 'unrecorded'
-  }, [mealInfo, meal, startHardMeal])
+  }, [mealInfo, meal, startHardMeal, familyId])
 
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 30000)
@@ -40,6 +44,12 @@ export default function HardMealView() {
 
   const last = index >= lines.length - 1
   const dateLabel = new Date(localIsoDate() + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+
+  function askToCome() {
+    const ref = hardMealRef.current
+    tagIn(meal, ref && ref !== 'unrecorded' ? ref : undefined)
+    setAsked(true)
+  }
 
   function finish() {
     const ref = hardMealRef.current
@@ -93,6 +103,22 @@ export default function HardMealView() {
           </>
         )}
       </section>
+
+      {otherCaregivers(caregivers).length > 0 && (() => {
+        const others = otherCaregivers(caregivers)
+        const name = others.length === 1 ? loggerName(others[0].uid, { caregivers }) : 'the other caregivers'
+        return (
+          <div style={{ padding: '14px 20px 0' }}>
+            {asked ? (
+              <p role="status" style={{ fontSize: 15, lineHeight: 1.5, background: 'var(--ink-light)', padding: '10px 14px', borderRadius: 'var(--radius)' }}>{TAG_IN.asked(name)}</p>
+            ) : (
+              <button onClick={askToCome} style={{ ...primary, width: '100%' }}>
+                {TAG_IN.ask(name)}
+              </button>
+            )}
+          </div>
+        )
+      })()}
 
       <div style={{ padding: '18px 20px 0', display: 'grid', gap: 6 }}>
         <button onClick={finish} style={{ ...secondary, width: '100%' }}>{CALM.end}</button>

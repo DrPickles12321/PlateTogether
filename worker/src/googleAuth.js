@@ -7,6 +7,7 @@ export const SCOPES = [
   'https://www.googleapis.com/auth/cloud-platform', // Firestore and sign-in accounts
   'https://www.googleapis.com/auth/firebase.database', // the old Realtime Database copy
   'https://www.googleapis.com/auth/userinfo.email',
+  'https://www.googleapis.com/auth/firebase.messaging', // tag-in pushes
 ].join(' ')
 
 const TOKEN_URL = 'https://oauth2.googleapis.com/token'

@@ -106,7 +106,7 @@ const atOrNull = e => (e.at == null ? null : toMillis(e.at))
 //   meals[date][meal] = { status, items, distress, time, loggedBy, firstLoggedAt, lastChangedAt, outcomeChanges }
 //   supplements[date] = [names given]
 //   notes[date] = { id, date, body, by, created_at, updated_at, readBy: [uid], read_at }
-//   hardMeals = [{ ref, date, meal, by, startedAt, endedAt, debrief }], oldest first: each use of hard meal
+//   hardMeals = [{ ref, date, meal, by, startedAt, endedAt, debrief, tagIns: [{ by, at }] }], oldest first: each use of hard meal
 //     mode and each debrief, joined by `ref`. A debrief with no calm screen before it (after a refusal) is its own entry.
 export function buildFamilyState(events) {
   const meals = {}
@@ -115,7 +115,7 @@ export function buildFamilyState(events) {
   const hardMeals = new Map()
   const hardMeal = (e, at) => {
     const key = e.ref || e.id || `${e.date}|${e.meal}|${at}`
-    if (!hardMeals.has(key)) hardMeals.set(key, { ref: key, date: e.date, meal: e.meal, by: e.by, startedAt: null, endedAt: null, debrief: null })
+    if (!hardMeals.has(key)) hardMeals.set(key, { ref: key, date: e.date, meal: e.meal, by: e.by, startedAt: null, endedAt: null, debrief: null, tagIns: [] })
     return hardMeals.get(key)
   }
 
@@ -185,6 +185,9 @@ export function buildFamilyState(events) {
         break
       case 'hardMeal.end':
         hardMeal(e, at).endedAt = at
+        break
+      case 'hardMeal.tagIn':
+        hardMeal(e, at).tagIns.push({ by: e.by, at })
         break
       case 'debrief':
         hardMeal(e, at).debrief = { ...e.value, at }

@@ -4,6 +4,8 @@ import { createMemoryCache, cacheKey, createRateLimiter, cachedJson } from './ca
 import { deleteAccountData, signedInRecently } from './accountDeletion'
 import { googleStore } from './googleStore'
 import { serviceAccountTokens } from './googleAuth'
+import { sendTagIn } from './tagIn'
+import { fcmSender } from './fcm'
 
 const JWKS = createRemoteJWKSet(
   new URL('https://www.googleapis.com/robot/v1/metadata/jwk/securetoken@system.gserviceaccount.com')
@@ -111,6 +113,24 @@ async function handleDeleteAccount(payload, body, env) {
   }
 }
 
+// Tag-in pushes (tagIn.js). Uses the same service account as deletion; it also needs the
+// "Firebase Cloud Messaging API Admin" role. A few per minute per person, so a stuck button can't spam.
+const allowTagIn = createRateLimiter({ limit: 3, windowMs: 60 * 1000 })
+async function handleTagIn(claims, body, env) {
+  if (!env.GOOGLE_SERVICE_ACCOUNT) return json({ error: 'Push not configured' }, 503)
+  if (!allowTagIn(claims.sub)) return json({ error: 'Too many requests' }, 429)
+  try {
+    deletionTokens ||= serviceAccountTokens(env.GOOGLE_SERVICE_ACCOUNT)
+    const store = googleStore({ projectId: env.FIREBASE_PROJECT_ID, getToken: deletionTokens })
+    const push = fcmSender({ projectId: env.FIREBASE_PROJECT_ID, getToken: deletionTokens })
+    const res = await sendTagIn({ callerUid: claims.sub, familyId: body.familyId, store, push })
+    return res.error ? json(res, res.error === 'bad request' ? 400 : 403) : json(res)
+  } catch (err) {
+    console.error('Tag-in failed:', err.message) // operation and status only
+    return json({ error: 'failed' }, 500)
+  }
+}
+
 export default {
   async fetch(request, env) {
     if (request.method === 'OPTIONS') {
@@ -155,6 +175,11 @@ export default {
     // Account deletion: { action: "deleteAccount", confirm: "DELETE" }
     if (body?.action === 'deleteAccount') {
       return handleDeleteAccount(claims, body, env)
+    }
+
+    // Tag-in push: { action: "tagIn", familyId }
+    if (body?.action === 'tagIn') {
+      return handleTagIn(claims, body, env)
     }
 
     // Chat mode: { system?: string, messages: [{ role, content }] }

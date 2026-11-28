@@ -5,6 +5,7 @@ import DeleteAccountModal from '../components/DeleteAccountModal'
 import CareTeamCard from '../components/CareTeamCard'
 import ChildProfileCard from '../components/ChildProfileCard'
 import CaregiversCard from '../components/CaregiversCard'
+import PushToggle from '../components/PushToggle'
 import { signOutOfApp } from '../lib/signOut'
 
 const section = { marginTop: 28, paddingTop: 20, borderTop: '1px solid var(--rule)' }
@@ -40,6 +41,8 @@ export default function AccountView() {
       )}
 
       <CaregiversCard />
+
+      <PushToggle />
 
       <CareTeamCard careTeam={careTeam} onRevoke={revokeCareTeamAccess} onReEnable={reEnableCareTeamAccess} />
 

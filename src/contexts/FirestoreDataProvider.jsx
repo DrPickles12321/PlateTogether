@@ -12,6 +12,7 @@ import {
 } from 'firebase/firestore'
 import { fsdb, auth } from '../firebase'
 import { requestAccountDeletion } from '../lib/accountDeletion'
+import { requestTagInPush } from '../lib/pushNotifications'
 import { signOutOfApp } from '../lib/signOut'
 import { useAuth } from './AuthContext'
 import { FirebaseDataContext, DEFAULT_TARGETS } from './dataContext'
@@ -224,6 +225,7 @@ export default function FirestoreDataProvider({ children }) {
   // Hard meal mode (roadmap C1): when the calm screen opened and closed, for the debrief and session summary
   // later. `ref` ties one hard meal's start and end together.
   function startHardMeal(meal) {
+    if (!ownFid) return null // not loaded yet: the calm screen tries again once it is
     const ref = crypto.randomUUID()
     addEvent(ownFid, { type: 'hardMeal.start', date: today(), meal, ref })
     return ref
@@ -231,6 +233,14 @@ export default function FirestoreDataProvider({ children }) {
   function endHardMeal(meal, ref) {
     addEvent(ownFid, { type: 'hardMeal.end', date: today(), meal, ...(ref ? { ref } : {}) })
   }
+  // Tag-in (roadmap C3): ask the other caregivers to come. The event shows them a banner in the app; the Worker
+  // also sends a phone notification when they turned those on (lib/pushNotifications.js).
+  function tagIn(meal, ref) {
+    if (!ownFid) return
+    addEvent(ownFid, { type: 'hardMeal.tagIn', date: today(), meal, ...(ref ? { ref } : {}) })
+    requestTagInPush(auth.currentUser, ownFid)
+  }
+
   // The debrief after a hard meal (roadmap C2). Same `ref` as the calm screen when there was one.
   function saveDebrief({ date, meal, value, ref }) {
     return addEvent(ownFid, { type: 'debrief', date, meal, value, ...(ref ? { ref } : {}) })
@@ -509,6 +519,7 @@ export default function FirestoreDataProvider({ children }) {
       startHardMeal,
       endHardMeal,
       saveDebrief,
+      tagIn,
       syncPending: own.pending,
       familyId: ownFid,
       caregivers,

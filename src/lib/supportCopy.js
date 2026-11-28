@@ -119,6 +119,24 @@ export const DEBRIEF = {
   },
 }
 
+// Tag-in (roadmap C3): asking the other caregiver to come during a hard meal. In the app it can name the
+// meal (the app is covered); the phone notification can't (worker/src/tagIn.js). DRAFT, wording review 11.
+export const TAG_IN = {
+  ask: name => `Ask ${name} to come`,
+  asked: name => `${name} has been asked. They'll see it in the app, and on their phone if notifications are on.`,
+  banner: (name, mealLabel) => `${name} is asking for you. ${mealLabel} is hard right now.`,
+  open: 'Open the calm screen',
+  dismiss: 'Dismiss',
+  pushTitle: 'Notifications on this phone',
+  pushWhy: 'So you know when the other caregiver asks you to come to the table. The notification only says someone in your family is asking for you.',
+  pushOn: 'On for this phone.',
+  pushTurnOn: 'Turn on',
+  pushTurnOff: 'Turn off',
+  pushBlocked: 'Notifications are blocked for this app. Turn them on in your phone settings.',
+  pushInstall: 'On iPhone, add Plate Together to your Home Screen first (Share, then Add to Home Screen), then turn notifications on there.',
+  pushFailed: "Couldn't turn notifications on. Try again in a moment.",
+}
+
 // A quiet count of time at the table: whole minutes, rounded down, no seconds ticking.
 export function timeAtTable(startMs, nowMs) {
   const minutes = Math.floor(Math.max(0, nowMs - startMs) / 60000)
