@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom'
 import { useFirebaseData } from '../contexts/FirebaseDataContext'
 import { useIsMobile } from '../hooks/useIsMobile'
 import MobileTabBar from '../components/MobileTabBar'
+import OfflineBanner from '../components/OfflineBanner'
 import ChatWidget from '../components/ChatWidget'
 import WelcomeModal from '../components/WelcomeModal'
 
@@ -43,6 +44,7 @@ export default function ParentView() {
 
   return (
     <>
+      <OfflineBanner />
       {/* Bottom padding clears the fixed tab bar so nothing hides behind it. */}
       <div key={pathname} className="pt-rise" style={{ width: '100%', padding: isMobile ? '4px 0 88px' : '16px 24px 88px' }}>
         <Outlet context={{ clinicianNotes, parentNotes, clinicianNotesRead, mealStatuses, savedClinicianNotes, allMealItems, weekOffset, setWeekOffset, saveParentNote, deleteParentNote, markClinicianNoteRead, saveClinicianNote, unsaveClinicianNote, clearAllSavedNotes, setMealStatus }} />

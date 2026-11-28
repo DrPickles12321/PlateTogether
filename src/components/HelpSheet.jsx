@@ -3,7 +3,7 @@ import BottomSheet from './BottomSheet'
 import WarningSignsCard from './WarningSignsCard'
 import Icon from './Icon'
 import { useFirebaseData } from '../contexts/FirebaseDataContext'
-import { HARD_MEAL } from '../lib/supportCopy'
+import { HARD_MEAL, OFFLINE } from '../lib/supportCopy'
 
 // One place for help: message the care team (non-urgent) and the fixed when-to-call guidance.
 // Reached from the Need help button on Today and from the hard-meal card.
@@ -20,7 +20,8 @@ export default function HelpSheet({ open, onClose, defaultNote = '' }) {
 
   function handleSend() {
     sendSos({ note })
-    setSent(true)
+    // Offline, the message waits on the phone: say so instead of "Sent".
+    setSent(typeof navigator !== 'undefined' && navigator.onLine === false ? 'queued' : 'sent')
   }
 
   return (
@@ -31,7 +32,7 @@ export default function HelpSheet({ open, onClose, defaultNote = '' }) {
           <p role="status" style={{
             fontSize: 15, lineHeight: 1.5, color: 'var(--text-dark)', background: 'var(--ink-light)',
             borderRadius: 'var(--radius)', padding: '12px 14px',
-          }}>{HARD_MEAL.sent}</p>
+          }}>{sent === 'queued' ? OFFLINE.helpQueued : HARD_MEAL.sent}</p>
         ) : (
           <>
             <label htmlFor="help-note" style={{ display: 'block', fontSize: 14, color: 'var(--text-mid)', marginBottom: 6 }}>

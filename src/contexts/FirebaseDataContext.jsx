@@ -927,6 +927,7 @@ function RtdbDataProvider({ children }) {
       startHardMeal: () => null,
       endHardMeal: () => {},
       saveDebrief: () => {},
+      syncPending: false,
       hardMeals: [],
       clinicianNotesRead,
       markClinicianNoteRead,

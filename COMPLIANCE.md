@@ -66,7 +66,10 @@ patients or clinicians*. It is fine as-is for a demo/hackathon with fake data.
 - [ ] **Add write validation rules** to cap field sizes/shape on `users/{uid}` data
       (prevents a compromised client from bloating storage / your bill).
 - [ ] Encryption: Firebase encrypts at rest & in transit by default — document this;
-      no action needed beyond confirming.
+      no action needed beyond confirming. Since offline logging (roadmap C4), a phone where a
+      parent signed in also keeps a copy of that family's record (browser storage), protected
+      only by the phone's own lock and encryption. Clinician devices keep nothing. Signing out
+      clears it; a session that ends without signing out leaves it until the next sign-out.
 
 ## 6. Before launch
 - [ ] Move off the free **Spark** plan to **Blaze** (see README/notes) — Spark caps
