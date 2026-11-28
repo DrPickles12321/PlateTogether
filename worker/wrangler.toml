@@ -4,3 +4,5 @@ compatibility_date = "2024-09-23"
 
 [vars]
 FIREBASE_PROJECT_ID = "platetogether-66beb"
+# The old Realtime Database, so deleting an account also removes its pre-Firestore copy.
+FIREBASE_DATABASE_URL = "https://platetogether-66beb-default-rtdb.firebaseio.com"

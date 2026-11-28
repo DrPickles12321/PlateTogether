@@ -1,6 +1,9 @@
 import { createRemoteJWKSet, jwtVerify } from 'jose'
 import { WHOLE_FOODS, BRANDED, mapCategoryToGroup, extractNutrients, pickResults, relevantCount } from './usda'
 import { createMemoryCache, cacheKey, createRateLimiter, cachedJson } from './cache'
+import { deleteAccountData, signedInRecently } from './accountDeletion'
+import { googleStore } from './googleStore'
+import { serviceAccountTokens } from './googleAuth'
 
 const JWKS = createRemoteJWKSet(
   new URL('https://www.googleapis.com/robot/v1/metadata/jwk/securetoken@system.gserviceaccount.com')
@@ -90,6 +93,24 @@ async function handleFoodCall(kind, query, limit, env, userId) {
   return json(data)
 }
 
+// Account deletion on Firestore (accountDeletion.js). Needs the GOOGLE_SERVICE_ACCOUNT secret; the caller is
+// always the signed-in person, from their verified token, never a uid in the request.
+let deletionTokens = null
+async function handleDeleteAccount(payload, body, env) {
+  if (body.confirm !== 'DELETE') return json({ error: 'Confirmation missing' }, 400)
+  if (!env.GOOGLE_SERVICE_ACCOUNT) return json({ error: 'Account deletion not configured' }, 503)
+  if (!signedInRecently(payload)) return json({ error: 'reauth' }, 401)
+  try {
+    deletionTokens ||= serviceAccountTokens(env.GOOGLE_SERVICE_ACCOUNT)
+    const store = googleStore({ projectId: env.FIREBASE_PROJECT_ID, databaseUrl: env.FIREBASE_DATABASE_URL, getToken: deletionTokens })
+    await deleteAccountData(payload.sub, store)
+    return json({ success: true })
+  } catch (err) {
+    console.error('Account deletion failed:', err.message) // operation and status only
+    return json({ error: 'failed' }, 500)
+  }
+}
+
 export default {
   async fetch(request, env) {
     if (request.method === 'OPTIONS') {
@@ -111,13 +132,14 @@ export default {
       return json({ error: 'Server misconfiguration' }, 500)
     }
 
-    let userId
+    let userId, claims
     try {
       const { payload } = await jwtVerify(token, JWKS, {
         issuer: `https://securetoken.google.com/${env.FIREBASE_PROJECT_ID}`,
         audience: env.FIREBASE_PROJECT_ID,
       })
       userId = payload.sub
+      claims = payload
     } catch (err) {
       console.error('JWT verification failed:', err.message)
       return json({ error: 'Invalid or expired token' }, 401)
@@ -128,6 +150,11 @@ export default {
       body = await request.json()
     } catch {
       return json({ error: 'Invalid JSON body' }, 400)
+    }
+
+    // Account deletion: { action: "deleteAccount", confirm: "DELETE" }
+    if (body?.action === 'deleteAccount') {
+      return handleDeleteAccount(claims, body, env)
     }
 
     // Chat mode: { system?: string, messages: [{ role, content }] }

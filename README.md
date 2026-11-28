@@ -92,7 +92,7 @@ VITE_FIREBASE_DATABASE_URL=https://demo-plate-default-rtdb.firebaseio.com \
 VITE_FIREBASE_PROJECT_ID=demo-plate VITE_FIREBASE_APP_ID=demo-app npm run dev
 ```
 
-The emulators need a config with `emulators.auth` (port 9099) and `emulators.database` (port 9000), for example `firebase emulators:start --only auth,database --project demo-plate --config <your-emulator-config>.json`. The switch lives in `src/firebase.js` and is ignored in production builds. The AI worker is not started, so food lookups return "No data" locally.
+`firebase.json` sets the emulator ports (auth 9099, database 9000, firestore 8080), so `firebase emulators:start --only auth,database --project demo-plate` is enough. The switch lives in `src/firebase.js` and is ignored in production builds. The AI worker is not started, so food lookups return "No data" locally.
 
 ### Moving to Firestore (roadmap B4 and B5)
 

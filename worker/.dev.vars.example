@@ -1,2 +1,6 @@
 ANTHROPIC_API_KEY=
 USDA_API_KEY=
+
+# Account deletion (Firestore): the whole JSON key file of the deletion service account, on one line.
+# See docs/plans/2026-11-28-firestore-switch.md. Leave unset to keep deletion off locally.
+GOOGLE_SERVICE_ACCOUNT=
