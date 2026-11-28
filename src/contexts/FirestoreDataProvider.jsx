@@ -23,6 +23,7 @@ import {
   caregiverFamilyOf, caregiversFromMembers,
 } from '../lib/firestoreViews'
 import { newInviteCode, inviteExpiry, openInvites as openInvitesFrom } from '../lib/invites'
+import { isoWeek, checkinId } from '../lib/checkins'
 import { fetchFoodInfo, hasFoodProxy, lookupForBackfill } from '../lib/foodData'
 import { foodsNeedingNutrition, backfillPatch, BACKFILL_PER_VISIT } from '../lib/nutritionBackfill'
 import { quickLogPatch } from '../lib/quickLog'
@@ -197,6 +198,27 @@ export default function FirestoreDataProvider({ children }) {
     }), () => setSessionState({ key: sessionsKey, list: [] }))
   }, [sessionsKey])
   const familySessions = sessionState.key === sessionsKey ? sessionState.list : []
+  // Weekly caregiver check-ins (roadmap F2). A parent reads only their own (the rules require the `by` filter);
+  // a clinician reads every caregiver's in the family they have open.
+  const checkinSource = viewFid && role === 'clinician' ? { fid: viewFid, mine: false } : ownFid ? { fid: ownFid, mine: true } : null
+  const checkinKey = checkinSource ? `${checkinSource.fid}:${checkinSource.mine}` : null
+  const [checkinState, setCheckinState] = useState({ key: null, list: [] })
+  useEffect(() => {
+    if (!checkinKey || !uid) return undefined
+    const [fid, mine] = checkinKey.split(':')
+    const coll = collection(fsdb, `families/${fid}/checkins`)
+    return onSnapshot(mine === 'true' ? query(coll, where('by', '==', uid)) : coll,
+      s => setCheckinState({ key: checkinKey, list: s.docs.map(d => ({ id: d.id, ...d.data() })) }),
+      () => setCheckinState({ key: checkinKey, list: [] }))
+  }, [checkinKey, uid])
+  const checkins = checkinState.key === checkinKey ? checkinState.list : []
+  function saveCheckin({ strain, support }) {
+    if (!ownFid || !uid) return Promise.resolve(false)
+    const week = isoWeek()
+    return setDoc(doc(fsdb, `families/${ownFid}/checkins/${checkinId(uid, week)}`), { by: uid, week, strain, support })
+      .then(() => true, err => { warn('Check-in')(err); return false })
+  }
+
   // This clinician's early-response threshold for the open family, kept in their own settings.
   const earlyResponseSettings = (viewFid && settings.earlyResponse?.[viewFid]) || null
   function saveEarlyResponseSettings(config) {
@@ -575,6 +597,8 @@ export default function FirestoreDataProvider({ children }) {
       familyId: ownFid,
       measurements,
       familySessions,
+      checkins: checkins.map(c => ({ ...c, byName: c.by === uid ? 'you' : (view.members.find(m => m.id === c.by)?.email || 'a caregiver') })),
+      saveCheckin,
       phaseHistory: (viewState.phaseChanges || []).map(c => ({
         ...c, byName: c.by === uid ? 'you' : (view.members.find(m => m.id === c.by)?.email || 'a clinician'),
       })),

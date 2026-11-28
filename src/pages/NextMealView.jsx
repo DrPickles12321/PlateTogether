@@ -11,6 +11,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { CALM } from '../lib/supportCopy'
 import { OutcomeMark } from '../components/Icon'
 import HelpSheet from '../components/HelpSheet'
+import CheckinCard from '../components/CheckinCard'
 
 // The parent's home: a forest band with the one meal that matters now and how the day has gone
 // so far, then what the care plan says about it, then one button to log it. Logging happens on
@@ -160,6 +161,8 @@ export default function NextMealView() {
       <Link to="/parent/daily" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 44, fontSize: 15, fontWeight: 600 }}>
         See all of today
       </Link>
+
+      <CheckinCard />
 
       <HelpSheet open={helpOpen} onClose={() => setHelpOpen(false)} />
     </div>

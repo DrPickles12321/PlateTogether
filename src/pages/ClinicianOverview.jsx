@@ -6,6 +6,7 @@ import SosAlert from '../components/SosAlert'
 import WorthTalkingAbout from '../components/WorthTalkingAbout'
 import MeasurementsCard from '../components/MeasurementsCard'
 import EarlyResponseCard from '../components/EarlyResponseCard'
+import CaregiverStrainCard from '../components/CaregiverStrainCard'
 import { familyName } from '../lib/childProfile'
 
 export default function ClinicianOverview() {
@@ -52,6 +53,9 @@ export default function ClinicianOverview() {
       </RevealSection>
       <RevealSection eyebrow="Early response">
         <EarlyResponseCard />
+      </RevealSection>
+      <RevealSection eyebrow="The parents">
+        <CaregiverStrainCard />
       </RevealSection>
       <RevealSection eyebrow="Clinic visits">
         <MeasurementsCard />

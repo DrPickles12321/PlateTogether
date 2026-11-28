@@ -261,6 +261,22 @@ manual's, and each is the clinician's judgment, never a number the app checks.
 - **Q23.** Are these the right checks for each move? Should moving forward be allowed with an item unticked
   (with a note), instead of requiring all of them?
 
+## 15. The weekly caregiver check-in
+
+Once a week on Next meal, for each caregiver. About the parent, not the child.
+
+| # | Where | Text | Keep / Change / Cut |
+|---|---|---|---|
+| 15.1 | Card | "Two questions for this week" / "About you, not your child. Only your care team sees your answers." | |
+| 15.2 | Question 1 | "How are you managing this week?" Doing okay · Mostly okay · Up and down · Hard · Very hard | |
+| 15.3 | Question 2 | "How supported do you feel?" Not at all · A little · Somewhat · Mostly · Very | |
+| 15.4 | After answering | "Thank you. Your care team will see this before your next session." | |
+| 15.5 | Very hard, or hard with little support | "That sounds like a lot. If you'd like help before your next session, you can message your care team now." | |
+| 15.6 | Clinician card | "How the parents are doing" · "hard two weeks running" | |
+
+- **Q24.** Are two questions enough, and are these the right two? Should "very hard" also notify the clinician
+  straight away rather than waiting for the session?
+
 ---
 
 **Reviewer:** ______________________  **Role / license:** ______________________  **Date:** __________

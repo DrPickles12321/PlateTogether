@@ -295,8 +295,10 @@ service cloud.firestore {
       }
 
       // ── Weekly caregiver check-ins: one per caregiver per week ─────────────
+      // How a caregiver is coping goes to the care team, not to the other caregiver (who may live elsewhere):
+      // each caregiver reads only their own.
       match /checkins/{checkinId} {
-        allow read: if seesRecord(fid);
+        allow read: if isTeam(fid) || (isCaregiver(fid) && resource.data.by == uid());
         allow create, update: if isCaregiver(fid)
           && checkinId.matches('^' + uid() + '_[0-9]{4}-W[0-9]{2}$')
           && onlyKeys(['by', 'week', 'strain', 'support'])

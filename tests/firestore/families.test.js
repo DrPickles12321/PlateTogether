@@ -279,12 +279,14 @@ describe('team notes', () => {
 })
 
 describe('caregiver check-ins', () => {
-  it('one per caregiver per week, in range, readable by caregivers and the team only', async () => {
+  it('one per caregiver per week, in range, readable by that caregiver and the team only', async () => {
     const c = { by: P1, week: '2026-W48', strain: 4, support: 2 }
     await assertSucceeds(setDoc(doc(as(P1), `families/${F}/checkins/${P1}_2026-W48`), c))
     await assertFails(setDoc(doc(as(P1), `families/${F}/checkins/${P2}_2026-W48`), c))
     await assertFails(setDoc(doc(as(P1), `families/${F}/checkins/${P1}_2026-W49`), { ...c, strain: 9 }))
     await assertSucceeds(getDoc(doc(as(THER), `families/${F}/checkins/${P1}_2026-W48`)))
+    await assertSucceeds(getDoc(doc(as(P1), `families/${F}/checkins/${P1}_2026-W48`)))
+    await assertFails(getDoc(doc(as(P2), `families/${F}/checkins/${P1}_2026-W48`)))
     await assertFails(getDoc(doc(as(TEEN), `families/${F}/checkins/${P1}_2026-W48`)))
   })
 })
