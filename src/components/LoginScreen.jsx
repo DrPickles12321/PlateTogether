@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -17,8 +18,10 @@ const INPUT_STYLE = {
 export default function LoginScreen() {
   const { loginError, clearLoginError, setPendingRole } = useAuth()
   const isMobile = useIsMobile()
-  const [mode, setMode]         = useState('signin')
-  const [role, setRole]         = useState(null)
+  // Opened from a caregiver invite link (roadmap B6): a new account is a parent account that joins that family.
+  const invite = useLocation().pathname.match(/^\/parent\/join\/([A-Z0-9]{10})$/)?.[1] || null
+  const [mode, setMode]         = useState(invite ? 'register' : 'signin')
+  const [role, setRole]         = useState(invite ? 'parent' : null)
   const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
   const [error, setError]       = useState('')
@@ -47,6 +50,7 @@ export default function LoginScreen() {
         await createAccountRecords({
           uid: cred.user.uid, email, role, consentVersion: CONSENT_VERSION,
           familyCode: role === 'parent' ? generateFamilyCode() : null,
+          invite: role === 'parent' ? invite : null,
         })
       }
     } catch (err) {
@@ -60,6 +64,11 @@ export default function LoginScreen() {
 
   const heading = (
     <div style={{ marginBottom: 22 }}>
+      {invite && (
+        <p role="status" style={{ fontSize: 15, lineHeight: 1.5, background: 'var(--ink-light)', color: 'var(--text-dark)', padding: '10px 12px', borderRadius: 'var(--radius)', marginBottom: 14 }}>
+          You've been invited to share a child's meal log. {mode === 'signin' ? 'Sign in, then join the family.' : 'Create an account to join, or sign in if you have one.'}
+        </p>
+      )}
       <h2 className="font-hand" style={{ fontSize: 28, fontWeight: 600, color: 'var(--text-dark)', lineHeight: 1.15, marginBottom: 6 }}>
         {mode === 'signin' ? 'Welcome back' : 'Create an account'}
       </h2>
@@ -72,7 +81,7 @@ export default function LoginScreen() {
   const formBlock = (
     <>
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-        {mode === 'register' && (
+        {mode === 'register' && !invite && (
           <fieldset style={{ border: 'none', padding: 0, margin: 0 }}>
             <legend style={labelStyle}>I am a</legend>
             <div style={{ display: 'flex', gap: 8 }}>

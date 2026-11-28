@@ -65,6 +65,8 @@ The full design is section 7 of `docs/plans/2026-11-27-fbt-framework.md`; the sw
 - `users/{uid}`: `email`, `accountType` (`family` or `clinician`), `families` map of family id to role.
   `users/{uid}/private/settings`: consent and family code, owner only.
 - `familyCodes/{code}`: `{ familyId, createdBy }`. A clinician joins a family by proving its code.
+- `invites/{code}`: `{ familyId, role, createdBy, expiresAt, usedBy? }`. A second caregiver joins with one, once,
+  before it expires (`src/lib/invites.js`). A caregiver's family is the one their account lists (`caregiverFamilyOf`).
 
 Revoking a clinician sets their member `active=false` and adds a `revoked` marker; every rule checks both.
 Events can't be edited or deleted from the app; account deletion runs in the Worker with admin rights.

@@ -4,6 +4,7 @@ import { useIsMobile } from '../hooks/useIsMobile'
 import DeleteAccountModal from '../components/DeleteAccountModal'
 import CareTeamCard from '../components/CareTeamCard'
 import ChildProfileCard from '../components/ChildProfileCard'
+import CaregiversCard from '../components/CaregiversCard'
 import { signOutOfApp } from '../lib/signOut'
 
 const section = { marginTop: 28, paddingTop: 20, borderTop: '1px solid var(--rule)' }
@@ -37,6 +38,8 @@ export default function AccountView() {
           }}>{familyCode}</div>
         </section>
       )}
+
+      <CaregiversCard />
 
       <CareTeamCard careTeam={careTeam} onRevoke={revokeCareTeamAccess} onReEnable={reEnableCareTeamAccess} />
 

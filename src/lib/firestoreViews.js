@@ -56,6 +56,33 @@ export function careTeamFromMembers(members = []) {
     .map(m => ({ uid: m.id, role: m.role, active: m.active !== false, addedAt: isoOf(m.addedAt), clinicianEmail: m.email || 'A clinician' }))
 }
 
+// The family a caregiver account logs into (roadmap B6). A family account is a caregiver of the family it
+// created (fam_{uid}) or of one it joined by invite; a joined family wins, because joining someone else's
+// family is the deliberate step (an empty own family is usually left over from signing up first).
+export function caregiverFamilyOf(userData, uid) {
+  const fids = Object.entries(userData?.families || {}).filter(([, role]) => role === 'caregiver').map(([fid]) => fid).sort()
+  return fids.find(fid => fid !== familyIdFor(uid)) || fids.find(fid => fid === familyIdFor(uid)) || null
+}
+
+// The family's caregivers for the Account page, the one who set the family up first, then by when they joined.
+export function caregiversFromMembers(members = [], { uid, createdBy } = {}) {
+  return members
+    .filter(m => m.role === 'caregiver' && m.active !== false)
+    .map(m => ({
+      uid: m.id, email: m.email || null, isYou: m.id === uid, isCreator: m.id === createdBy,
+      household: m.household === 'second' ? 'second' : 'main', addedAt: isoOf(m.addedAt),
+    }))
+    .sort((a, b) => (b.isCreator - a.isCreator) || (a.addedAt || '').localeCompare(b.addedAt || ''))
+}
+
+// How a meal's logger is named to the other caregiver: "you", or the start of their email.
+export function loggerName(loggedBy, { uid, caregivers = [] } = {}) {
+  if (!loggedBy) return null
+  if (loggedBy === uid) return 'you'
+  const email = caregivers.find(c => c.uid === loggedBy)?.email
+  return email ? email.split('@')[0] : 'another caregiver'
+}
+
 // The first caregiver's email, used as a family's name until the parent adds the child's name.
 export function caregiverEmail(members = []) {
   return members.find(m => m.role === 'caregiver' && m.email)?.email || null

@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   familyIdFor, parentUidFor, carePlanFromPlan, nextPlanItem, sosFromEvents, careTeamFromMembers,
   caregiverEmail, clinicianNotesFromDocs, childProfileFromFamily, patientsFromUserDoc, latestSessionDate,
+  caregiverFamilyOf, caregiversFromMembers, loggerName,
 } from './firestoreViews'
 
 const t = iso => new Date(iso)
@@ -89,5 +90,35 @@ describe('notes, profile, patients and sessions', () => {
     const sessions = [{ by: 'c1', at: t('2026-11-20T15:00:00Z') }, { by: 'c1', at: t('2026-11-24T15:00:00Z') }, { by: 'c2', at: t('2026-11-26T15:00:00Z') }]
     expect(latestSessionDate(sessions, 'c1')).toBe('2026-11-24')
     expect(latestSessionDate(sessions, 'c9')).toBeNull()
+  })
+})
+
+describe('several caregivers', () => {
+  it('logs a caregiver into the family they joined, else their own', () => {
+    expect(caregiverFamilyOf({ families: { fam_p2: 'caregiver' } }, 'p2')).toBe('fam_p2')
+    expect(caregiverFamilyOf({ families: { fam_p2: 'caregiver', fam_p1: 'caregiver' } }, 'p2')).toBe('fam_p1')
+    expect(caregiverFamilyOf({ families: { fam_x: 'therapist' } }, 'p2')).toBeNull()
+    expect(caregiverFamilyOf(null, 'p2')).toBeNull()
+  })
+
+  it('lists active caregivers, the one who set up the family first', () => {
+    const members = [
+      { id: 'p2', role: 'caregiver', active: true, email: 'b@example.test', addedAt: t('2026-11-20T00:00:00Z'), household: 'second' },
+      { id: 'p1', role: 'caregiver', active: true, email: 'a@example.test', addedAt: t('2026-11-01T00:00:00Z') },
+      { id: 'p3', role: 'caregiver', active: false },
+      { id: 'c1', role: 'therapist', active: true },
+    ]
+    expect(caregiversFromMembers(members, { uid: 'p2', createdBy: 'p1' })).toEqual([
+      { uid: 'p1', email: 'a@example.test', isYou: false, isCreator: true, household: 'main', addedAt: '2026-11-01T00:00:00.000Z' },
+      { uid: 'p2', email: 'b@example.test', isYou: true, isCreator: false, household: 'second', addedAt: '2026-11-20T00:00:00.000Z' },
+    ])
+  })
+
+  it('names who logged a meal', () => {
+    const caregivers = [{ uid: 'p2', email: 'sam.parent@example.test' }]
+    expect(loggerName('p1', { uid: 'p1', caregivers })).toBe('you')
+    expect(loggerName('p2', { uid: 'p1', caregivers })).toBe('sam.parent')
+    expect(loggerName('gone', { uid: 'p1', caregivers })).toBe('another caregiver')
+    expect(loggerName(null, { uid: 'p1' })).toBeNull()
   })
 })

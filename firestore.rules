@@ -6,6 +6,7 @@ rules_version = '2';
 // Invariants, each covered by tests/firestore:
 // - Access comes only from an active membership; a caregiver-only revoked marker outranks it.
 // - Joining needs proof: being the family's creator, an unused unexpired invite, or (clinicians) a family code.
+// - Only family accounts join as caregivers.
 // - Events, plan history, measurements and session marks are append-only: nobody edits or deletes them.
 // - A team member never edits a caregiver's event; reading a caregiver note is its own event.
 // - The teen never reads events, the plan, measurements, check-ins, team notes or alerts.
@@ -147,6 +148,8 @@ service cloud.firestore {
           && request.resource.data.addedBy == uid()
           && request.resource.data.addedAt == request.time
           && request.resource.data.role in allRoles()
+          // Only a family account can be a caregiver; a clinician account can't take a caregiver invite.
+          && (request.resource.data.role != 'caregiver' || accountType() == 'family')
           && (joinsAsCreator() || joinsByInvite() || joinsByCode());
 
         // Caregivers manage anyone; a coordinator manages team members; anyone may leave.

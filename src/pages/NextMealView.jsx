@@ -6,6 +6,8 @@ import { localIsoDate } from '../lib/constants'
 import { NEXT_MEALS, pickNextMeal, shortTime, timeUntil } from '../lib/nextMeal'
 import { sameAsYesterday } from '../lib/quickLog'
 import { OUTCOME_META } from '../lib/outcomes'
+import { loggerName } from '../lib/firestoreViews'
+import { useAuth } from '../contexts/AuthContext'
 import { CALM } from '../lib/supportCopy'
 import { OutcomeMark } from '../components/Icon'
 import HelpSheet from '../components/HelpSheet'
@@ -17,8 +19,9 @@ const label13 = { fontSize: 13, fontWeight: 600, color: 'var(--ink)', padding: '
 
 export default function NextMealView() {
   const { mealStatuses = {}, allMealItems = {}, setMealStatus } = useOutletContext()
-  const { mealTimesByDate = {}, assignedChallenges = [], carePlan } = useFirebaseData()
+  const { mealTimesByDate = {}, assignedChallenges = [], carePlan, mealLoggedBy = {}, caregivers = [] } = useFirebaseData()
   const isMobile = useIsMobile()
+  const { user } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
   const [justSaved, setJustSaved] = useState(() => location.state?.saved || null)
@@ -78,6 +81,11 @@ export default function NextMealView() {
                 <OutcomeMark mark={mark === 'later' ? 'none' : mark} size={18} color={mark === 'later' ? 'rgba(250,249,246,0.45)' : 'var(--on-ink)'} />
                 <span style={{ fontSize: 14, fontWeight: 600 }}>{m.label}</span>
                 <span style={{ fontSize: 13, color: isNext ? 'var(--apricot)' : 'var(--on-ink-soft)', fontWeight: isNext ? 600 : 400 }}>{word}</span>
+                {status && mealLoggedBy[today]?.[m.key] && mealLoggedBy[today][m.key] !== user?.uid && (
+                  <span style={{ fontSize: 12, lineHeight: 1.3, color: 'var(--on-ink-soft)', overflowWrap: 'anywhere' }}>
+                    by {loggerName(mealLoggedBy[today][m.key], { uid: user?.uid, caregivers })}
+                  </span>
+                )}
               </li>
             )
           })}
