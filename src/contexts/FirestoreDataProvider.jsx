@@ -597,6 +597,9 @@ export default function FirestoreDataProvider({ children }) {
       familyId: ownFid,
       measurements,
       familySessions,
+      // The open family's caregivers, named by the start of their email, for "parents in sync" (roadmap F3).
+      familyCaregivers: caregiversFromMembers(viewingPatientUid ? view.members : own.members, { uid, createdBy: (viewingPatientUid ? view.family : own.family)?.createdBy })
+        .map(c => ({ ...c, label: c.email ? c.email.split('@')[0] : 'a caregiver' })),
       checkins: checkins.map(c => ({ ...c, byName: c.by === uid ? 'you' : (view.members.find(m => m.id === c.by)?.email || 'a caregiver') })),
       saveCheckin,
       phaseHistory: (viewState.phaseChanges || []).map(c => ({
