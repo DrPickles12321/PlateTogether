@@ -1,7 +1,7 @@
-// Which database the app reads and writes: 'rtdb' (Realtime Database, today) or 'firestore' (the family
-// record, docs/plans/2026-11-27-fbt-framework.md). Flipping CHOSEN is the switch-over step; follow
-// docs/plans/2026-11-28-firestore-switch.md, never flip it on its own.
-const CHOSEN = 'rtdb'
+// Which database the app reads and writes: 'firestore' (the family record, docs/plans/2026-11-27-fbt-framework.md)
+// since the switch-over on 2026-11-28, or 'rtdb' (Realtime Database, before it). Setting it back to 'rtdb'
+// is the rollback; data written on Firestore since the switch is not in Realtime Database.
+const CHOSEN = 'firestore'
 
 // Local development may try the other one with VITE_DATA_BACKEND; production builds ignore it.
 const override = import.meta.env.DEV ? import.meta.env.VITE_DATA_BACKEND : undefined

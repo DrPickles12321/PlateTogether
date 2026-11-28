@@ -1,7 +1,8 @@
 # Switching the app to Firestore (roadmap B5)
 
-Status: **built and tested on the emulators; the switch is off.** The live app still runs on Realtime Database.
-This doc is the checklist for turning it on. Don't flip the switch on its own: the order below matters.
+Status: **switched on 2026-11-28.** Steps 1 to 5 below are done: account deletion set up, Firestore rules
+deployed, migration dry run (12 families, 16 accounts, 44 events, nothing skipped) and `--apply`, and
+`CHOSEN = 'firestore'`. Step 6, the live check with test accounts, is left; step 7 comes later.
 
 ## What exists
 
