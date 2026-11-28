@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, Navigate, useNavigate, useOutletContext, useParams } from 'react-router-dom'
+import { Link, Navigate, useLocation, useNavigate, useOutletContext, useParams } from 'react-router-dom'
 import { useFirebaseData } from '../contexts/FirebaseDataContext'
 import { useIsMobile } from '../hooks/useIsMobile'
 import { localIsoDate } from '../lib/constants'
@@ -10,13 +10,14 @@ import Icon, { OutcomeMark } from '../components/Icon'
 
 // Logging one meal from Next meal: pick how it went (one ink for every answer, a checkmark for
 // the chosen one), optionally how hard it was, then save. "Didn't eat" goes straight on to the
-// family's refusal plan.
+// family's refusal plan; after the calm screen, the debrief follows.
 export default function LogMealView() {
   const { meal = '' } = useParams()
   const { mealStatuses = {}, setMealStatus } = useOutletContext()
   const { quickLogMeal } = useFirebaseData()
   const isMobile = useIsMobile()
   const navigate = useNavigate()
+  const { state: from } = useLocation()
   const today = localIsoDate()
   const info = NEXT_MEALS.find(m => m.key === meal)
   const [status, setStatus] = useState(() => mealStatuses[today]?.[meal] || null)
@@ -33,7 +34,10 @@ export default function LogMealView() {
     if (!status) return
     if (status === 'skipped') setMealStatus(today, meal, 'skipped')
     else quickLogMeal(today, meal, { outcome: STATUS_TO_OUTCOME[status], difficulty: difficulty ?? undefined })
-    if (status === 'refused') navigate(`/parent/next/refused/${today}/${meal}`)
+    // After the calm screen, the debrief comes next (a refusal shows its plan first, then the debrief).
+    const hard = from?.fromHardMeal ? { fromHardMeal: true, hardMealRef: from.hardMealRef } : null
+    if (status === 'refused') navigate(`/parent/next/refused/${today}/${meal}`, { state: hard })
+    else if (hard && status !== 'skipped') navigate(`/parent/next/debrief/${today}/${meal}`, { state: hard })
     else navigate('/parent/next', { state: { saved: { key: meal, label: info.label, status } } })
   }
 

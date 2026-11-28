@@ -6,6 +6,7 @@ import { getWeekIsoDates } from '../lib/insights'
 import { localIsoDate } from '../lib/constants'
 import { OUTCOME_META, OUTCOME_ORDER } from '../lib/outcomes'
 import { familyName, profileDetails } from '../lib/childProfile'
+import { DEBRIEF } from '../lib/supportCopy'
 
 // The family's week on one page, to read before a session or print for one. Its own route outside
 // the clinician layout, so the printout has no sidebar or tabs. Facts from the family's logs only.
@@ -25,7 +26,7 @@ const linkBtn = { display: 'inline-flex', alignItems: 'center', minHeight: 44, t
 export default function ClinicianSummary() {
   const {
     viewingPatientUid, patients, patientAccessDenied, childProfile,
-    mealStatuses, mealDistress, allMealItems, parentNotesArray,
+    mealStatuses, mealDistress, allMealItems, parentNotesArray, hardMeals,
   } = useFirebaseData()
   const today = localIsoDate()
   const family = patients.find(p => p.uid === viewingPatientUid)
@@ -41,9 +42,9 @@ export default function ClinicianSummary() {
     range === 'since' && sinceDates.length ? sinceDates : getWeekIsoDates(range === 'last' ? -1 : 0)
   ), [range, sinceDates])
   const summary = useMemo(() => buildSessionSummary({
-    mealStatuses, mealDistress, allMealItems, parentNotes: parentNotesArray,
+    mealStatuses, mealDistress, allMealItems, parentNotes: parentNotesArray, hardMeals,
     isoDates, previousIsoDates: datesBefore(isoDates), today,
-  }), [mealStatuses, mealDistress, allMealItems, parentNotesArray, isoDates, today])
+  }), [mealStatuses, mealDistress, allMealItems, parentNotesArray, hardMeals, isoDates, today])
   const ranges = [
     ...(sinceDates.length ? [['since', 'Since your last session']] : []),
     ['week', 'This week'],
@@ -62,7 +63,7 @@ export default function ClinicianSummary() {
     )
   }
 
-  const { prep, days, notes } = summary
+  const { prep, days, notes, hardMeals: hardMealList } = summary
   const details = profileDetails(childProfile, today)
   const counted = OUTCOME_ORDER.filter(k => prep.counts[k])
 
@@ -134,6 +135,23 @@ export default function ClinicianSummary() {
           </table>
         </div>
         <p style={{ ...muted, fontSize: 13, marginTop: 6 }}>Shaded: ate some or didn't eat. Distress is before → after the meal, 1 to 5, rated by the parent.</p>
+      </section>
+
+      <section style={section}>
+        <h2 style={h2}>After hard meals</h2>
+        {hardMealList.length ? (
+          <ul style={{ ...body, listStyle: 'none', padding: 0 }}>
+            {hardMealList.map(h => (
+              <li key={h.key} style={{ padding: '6px 0', borderBottom: '1px solid var(--rule)' }}>
+                <span style={{ fontWeight: 600 }}>{dayShort(h.date)}, {h.mealLabel.toLowerCase()}</span>
+                {h.lines.map(line => (
+                  <span key={line} style={{ display: 'block', color: line === DEBRIEF.clinician.worried ? 'var(--danger)' : 'var(--text-mid)', fontWeight: line === DEBRIEF.clinician.worried ? 600 : 400 }}>{line}</span>
+                ))}
+              </li>
+            ))}
+          </ul>
+        ) : <p style={muted}>No calm-screen uses or debriefs in these days.</p>}
+        <p style={{ ...muted, fontSize: 13, marginTop: 6 }}>Answers are the parent's own taps after a hard meal, in their words. Each was optional.</p>
       </section>
 
       <section style={section}>

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useLocation, useParams } from 'react-router-dom'
 import { useFirebaseData } from '../contexts/FirebaseDataContext'
 import { useIsMobile } from '../hooks/useIsMobile'
 import { NEXT_MEALS } from '../lib/nextMeal'
@@ -10,9 +10,10 @@ import HelpSheet from '../components/HelpSheet'
 // Right after a meal is marked "Didn't eat": a soft apricot band that says it's saved and not a
 // failure, the family's own plan for this moment (written by their clinician), and a message
 // to the clinician tied to this meal. Emergency numbers stay one tap away behind "When to get
-// help" (see REFUSAL in lib/supportCopy.js for why).
+// help" (see REFUSAL in lib/supportCopy.js for why). "Done for now" leads to the short debrief (DebriefView).
 export default function RefusalPlanView() {
   const { date = '', meal = '' } = useParams()
+  const { state } = useLocation()
   const { carePlan, sendSos } = useFirebaseData()
   const isMobile = useIsMobile()
   const [extra, setExtra] = useState('')
@@ -85,7 +86,7 @@ export default function RefusalPlanView() {
       </section>
 
       <div style={{ display: 'grid', gap: 2, padding: '16px 20px 0' }}>
-        <Link to="/parent/next" style={{
+        <Link to={`/parent/next/debrief/${date}/${meal}`} state={state} style={{
           display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 52, borderRadius: 'var(--radius)',
           border: '1.5px solid var(--border-mid)', background: 'white', color: 'var(--text-dark)', fontWeight: 600, textDecoration: 'none',
         }}>{REFUSAL.done}</Link>

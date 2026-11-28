@@ -85,7 +85,8 @@ export default function FirestoreDataProvider({ children }) {
   // family would stop for good (lib/accounts.js writes the family onto the account last).
   const ownListed = !!(ownFid && userDoc.uid === uid && userDoc.data?.families?.[ownFid])
   const own = useFamilyRecord(ownListed ? ownFid : null, { withRevoked: true })
-  const ownViews = useMemo(() => legacyViews(buildFamilyState(own.events)), [own.events])
+  const ownState = useMemo(() => buildFamilyState(own.events), [own.events])
+  const ownViews = useMemo(() => legacyViews(ownState), [ownState])
 
   // ── A clinician's families, with this week's meals for the list ─────────────
   const linked = useMemo(
@@ -157,7 +158,8 @@ export default function FirestoreDataProvider({ children }) {
   const viewFid = viewingPatientUid ? familyIdFor(viewingPatientUid) : null
   const [retryNonce, setRetryNonce] = useState(0)
   const view = useFamilyRecord(viewFid, { nonce: retryNonce })
-  const viewViews = useMemo(() => legacyViews(buildFamilyState(view.events)), [view.events])
+  const viewState = useMemo(() => buildFamilyState(view.events), [view.events])
+  const viewViews = useMemo(() => legacyViews(viewState), [viewState])
 
   // ── Everything the screens read ────────────────────────────────────────────
   const active = viewingPatientUid ? view : own
@@ -224,6 +226,10 @@ export default function FirestoreDataProvider({ children }) {
   }
   function endHardMeal(meal, ref) {
     addEvent(ownFid, { type: 'hardMeal.end', date: today(), meal, ...(ref ? { ref } : {}) })
+  }
+  // The debrief after a hard meal (roadmap C2). Same `ref` as the calm screen when there was one.
+  function saveDebrief({ date, meal, value, ref }) {
+    return addEvent(ownFid, { type: 'debrief', date, meal, value, ...(ref ? { ref } : {}) })
   }
 
   // The parent's notes to the care team (one per day, as today)
@@ -462,6 +468,8 @@ export default function FirestoreDataProvider({ children }) {
       toggleSupplement,
       startHardMeal,
       endHardMeal,
+      saveDebrief,
+      hardMeals: (viewingPatientUid ? viewState : ownState).hardMeals,
       clinicianNotesRead: settings.clinicianNotesRead || {},
       markClinicianNoteRead,
       savedClinicianNotes: Object.values(savedMap),

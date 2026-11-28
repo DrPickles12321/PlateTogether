@@ -16,6 +16,15 @@ const ev = (input, by = P1, at = (clock += 60000)) => {
 }
 
 describe('buildEvent', () => {
+  it('takes a debrief only with known answers, and at least one', () => {
+    const debrief = value => buildEvent({ type: 'debrief', date: D, meal: 'dinner', value }, P1)
+    expect(debrief({ hard: 'upset', helped: null, parent: 'need_support' }).event.value).toEqual({ hard: 'upset', helped: null, parent: 'need_support' })
+    expect(debrief({ hard: null, helped: null, parent: null }).error).toMatch(/at least one/)
+    expect(debrief({ hard: 'anything she likes' }).error).toBeTruthy()
+    expect(debrief({ weight: 'okay' }).error).toBeTruthy()
+    expect(buildEvent({ type: 'debrief', date: D, value: { parent: 'okay' } }, P1).error).toMatch(/Pick breakfast/)
+  })
+
   it('builds a meal outcome', () => {
     expect(buildEvent({ type: 'meal.outcome', date: D, meal: 'dinner', value: 'refused' }, P1))
       .toEqual({ event: { type: 'meal.outcome', date: D, meal: 'dinner', value: 'refused', by: P1, v: 1 } })
@@ -128,9 +137,21 @@ describe('buildFamilyState', () => {
     expect(s.notes[D]).toBeUndefined()
   })
 
-  it('ignores events it does not read yet (hard meal mode, debrief)', () => {
-    const s = buildFamilyState([ev({ type: 'hardMeal.start', meal: 'dinner' }), ev({ type: 'debrief', meal: 'dinner', value: { helped: 'stayed calm' } })])
+  it('joins a hard meal\'s start, end and debrief by ref, without touching the meal itself', () => {
+    const start = ev({ type: 'hardMeal.start', meal: 'dinner', ref: 'h1' })
+    const end = ev({ type: 'hardMeal.end', meal: 'dinner', ref: 'h1' })
+    const debrief = ev({ type: 'debrief', meal: 'dinner', ref: 'h1', value: { hard: 'stopped', helped: 'staying_calm', parent: null } })
+    const s = buildFamilyState([debrief, end, start])
     expect(s.meals).toEqual({})
+    expect(s.hardMeals).toEqual([{
+      ref: 'h1', date: D, meal: 'dinner', by: P1, startedAt: start.at, endedAt: end.at,
+      debrief: { hard: 'stopped', helped: 'staying_calm', parent: null, at: debrief.at },
+    }])
+  })
+
+  it('keeps a debrief after a refusal (no calm screen) as its own entry', () => {
+    const s = buildFamilyState([{ ...ev({ type: 'debrief', meal: 'lunch', value: { parent: 'worn_out' } }), id: 'e9' }])
+    expect(s.hardMeals).toMatchObject([{ ref: 'e9', meal: 'lunch', startedAt: null, debrief: { parent: 'worn_out' } }])
   })
 })
 

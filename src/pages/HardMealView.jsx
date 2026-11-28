@@ -43,8 +43,9 @@ export default function HardMealView() {
 
   function finish() {
     const ref = hardMealRef.current
-    endHardMeal(meal, ref && ref !== 'unrecorded' ? ref : undefined)
-    navigate(`/parent/next/log/${meal}`)
+    const recorded = ref && ref !== 'unrecorded' ? ref : undefined
+    endHardMeal(meal, recorded)
+    navigate(`/parent/next/log/${meal}`, { state: { fromHardMeal: true, hardMealRef: recorded } })
   }
 
   return (

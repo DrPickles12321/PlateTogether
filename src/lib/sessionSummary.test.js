@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildSessionSummary, datesSince, datesBefore, sessionAgo } from './sessionSummary'
+import { buildSessionSummary, datesSince, datesBefore, sessionAgo, hardMealEntries } from './sessionSummary'
 
 describe('since the last session', () => {
   it('lists the days after the session up to today', () => {
@@ -60,5 +60,30 @@ describe('buildSessionSummary', () => {
   it('carries the session prep facts', () => {
     expect(summary.prep.counts).toEqual({ okay: 1, difficult: 1, refused: 1, skipped: 0 })
     expect(summary.prep.challengeAttempts.map(a => a.name)).toEqual(['Pizza'])
+  })
+})
+
+describe('hard meals for the clinician', () => {
+  const days = ['2026-11-23', '2026-11-24', '2026-11-25']
+  const hardMeals = [
+    { ref: 'b', date: '2026-11-25', meal: 'dinner', startedAt: 2, endedAt: 3, debrief: { hard: 'stopped', helped: 'staying_calm', parent: 'need_support', at: 4 } },
+    { ref: 'a', date: '2026-11-24', meal: 'lunch', startedAt: null, endedAt: null, debrief: { hard: 'worried', helped: null, parent: null, at: 1 } },
+    { ref: 'c', date: '2026-11-25', meal: 'breakfast', startedAt: 1, endedAt: null, debrief: null },
+    { ref: 'old', date: '2026-11-01', meal: 'dinner', startedAt: 1, endedAt: 2, debrief: null },
+  ]
+
+  it('lists the range\'s hard meals in order, in the parent\'s words, with red flags called out', () => {
+    const out = hardMealEntries(hardMeals, days)
+    expect(out.map(e => e.key)).toEqual(['a', 'c', 'b'])
+    expect(out[0].lines).toEqual(['Something worried the parent; the app showed when to call for help.'])
+    expect(out[0].worried).toBe(true)
+    expect(out[1].lines).toEqual(['Calm screen used', 'No debrief.'])
+    expect(out[2].lines).toEqual(['Calm screen used', 'Made it hard: Stopped partway', 'Helped: Staying calm and close', "Parent afterwards: I'd like some support"])
+    expect(out[2].needSupport).toBe(true)
+  })
+
+  it('comes back with the session summary', () => {
+    const s = buildSessionSummary({ hardMeals, isoDates: days, today: '2026-11-25' })
+    expect(s.hardMeals).toHaveLength(3)
   })
 })
