@@ -270,11 +270,21 @@ service cloud.firestore {
           || (isCaregiver(fid) && get(fam(fid)).data.get('measurementsShared', false) == true
               && resource.data.kind == 'weight');
         allow create: if isTeam(fid)
-          && onlyKeys(['kind', 'value', 'unit', 'by', 'at'])
+          && onlyKeys(['kind', 'value', 'value2', 'unit', 'date', 'by', 'at'])
           && stampedByMe()
-          && request.resource.data.kind in ['weight', 'heartRate', 'bloodPressure']
-          && request.resource.data.value is number;
+          && validMeasurement(request.resource.data);
         allow update, delete: if false;
+
+        // A reading from a clinic visit: `date` is the visit day; blood pressure keeps the diastolic in value2.
+        // Ranges only catch typing slips, they are not clinical limits.
+        function validMeasurement(m) {
+          return (!('date' in m) || isoDate(m.date))
+            && m.value is number
+            && ((m.kind == 'weight' && m.unit in ['kg', 'lb'] && m.value > 0 && m.value < 700 && !('value2' in m))
+              || (m.kind == 'heartRate' && m.unit == 'bpm' && m.value >= 20 && m.value <= 250 && !('value2' in m))
+              || (m.kind == 'bloodPressure' && m.unit == 'mmHg' && m.value >= 40 && m.value <= 260
+                  && m.value2 is number && m.value2 >= 20 && m.value2 <= 180));
+        }
       }
 
       // ── Each team member's own session marks ───────────────────────────────

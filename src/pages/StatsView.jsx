@@ -9,6 +9,7 @@ import { buildSessionPrep } from '../lib/sessionPrep'
 import { localIsoDate } from '../lib/constants'
 import { OUTCOME_META } from '../lib/outcomes'
 import { weekMessage } from '../lib/supportCopy'
+import { byVisit, formatWeight } from '../lib/measurements'
 import { OutcomeMark } from '../components/Icon'
 
 function day(iso) {
@@ -89,7 +90,8 @@ function AIInsightsSection({ weekStatuses, allMealItems = {}, mealStatuses = {},
 
 export default function StatsView() {
   const { mealStatuses = {}, allMealItems = {}, clinicianNotes = [] } = useOutletContext()
-  const { mealTimesByDate = {}, mealDistress = {}, assignedChallenges = [], hiddenClinicianNoteIds = [] } = useFirebaseData()
+  const { mealTimesByDate = {}, mealDistress = {}, assignedChallenges = [], hiddenClinicianNoteIds = [], measurements = [], measurementsShared = false } = useFirebaseData()
+  const sharedWeights = measurementsShared ? byVisit(measurements).filter(v => v.weight).slice(0, 6) : []
   const isMobile = useIsMobile()
 
   const thisWeekDates = useMemo(() => getWeekIsoDates(0), [])
@@ -124,6 +126,23 @@ export default function StatsView() {
             border: '1px solid var(--rule-strong)', fontSize: 17, lineHeight: 1.5, color: 'var(--ink)',
           }}>{latestNote.body}</blockquote>
           <p style={{ fontSize: 13, color: 'var(--text-mid)', marginTop: 6 }}>All notes are on the Notes page.</p>
+        </section>
+      )}
+
+      {sharedWeights.length > 0 && (
+        // Shown only when the lead therapist shares weight (roadmap D1): the visits' weights, plainly, with no
+        // change figures or judgment. It stays off this page otherwise.
+        <section style={sectionStyle}>
+          <h2 style={h2Style}>Weight from clinic visits</h2>
+          <ul style={{ listStyle: 'none', margin: '8px 0 0', padding: 0 }}>
+            {sharedWeights.map(v => (
+              <li key={v.date} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid var(--rule)', fontSize: 16 }}>
+                <span>{new Date(v.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
+                <span>{formatWeight(v.weight)}</span>
+              </li>
+            ))}
+          </ul>
+          <p style={{ fontSize: 13, color: 'var(--text-mid)', marginTop: 6 }}>Shared by your clinician. Talk to them about what it means.</p>
         </section>
       )}
 

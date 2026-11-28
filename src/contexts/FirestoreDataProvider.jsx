@@ -166,6 +166,38 @@ export default function FirestoreDataProvider({ children }) {
   const viewState = useMemo(() => buildFamilyState(view.events), [view.events])
   const viewViews = useMemo(() => legacyViews(viewState), [viewState])
 
+  // ── Clinic measurements (roadmap D1) ───────────────────────────────────────
+  // A clinician reads every reading of the family they have open. A parent reads weight only, and only once
+  // the lead therapist shares it: the rules refuse anything else, and a refused listener would stop for good.
+  const shareWeight = own.family?.measurementsShared === true
+  const measureSource = viewFid && role === 'clinician' ? { fid: viewFid, weightOnly: false }
+    : ownFid && shareWeight ? { fid: ownFid, weightOnly: true } : null
+  const measureKey = measureSource ? `${measureSource.fid}:${measureSource.weightOnly}` : null
+  const [measureState, setMeasureState] = useState({ key: null, list: [] })
+  useEffect(() => {
+    if (!measureKey) return undefined
+    const [fid, weightOnly] = measureKey.split(':')
+    const coll = collection(fsdb, `families/${fid}/measurements`)
+    const q = weightOnly === 'true' ? query(coll, where('kind', '==', 'weight')) : coll
+    return onSnapshot(q, s => setMeasureState({
+      key: measureKey,
+      list: s.docs.map(d => { const m = d.data(READ); return { id: d.id, ...m, atMs: m.at?.toMillis?.() ?? null, at: isoOf(m.at) } }),
+    }), () => setMeasureState({ key: measureKey, list: [] }))
+  }, [measureKey])
+  const measurements = measureState.key === measureKey ? measureState.list : []
+  const isLeadClinician = !!(viewFid && view.members.some(m => m.id === uid && m.role === 'therapist' && m.active !== false))
+
+  function addMeasurements(readings = []) {
+    if (!viewFid || !readings.length) return Promise.resolve(false)
+    const batch = writeBatch(fsdb)
+    for (const r of readings) batch.set(doc(collection(fsdb, `families/${viewFid}/measurements`)), { ...r, by: uid, at: serverTimestamp() })
+    return batch.commit().then(() => true, err => { warn('Measurement')(err); return false })
+  }
+  function setMeasurementsShared(shared) {
+    if (!viewFid) return
+    updateDoc(famDoc(viewFid), { measurementsShared: !!shared }).catch(warn('Sharing'))
+  }
+
   // ── Everything the screens read ────────────────────────────────────────────
   const active = viewingPatientUid ? view : own
   const activeViews = viewingPatientUid ? viewViews : ownViews
@@ -522,6 +554,11 @@ export default function FirestoreDataProvider({ children }) {
       tagIn,
       syncPending: own.pending,
       familyId: ownFid,
+      measurements,
+      measurementsShared: (viewingPatientUid ? view.family : own.family)?.measurementsShared === true,
+      isLeadClinician,
+      addMeasurements,
+      setMeasurementsShared,
       caregivers,
       isFamilyCreator,
       openInvites,
