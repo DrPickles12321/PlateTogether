@@ -230,6 +230,22 @@ Insights, with no change figures, arrows or comments. The teen never sees weight
 - **Q20.** Should parents see weight as numbers at all, or only "weighed at the visit" with the clinician
   explaining in session? Should the default be off (as now) for every family?
 
+## 13. Early response (clinicians only)
+
+On the clinician overview and the session summary. Never shown to the family. Numbers and evidence only.
+
+| # | Where | Text | Keep / Change / Cut |
+|---|---|---|---|
+| 13.1 | Under the title | "For the care team only. Early weight gain is linked with later remission in FBT; this is a prompt to review, not a verdict." | |
+| 13.2 | On track | "On track: +2.5 kg by session 4 (threshold 2.3 kg)." | |
+| 13.3 | Below | "Below the early-response threshold: +1.4 kg by session 4 (threshold 2.3 kg)." | |
+| 13.4 | Before session 4 | "Session 2 of 4: +1 kg so far. The threshold is 2.3 kg by session 4." | |
+| 13.5 | Evidence | "Starting weight 44 kg on Nov 2. Weight used 45.4 kg on Nov 23. Sessions marked: Nov 2, Nov 9, Nov 16, Nov 23." | |
+
+- **Q21.** Is 2.3 kg by session 4 the right default, or should the default be 2.88% of ideal body weight
+  (which needs the clinician to enter one)? Should the window be session 4 or a number of weeks?
+- **Q22.** Is "Below the early-response threshold" the right wording, or would something softer be read better?
+
 ---
 
 **Reviewer:** ______________________  **Role / license:** ______________________  **Date:** __________

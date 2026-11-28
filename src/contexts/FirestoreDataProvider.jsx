@@ -185,6 +185,23 @@ export default function FirestoreDataProvider({ children }) {
     }), () => setMeasureState({ key: measureKey, list: [] }))
   }, [measureKey])
   const measurements = measureState.key === measureKey ? measureState.list : []
+
+  // Every session the team marked for the open family (roadmap D2 counts them), by local day.
+  const sessionsKey = viewFid && role === 'clinician' ? viewFid : null
+  const [sessionState, setSessionState] = useState({ key: null, list: [] })
+  useEffect(() => {
+    if (!sessionsKey) return undefined
+    return onSnapshot(collection(fsdb, `families/${sessionsKey}/sessions`), s => setSessionState({
+      key: sessionsKey,
+      list: s.docs.map(d => { const ms = d.data(READ).at?.toMillis?.(); return { by: d.data().by, date: ms ? localIsoDate(new Date(ms)) : null } }),
+    }), () => setSessionState({ key: sessionsKey, list: [] }))
+  }, [sessionsKey])
+  const familySessions = sessionState.key === sessionsKey ? sessionState.list : []
+  // This clinician's early-response threshold for the open family, kept in their own settings.
+  const earlyResponseSettings = (viewFid && settings.earlyResponse?.[viewFid]) || null
+  function saveEarlyResponseSettings(config) {
+    if (viewFid) mergeSettings({ earlyResponse: { [viewFid]: config } })
+  }
   const isLeadClinician = !!(viewFid && view.members.some(m => m.id === uid && m.role === 'therapist' && m.active !== false))
 
   function addMeasurements(readings = []) {
@@ -555,6 +572,9 @@ export default function FirestoreDataProvider({ children }) {
       syncPending: own.pending,
       familyId: ownFid,
       measurements,
+      familySessions,
+      earlyResponseSettings,
+      saveEarlyResponseSettings,
       measurementsShared: (viewingPatientUid ? view.family : own.family)?.measurementsShared === true,
       isLeadClinician,
       addMeasurements,

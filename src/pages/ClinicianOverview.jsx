@@ -5,6 +5,7 @@ import WeeklyGrid from '../components/WeeklyGrid'
 import SosAlert from '../components/SosAlert'
 import WorthTalkingAbout from '../components/WorthTalkingAbout'
 import MeasurementsCard from '../components/MeasurementsCard'
+import EarlyResponseCard from '../components/EarlyResponseCard'
 import { familyName } from '../lib/childProfile'
 
 export default function ClinicianOverview() {
@@ -48,6 +49,9 @@ export default function ClinicianOverview() {
           mealStatuses={parentMealStatuses}
           mealDistress={parentMealDistress}
         />
+      </RevealSection>
+      <RevealSection eyebrow="Early response">
+        <EarlyResponseCard />
       </RevealSection>
       <RevealSection eyebrow="Clinic visits">
         <MeasurementsCard />
