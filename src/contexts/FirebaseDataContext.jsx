@@ -934,6 +934,7 @@ function RtdbDataProvider({ children }) {
       // Clinic measurements need the Firestore family record; this old layer is the rollback path.
       measurements: [],
       familySessions: [],
+      phaseHistory: [],
       earlyResponseSettings: null,
       saveEarlyResponseSettings: () => {},
       measurementsShared: false,

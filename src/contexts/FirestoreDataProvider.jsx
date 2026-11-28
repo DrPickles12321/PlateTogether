@@ -377,11 +377,13 @@ export default function FirestoreDataProvider({ children }) {
     if (!ownFid) return Promise.resolve()
     return updateDoc(famDoc(ownFid), { profile: compact({ name, birthYear, treatmentStart }) })
   }
-  function setChildPhase(phase) {
+  // Only the lead therapist can change the phase (firestore.rules). The change is also an event with where the
+  // family moved from and which checklist items the clinician ticked (roadmap E1).
+  function setChildPhase(phase, { from = null, checked = [] } = {}) {
     if (!viewFid) return Promise.resolve()
     const value = phase || null
     return updateDoc(famDoc(viewFid), { phase: value ? { value, since: serverTimestamp(), setBy: uid } : deleteField() })
-      .then(() => addEvent(viewFid, { type: 'phase.change', date: today(), value }))
+      .then(() => addEvent(viewFid, { type: 'phase.change', date: today(), value: { from, to: value, checked } }))
   }
   function markSessionDone() {
     if (!viewFid || !uid) return Promise.resolve()
@@ -573,6 +575,9 @@ export default function FirestoreDataProvider({ children }) {
       familyId: ownFid,
       measurements,
       familySessions,
+      phaseHistory: (viewState.phaseChanges || []).map(c => ({
+        ...c, byName: c.by === uid ? 'you' : (view.members.find(m => m.id === c.by)?.email || 'a clinician'),
+      })),
       earlyResponseSettings,
       saveEarlyResponseSettings,
       measurementsShared: (viewingPatientUid ? view.family : own.family)?.measurementsShared === true,

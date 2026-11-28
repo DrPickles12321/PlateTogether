@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { PROGRAMS, DEFAULT_PROGRAM, programConfig, phaseLabels } from './programs'
+import { PROGRAMS, DEFAULT_PROGRAM, programConfig, phaseLabels, phaseMove } from './programs'
 
 describe('programConfig', () => {
   it('gives the settings for a program and phase', () => {
@@ -44,5 +44,21 @@ describe('phaseLabels', () => {
   it('lists the treatment phases a clinician picks, without maintenance', () => {
     expect(Object.keys(phaseLabels())).toEqual(['1', '2', '3'])
     expect(phaseLabels()[1]).toBe('Phase 1: parents take charge of eating')
+  })
+})
+
+describe('moving between phases', () => {
+  it('asks for the new phase\'s checklist only when moving forward', () => {
+    expect(phaseMove(1, 2).direction).toBe('forward')
+    expect(phaseMove(1, 2).checklist.map(([id]) => id)).toEqual(['weight', 'meals', 'parents', 'told'])
+    expect(phaseMove(null, 1)).toEqual({ direction: 'forward', checklist: [] })
+    expect(phaseMove(3, 2)).toEqual({ direction: 'back', checklist: [] })
+    expect(phaseMove(2, null)).toEqual({ direction: 'clear', checklist: [] })
+    expect(phaseMove(2, 2).direction).toBe('same')
+  })
+
+  it('uses judgments, never numbers the app checks', () => {
+    const all = [2, 3, 'maintenance'].flatMap(p => phaseMove(1, p).checklist.map(([, text]) => text)).join(' ')
+    expect(all).not.toMatch(/\d|calor|kg|lb|%/)
   })
 })
