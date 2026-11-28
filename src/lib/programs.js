@@ -8,6 +8,9 @@
 //   logging            'full' | 'light' (maintenance: fewer prompts)
 //   signals            which clinician signals matter in this phase (roadmap phases D and F)
 //   guide              which session guide applies (roadmap E2)
+//   enterChecklist     what the clinician confirms before moving a family into this phase (roadmap E1). Our own
+//                      words, not the FBT manual's; DRAFT for clinician review (wording review, section 14).
+//                      Each item is a judgment for the clinician, never a number the app checks.
 
 export const DEFAULT_PROGRAM = 'anorexia-fbt'
 
@@ -24,16 +27,32 @@ export const PROGRAMS = {
         label: 'Phase 2: control handed back gradually',
         parentSeesNumbers: false, teen: 'proposals', logging: 'full',
         signals: ['hardMeals', 'relapseWatch', 'handover', 'strain', 'sync'], guide: 'phase2',
+        enterChecklist: [
+          ['weight', 'Weight is close to the target you set for this phase'],
+          ['meals', 'Most meals are eaten without a long struggle'],
+          ['parents', 'The parents feel ready to hand some control back'],
+          ['told', 'The family knows what changes now, and what stays the same'],
+        ],
       },
       3: {
         label: 'Phase 3: back to everyday life',
         parentSeesNumbers: false, teen: 'reflect', logging: 'full',
         signals: ['relapseWatch'], guide: 'phase3',
+        enterChecklist: [
+          ['weightKept', 'Weight has held steady near the target'],
+          ['teenEats', 'The teen eats well when choosing for themself'],
+          ['thoughts', 'Eating-disorder thoughts take up less of the day'],
+          ['told', 'The family knows what changes now, and what stays the same'],
+        ],
       },
       maintenance: {
         label: 'After treatment: keeping well',
         parentSeesNumbers: false, teen: 'reflect', logging: 'light',
         signals: ['relapseWatch'], guide: 'maintenance',
+        enterChecklist: [
+          ['warningSigns', 'The family has a list of warning signs and knows who to call'],
+          ['told', 'The family knows what changes now, and what stays the same'],
+        ],
       },
     },
   },
@@ -55,4 +74,17 @@ export function programConfig(programKey = DEFAULT_PROGRAM, phase = null) {
 export function phaseLabels(programKey = DEFAULT_PROGRAM) {
   const program = Object.hasOwn(PROGRAMS, programKey) ? PROGRAMS[programKey] : PROGRAMS[DEFAULT_PROGRAM]
   return Object.fromEntries(Object.entries(program.phases).filter(([k]) => k !== 'maintenance').map(([k, v]) => [k, v.label]))
+}
+
+// What moving a family from one phase to another asks of the clinician (roadmap E1). Moving forward lists the
+// new phase's checklist; moving back has none (it is common and not a failure); clearing the phase has none.
+const ORDER = [1, 2, 3, 'maintenance']
+export function phaseMove(from, to, programKey = DEFAULT_PROGRAM) {
+  const program = Object.hasOwn(PROGRAMS, programKey) ? PROGRAMS[programKey] : PROGRAMS[DEFAULT_PROGRAM]
+  const a = from == null ? -1 : ORDER.indexOf(from)
+  const b = to == null ? -1 : ORDER.indexOf(to)
+  if (to == null) return { direction: 'clear', checklist: [] }
+  if (b === a) return { direction: 'same', checklist: [] }
+  if (b < a) return { direction: 'back', checklist: [] }
+  return { direction: 'forward', checklist: program.phases[to]?.enterChecklist || [] }
 }

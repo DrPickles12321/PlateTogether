@@ -246,6 +246,21 @@ On the clinician overview and the session summary. Never shown to the family. Nu
   (which needs the clinician to enter one)? Should the window be session 4 or a number of weeks?
 - **Q22.** Is "Below the early-response threshold" the right wording, or would something softer be read better?
 
+## 14. Moving a family between phases (clinicians only)
+
+The lead therapist ticks every item before moving a family forward. These are our own words, not the FBT
+manual's, and each is the clinician's judgment, never a number the app checks.
+
+| # | Moving to | Items | Keep / Change / Cut |
+|---|---|---|---|
+| 14.1 | Phase 2 | "Weight is close to the target you set for this phase" · "Most meals are eaten without a long struggle" · "The parents feel ready to hand some control back" · "The family knows what changes now, and what stays the same" | |
+| 14.2 | Phase 3 | "Weight has held steady near the target" · "The teen eats well when choosing for themself" · "Eating-disorder thoughts take up less of the day" · "The family knows what changes now, and what stays the same" | |
+| 14.3 | After treatment (not offered yet) | "The family has a list of warning signs and knows who to call" · "The family knows what changes now, and what stays the same" | |
+| 14.4 | Moving back | "Move back to Phase 1? Moving back is common in treatment and isn't a failure." | |
+
+- **Q23.** Are these the right checks for each move? Should moving forward be allowed with an item unticked
+  (with a note), instead of requiring all of them?
+
 ---
 
 **Reviewer:** ______________________  **Role / license:** ______________________  **Date:** __________

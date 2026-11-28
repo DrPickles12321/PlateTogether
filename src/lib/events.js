@@ -70,6 +70,14 @@ function valueProblem(type, value) {
     case 'supplement.given':
       return value && typeof value.name === 'string' && value.name.trim() && typeof value.given === 'boolean'
         ? null : 'A supplement needs a name and given: true or false.'
+    case 'phase.change': {
+      // { from, to, checked: [item ids] } since roadmap E1; a bare phase (or null) before it.
+      const okPhase = p => p === null || [1, 2, 3, 'maintenance'].includes(p)
+      if (value === null || okPhase(value)) return null
+      return value && typeof value === 'object' && okPhase(value.to ?? null) && okPhase(value.from ?? null)
+        && (value.checked == null || (Array.isArray(value.checked) && value.checked.length <= 12 && value.checked.every(c => typeof c === 'string')))
+        ? null : 'A phase change needs from, to and the checklist items ticked.'
+    }
     case 'debrief': {
       const entries = value && typeof value === 'object' ? Object.entries(value) : []
       const known = entries.every(([k, v]) => DEBRIEF_OPTIONS[k] && (v === null || DEBRIEF_OPTIONS[k].includes(v)))
@@ -106,6 +114,7 @@ const atOrNull = e => (e.at == null ? null : toMillis(e.at))
 //   meals[date][meal] = { status, items, distress, time, loggedBy, firstLoggedAt, lastChangedAt, outcomeChanges }
 //   supplements[date] = [names given]
 //   notes[date] = { id, date, body, by, created_at, updated_at, readBy: [uid], read_at }
+//   phaseChanges = [{ from, to, checked, by, at, date }], oldest first (roadmap E1)
 //   hardMeals = [{ ref, date, meal, by, startedAt, endedAt, debrief, tagIns: [{ by, at }] }], oldest first: each use of hard meal
 //     mode and each debrief, joined by `ref`. A debrief with no calm screen before it (after a refusal) is its own entry.
 export function buildFamilyState(events) {
@@ -113,6 +122,7 @@ export function buildFamilyState(events) {
   const supplements = {}
   const notes = {}
   const hardMeals = new Map()
+  const phaseChanges = []
   const hardMeal = (e, at) => {
     const key = e.ref || e.id || `${e.date}|${e.meal}|${at}`
     if (!hardMeals.has(key)) hardMeals.set(key, { ref: key, date: e.date, meal: e.meal, by: e.by, startedAt: null, endedAt: null, debrief: null, tagIns: [] })
@@ -192,11 +202,16 @@ export function buildFamilyState(events) {
       case 'debrief':
         hardMeal(e, at).debrief = { ...e.value, at }
         break
+      case 'phase.change': {
+        const v = e.value && typeof e.value === 'object' ? e.value : { to: e.value ?? null }
+        phaseChanges.push({ from: v.from ?? null, to: v.to ?? null, checked: v.checked || [], by: e.by, at, date: e.date })
+        break
+      }
       default:
         break
     }
   }
-  return { meals, supplements, notes, hardMeals: [...hardMeals.values()] }
+  return { meals, supplements, notes, hardMeals: [...hardMeals.values()], phaseChanges }
 }
 
 // The shapes the screens use today (FirebaseDataContext), so switching storage leaves screens unchanged.

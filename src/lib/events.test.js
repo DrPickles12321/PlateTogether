@@ -156,6 +156,17 @@ describe('buildFamilyState', () => {
     expect(s.hardMeals[0].tagIns).toEqual([{ by: P1, at: tag.at }])
   })
 
+  it('records phase changes, old (bare phase) and new (from, to, checklist) alike', () => {
+    const old = ev({ type: 'phase.change', value: 1 }, CLIN)
+    const now = ev({ type: 'phase.change', value: { from: 1, to: 2, checked: ['weight', 'meals'] } }, CLIN)
+    expect(buildFamilyState([now, old]).phaseChanges).toEqual([
+      { from: null, to: 1, checked: [], by: CLIN, at: old.at, date: D },
+      { from: 1, to: 2, checked: ['weight', 'meals'], by: CLIN, at: now.at, date: D },
+    ])
+    expect(buildEvent({ type: 'phase.change', date: D, value: { from: 1, to: 9 } }, CLIN).error).toBeTruthy()
+    expect(buildEvent({ type: 'phase.change', date: D, value: { from: 1, to: 2, checked: [3] } }, CLIN).error).toBeTruthy()
+  })
+
   it('keeps a debrief after a refusal (no calm screen) as its own entry', () => {
     const s = buildFamilyState([{ ...ev({ type: 'debrief', meal: 'lunch', value: { parent: 'worn_out' } }), id: 'e9' }])
     expect(s.hardMeals).toMatchObject([{ ref: 'e9', meal: 'lunch', startedAt: null, debrief: { parent: 'worn_out' } }])

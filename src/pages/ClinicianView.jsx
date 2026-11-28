@@ -7,7 +7,8 @@ import DailyNutritionSummary from '../components/nutrition/DailyNutritionSummary
 import ClinicianTabBar from '../components/ClinicianTabBar'
 import FamilyList from '../components/FamilyList'
 import { familySummary, sortFamilies } from '../lib/familyTriage'
-import { familyName, profileDetails, PHASES } from '../lib/childProfile'
+import { familyName, profileDetails } from '../lib/childProfile'
+import PhasePicker from '../components/PhasePicker'
 import { sessionAgo } from '../lib/sessionSummary'
 import { getWeekIsoDates } from '../lib/insights'
 import { localIsoDate } from '../lib/constants'
@@ -378,7 +379,6 @@ export default function ClinicianView() {
     removePatient,
     patientsWithOpenSos,
     patientWeekData,
-    setChildPhase,
     markSessionDone,
     allMealItems: parentMealItems,
   } = useFirebaseData()
@@ -487,16 +487,7 @@ export default function ClinicianView() {
             {current.summary.reasons.length ? current.summary.reasons.join(' · ') : current.summary.reason}
           </p>
         )}
-        {current && (
-          <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-            <label htmlFor="family-phase" style={{ fontSize: 14, color: 'var(--on-ink-soft)' }}>Treatment phase</label>
-            <select id="family-phase" value={current.phase || ''} onChange={e => setChildPhase(Number(e.target.value) || null)}
-              style={{ minHeight: 40, padding: '6px 10px', borderRadius: 'var(--radius)', border: '1px solid var(--on-ink-soft)', background: 'var(--ink)', color: 'var(--on-ink)', fontSize: 14, cursor: 'pointer' }}>
-              <option value="">Not set</option>
-              {Object.entries(PHASES).map(([n, text]) => <option key={n} value={n}>{text}</option>)}
-            </select>
-          </div>
-        )}
+        {current && <PhasePicker phase={current.phase || null} />}
         {current && (
           <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
             <p style={{ fontSize: 14, color: 'var(--on-ink-soft)', margin: 0 }} aria-live="polite">
