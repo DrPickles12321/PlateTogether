@@ -115,6 +115,14 @@ describe('creating a family and joining it', () => {
     await assertFails(b2.commit())
   })
 
+  it('a clinician account cannot take a caregiver invite', async () => {
+    const db = as(NEWCLIN)
+    const b = writeBatch(db)
+    b.update(doc(db, `invites/${INVITE}`), { usedBy: NEWCLIN })
+    b.set(doc(db, `families/${F}/members/${NEWCLIN}`), { role: 'caregiver', active: true, addedAt: serverTimestamp(), addedBy: NEWCLIN, via: { invite: INVITE } })
+    await assertFails(b.commit())
+  })
+
   it('a family code lets a clinician account join in a team role, never as caregiver', async () => {
     const base = { active: true, addedAt: serverTimestamp(), via: { familyCode: CODE } }
     await assertFails(setDoc(doc(as(NEWCLIN), `families/${F}/members/${NEWCLIN}`), { ...base, addedBy: NEWCLIN, role: 'caregiver' }))

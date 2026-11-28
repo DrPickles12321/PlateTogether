@@ -8,7 +8,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   doc, collection, query, where, onSnapshot, getDoc, setDoc, updateDoc, deleteDoc, addDoc, writeBatch,
-  serverTimestamp, deleteField,
+  serverTimestamp, deleteField, Timestamp,
 } from 'firebase/firestore'
 import { fsdb, auth } from '../firebase'
 import { requestAccountDeletion } from '../lib/accountDeletion'
@@ -19,7 +19,9 @@ import { buildEvent, buildFamilyState, legacyViews } from '../lib/events'
 import {
   familyIdFor, isoOf, carePlanFromPlan, nextPlanItem, sosFromEvents, careTeamFromMembers, caregiverEmail,
   clinicianNotesFromDocs, childProfileFromFamily, patientsFromUserDoc, latestSessionDate,
+  caregiverFamilyOf, caregiversFromMembers,
 } from '../lib/firestoreViews'
+import { newInviteCode, inviteExpiry, openInvites as openInvitesFrom } from '../lib/invites'
 import { fetchFoodInfo, hasFoodProxy, lookupForBackfill } from '../lib/foodData'
 import { foodsNeedingNutrition, backfillPatch, BACKFILL_PER_VISIT } from '../lib/nutritionBackfill'
 import { quickLogPatch } from '../lib/quickLog'
@@ -67,7 +69,6 @@ function useFamilyRecord(fid, { nonce = 0, withRevoked = false } = {}) {
 export default function FirestoreDataProvider({ children }) {
   const { user, role } = useAuth()
   const uid = user?.uid || null
-  const ownFid = uid && role === 'parent' ? familyIdFor(uid) : null
 
   // ── This person's own documents ─────────────────────────────────────────────
   const [userDoc, setUserDoc] = useState({ uid: null, data: null })
@@ -82,9 +83,11 @@ export default function FirestoreDataProvider({ children }) {
   const settingsRef = uid ? doc(fsdb, `users/${uid}/private/settings`) : null
   const mergeSettings = patch => (settingsRef ? setDoc(settingsRef, patch, { merge: true }).catch(warn('Setting')) : undefined)
 
-  // Read the family only once the account lists it: a listener refused while sign-up is still creating the
-  // family would stop for good (lib/accounts.js writes the family onto the account last).
-  const ownListed = !!(ownFid && userDoc.uid === uid && userDoc.data?.families?.[ownFid])
+  // A parent's family is the one their account lists as caregiver: the one they created, or one they joined
+  // by invite (roadmap B6). It is read only once listed: a listener refused while sign-up is still creating
+  // the family would stop for good (lib/accounts.js writes the family onto the account last).
+  const ownFid = uid && role === 'parent' && userDoc.uid === uid ? caregiverFamilyOf(userDoc.data, uid) : null
+  const ownListed = !!ownFid
   const own = useFamilyRecord(ownListed ? ownFid : null, { withRevoked: true })
   const ownState = useMemo(() => buildFamilyState(own.events), [own.events])
   const ownViews = useMemo(() => legacyViews(ownState), [ownState])
@@ -421,6 +424,42 @@ export default function FirestoreDataProvider({ children }) {
     setDoc(doc(fsdb, `users/${uid}`), { families: { [fid]: deleteField() } }, { merge: true }).catch(warn('Family list'))
     if (viewingPatientUid === patientUid) setViewingPatientUid(null)
   }
+  // ── Caregivers (roadmap B6) ─────────────────────────────────────────────────
+  const caregivers = useMemo(
+    () => caregiversFromMembers(own.members, { uid, createdBy: own.family?.createdBy }),
+    [own.members, own.family?.createdBy, uid],
+  )
+  const isFamilyCreator = !!(ownFid && own.family?.createdBy === uid)
+  const openInvites = useMemo(() => openInvitesFrom(settings.invites || {}, own.members), [settings.invites, own.members])
+
+  // A one-use link for another caregiver, for a week. The code is also kept in this person's settings so the
+  // Account page can list and cancel it (the rules don't let anyone list invites).
+  async function createInvite() {
+    if (!ownFid || !uid) return null
+    const code = newInviteCode()
+    const expiresAt = inviteExpiry()
+    await setDoc(doc(fsdb, `invites/${code}`), { familyId: ownFid, role: 'caregiver', createdBy: uid, expiresAt: Timestamp.fromMillis(expiresAt) })
+    await mergeSettings({ invites: { [code]: { expiresAt } } })
+    return code
+  }
+  function cancelInvite(code) {
+    if (!code) return
+    deleteDoc(doc(fsdb, `invites/${code}`)).catch(warn('Invite'))
+    mergeSettings({ invites: { [code]: deleteField() } })
+  }
+  // Removing a caregiver works like removing a clinician: inactive, plus the revoked marker that outranks it.
+  function removeCaregiver(memberUid) {
+    if (!ownFid || !memberUid || memberUid === uid) return
+    const batch = writeBatch(fsdb)
+    batch.update(doc(fsdb, `families/${ownFid}/members/${memberUid}`), { active: false })
+    batch.set(doc(fsdb, `families/${ownFid}/revoked/${memberUid}`), { at: serverTimestamp() })
+    batch.commit().catch(warn('Access change'))
+  }
+  function setHousehold(memberUid, household) {
+    if (!ownFid || !memberUid) return
+    updateDoc(doc(fsdb, `families/${ownFid}/members/${memberUid}`), { household: household === 'second' ? 'second' : 'main' }).catch(warn('Household'))
+  }
+
   function revokeCareTeamAccess(clinicianUid) {
     if (!ownFid || !clinicianUid) return
     const batch = writeBatch(fsdb)
@@ -471,6 +510,15 @@ export default function FirestoreDataProvider({ children }) {
       endHardMeal,
       saveDebrief,
       syncPending: own.pending,
+      familyId: ownFid,
+      caregivers,
+      isFamilyCreator,
+      openInvites,
+      createInvite,
+      cancelInvite,
+      removeCaregiver,
+      setHousehold,
+      mealLoggedBy: activeViews.mealLoggedBy || {},
       hardMeals: (viewingPatientUid ? viewState : ownState).hardMeals,
       clinicianNotesRead: settings.clinicianNotesRead || {},
       markClinicianNoteRead,

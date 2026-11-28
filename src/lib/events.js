@@ -198,7 +198,7 @@ export function buildFamilyState(events) {
 
 // The shapes the screens use today (FirebaseDataContext), so switching storage leaves screens unchanged.
 export function legacyViews({ meals, supplements, notes }) {
-  const fbMealData = {}, mealStatuses = {}, allMealItems = {}, mealDistress = {}, mealTimesByDate = {}
+  const fbMealData = {}, mealStatuses = {}, allMealItems = {}, mealDistress = {}, mealTimesByDate = {}, mealLoggedBy = {}
   for (const [date, byMeal] of Object.entries(meals)) {
     for (const [meal, m] of Object.entries(byMeal)) {
       fbMealData[date] ??= {}
@@ -208,6 +208,7 @@ export function legacyViews({ meals, supplements, notes }) {
       if (m.status) { mealStatuses[date] ??= {}; mealStatuses[date][meal] = m.status }
       if (m.distress && (m.distress.pre || m.distress.post)) { mealDistress[date] ??= {}; mealDistress[date][meal] = m.distress }
       if (m.time) { mealTimesByDate[date] ??= {}; mealTimesByDate[date][meal] = m.time }
+      if (m.status && m.loggedBy) { mealLoggedBy[date] ??= {}; mealLoggedBy[date][meal] = m.loggedBy }
     }
   }
   const parentNotesByDate = {}
@@ -218,7 +219,7 @@ export function legacyViews({ meals, supplements, notes }) {
       read_at: n.read_at == null ? null : new Date(n.read_at).toISOString(),
     }
   }
-  return { fbMealData, mealStatuses, allMealItems, mealDistress, mealTimesByDate, supplementLog: { ...supplements }, parentNotesByDate }
+  return { fbMealData, mealStatuses, allMealItems, mealDistress, mealTimesByDate, mealLoggedBy, supplementLog: { ...supplements }, parentNotesByDate }
 }
 
 // ── Migration (roadmap B4) ─────────────────────────────────────────────────────
