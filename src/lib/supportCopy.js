@@ -137,6 +137,19 @@ export const TAG_IN = {
   pushFailed: "Couldn't turn notifications on. Try again in a moment.",
 }
 
+// The weekly caregiver check-in (roadmap F2). About the parent, not the child. DRAFT, wording review 15.
+export const CHECKIN = {
+  title: 'Two questions for this week',
+  why: 'About you, not your child. Only your care team sees your answers.',
+  strain: 'How are you managing this week?',
+  support: 'How supported do you feel?',
+  notNow: 'Not this week',
+  thanks: 'Thank you. Your care team will see this before your next session.',
+  heavy: "That sounds like a lot. If you'd like help before your next session, you can message your care team now.",
+  message: 'Message your care team',
+  note: "I'm finding things hard this week.",
+}
+
 // A quiet count of time at the table: whole minutes, rounded down, no seconds ticking.
 export function timeAtTable(startMs, nowMs) {
   const minutes = Math.floor(Math.max(0, nowMs - startMs) / 60000)
