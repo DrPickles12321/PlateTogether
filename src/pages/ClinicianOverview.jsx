@@ -7,6 +7,7 @@ import WorthTalkingAbout from '../components/WorthTalkingAbout'
 import MeasurementsCard from '../components/MeasurementsCard'
 import EarlyResponseCard from '../components/EarlyResponseCard'
 import CaregiverStrainCard from '../components/CaregiverStrainCard'
+import ParentsInSyncCard from '../components/ParentsInSyncCard'
 import { familyName } from '../lib/childProfile'
 
 export default function ClinicianOverview() {
@@ -55,6 +56,8 @@ export default function ClinicianOverview() {
         <EarlyResponseCard />
       </RevealSection>
       <RevealSection eyebrow="The parents">
+        <ParentsInSyncCard />
+        <div style={{ height: 14 }} />
         <CaregiverStrainCard />
       </RevealSection>
       <RevealSection eyebrow="Clinic visits">
