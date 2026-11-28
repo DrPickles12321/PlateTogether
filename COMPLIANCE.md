@@ -24,7 +24,9 @@ patients or clinicians*. It is fine as-is for a demo/hackathon with fake data.
       before it leaves Firebase. Today the chat sends deterministic weekly stats +
       food names — treat that as PHI. Account deletion on Firestore also runs there for now,
       with a Google service-account key that has admin rights over the data: move it to a
-      Cloud Function before real families (`docs/plans/2026-11-28-firestore-switch.md`).
+      Cloud Function before real families (`docs/plans/2026-11-28-firestore-switch.md`). Tag-in
+      pushes also go from the Worker through Firebase Cloud Messaging, which is outside Google's
+      BAA: their text is fixed and generic ("Someone in your family is asking for you").
 
 ## 2. Lock down access (partly code)
 - [x] Server-enforced Firebase Security Rules (owner / linked-clinician only).

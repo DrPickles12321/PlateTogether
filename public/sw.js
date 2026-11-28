@@ -1,6 +1,6 @@
 // Plate Together service worker — app-shell caching for installable PWA + offline.
 // Bump CACHE when changing this file to evict the old cache.
-const CACHE = 'pt-v3'
+const CACHE = 'pt-v4'
 const SHELL = ['/index.html', '/manifest.webmanifest', '/icon-192.png', '/icon-512.png', '/apple-touch-icon.png']
 
 self.addEventListener('install', event => {
@@ -51,5 +51,35 @@ self.addEventListener('fetch', event => {
         return res
       })
     )
+  )
+})
+
+// Tag-in notifications (roadmap C3), sent by the Worker as FCM data messages. The text is generic on purpose
+// (worker/src/tagIn.js); tapping it opens the app, which shows what's going on.
+self.addEventListener('push', event => {
+  let data = {}
+  try {
+    const payload = event.data ? event.data.json() : {}
+    data = payload.data || payload
+  } catch { /* not JSON: use the defaults */ }
+  event.waitUntil(self.registration.showNotification(data.title || 'Plate Together', {
+    body: data.body || 'Someone in your family is asking for you.',
+    icon: '/icon-192.png',
+    badge: '/icon-192.png',
+    tag: 'tag-in',
+    renotify: true,
+    data: { url: data.url || '/parent/next' },
+  }))
+})
+
+self.addEventListener('notificationclick', event => {
+  event.notification.close()
+  const url = event.notification.data?.url || '/parent/next'
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+      const open = list.find(c => 'focus' in c)
+      if (open) return open.navigate(url).then(c => (c || open).focus())
+      return self.clients.openWindow(url)
+    })
   )
 })

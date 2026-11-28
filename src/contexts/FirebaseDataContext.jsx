@@ -927,6 +927,7 @@ function RtdbDataProvider({ children }) {
       startHardMeal: () => null,
       endHardMeal: () => {},
       saveDebrief: () => {},
+      tagIn: () => {},
       syncPending: false,
       // Several caregivers need the Firestore family record; this old layer is the rollback path.
       familyId: null,

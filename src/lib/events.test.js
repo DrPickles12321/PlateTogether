@@ -145,8 +145,15 @@ describe('buildFamilyState', () => {
     expect(s.meals).toEqual({})
     expect(s.hardMeals).toEqual([{
       ref: 'h1', date: D, meal: 'dinner', by: P1, startedAt: start.at, endedAt: end.at,
-      debrief: { hard: 'stopped', helped: 'staying_calm', parent: null, at: debrief.at },
+      debrief: { hard: 'stopped', helped: 'staying_calm', parent: null, at: debrief.at }, tagIns: [],
     }])
+  })
+
+  it('records who was asked to come during a hard meal (tag-in)', () => {
+    const start = ev({ type: 'hardMeal.start', meal: 'dinner', ref: 'h2' })
+    const tag = ev({ type: 'hardMeal.tagIn', meal: 'dinner', ref: 'h2' })
+    const s = buildFamilyState([start, tag])
+    expect(s.hardMeals[0].tagIns).toEqual([{ by: P1, at: tag.at }])
   })
 
   it('keeps a debrief after a refusal (no calm screen) as its own entry', () => {

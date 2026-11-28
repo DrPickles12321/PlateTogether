@@ -200,6 +200,21 @@ Shown when the phone has no connection. Not clinical, listed because 10.3 change
 | 10.3 | Help message sent offline | "Saved on this phone. It will reach your care team once you're back online. In an emergency, call 911." | |
 | 10.4 | Signing out with unsent logs | "Some of what you logged hasn't been sent yet. If you sign out now it will be lost. Sign out anyway?" | |
 
+## 11. Asking the other caregiver to come (tag-in)
+
+On the calm screen when the family has another caregiver. The phone notification is deliberately vague,
+because a lock screen is public.
+
+| # | Where | Text | Keep / Change / Cut |
+|---|---|---|---|
+| 11.1 | Calm screen button | "Ask Sam to come" (the other caregiver's name) | |
+| 11.2 | After tapping | "Sam has been asked. They'll see it in the app, and on their phone if notifications are on." | |
+| 11.3 | Banner for the other caregiver | "Alex is asking for you. Dinner is hard right now." / "Open the calm screen" / "Dismiss" | |
+| 11.4 | Phone notification | "Plate Together: Someone in your family is asking for you." | |
+| 11.5 | Account | "Notifications on this phone: so you know when the other caregiver asks you to come to the table. The notification only says someone in your family is asking for you." | |
+
+- **Q19.** Should the asked caregiver be able to reply ("On my way") so the parent at the table knows?
+
 ---
 
 **Reviewer:** ______________________  **Role / license:** ______________________  **Date:** __________

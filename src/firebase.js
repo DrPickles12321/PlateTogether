@@ -18,7 +18,7 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 }
 
-const app = initializeApp(firebaseConfig)
+export const app = initializeApp(firebaseConfig)
 
 // App Check — proves requests come from your real app (blocks scripted abuse of
 // the DB from outside the app). Only initializes when a reCAPTCHA v3 site key is
