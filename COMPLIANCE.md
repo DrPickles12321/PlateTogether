@@ -22,7 +22,9 @@ patients or clinicians*. It is fine as-is for a demo/hackathon with fake data.
       through it. For PHI you need a BAA with **Cloudflare** *and* **Anthropic**
       (Anthropic offers a BAA / zero-retention terms on request), or strip all PHI
       before it leaves Firebase. Today the chat sends deterministic weekly stats +
-      food names — treat that as PHI.
+      food names — treat that as PHI. Account deletion on Firestore also runs there for now,
+      with a Google service-account key that has admin rights over the data: move it to a
+      Cloud Function before real families (`docs/plans/2026-11-28-firestore-switch.md`).
 
 ## 2. Lock down access (partly code)
 - [x] Server-enforced Firebase Security Rules (owner / linked-clinician only).

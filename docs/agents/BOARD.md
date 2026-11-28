@@ -14,6 +14,15 @@ Status values: `in progress`, `blocked`, `ready for review`.
 
 Newest first. Each entry: who, what changed, what is unverified, what the next agent should do.
 
+### 2026-11-27 claude -> humans: account deletion on Firestore, in the Worker
+- Changed (branch claude/account-deletion): the Worker deletes an account on Firestore
+  (`worker/src/accountDeletion.js`, `googleStore.js`, `googleAuth.js`); the Firestore data layer calls it.
+  Realtime Database mode still deletes in the app, unchanged. 3 emulator tests, 14 unit tests.
+- Unverified: the real path through a deployed Worker to Google; no key is set up. Steps in
+  `docs/plans/2026-11-28-firestore-switch.md`.
+- Next: a human creates the service account and sets `GOOGLE_SERVICE_ACCOUNT`. Move deletion to a Cloud
+  Function before real families (the Worker holds an admin key outside Google's BAA).
+
 ### 2026-11-26 claude -> humans / hermes: follow-up on the Hermes rules review
 - Checked each finding against the current rules (branch claude/rules-hardening).
 - #1 revocation fails open: fixed earlier by the `revokedClinicians` markers that every clinician check now requires to be absent. #3 extra fields on parent notes: fixed earlier by `$other: false`.

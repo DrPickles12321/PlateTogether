@@ -10,7 +10,9 @@ import {
   doc, collection, query, where, onSnapshot, getDoc, setDoc, updateDoc, deleteDoc, addDoc, writeBatch,
   serverTimestamp, deleteField,
 } from 'firebase/firestore'
-import { fsdb } from '../firebase'
+import { signOut } from 'firebase/auth'
+import { fsdb, auth } from '../firebase'
+import { requestAccountDeletion } from '../lib/accountDeletion'
 import { useAuth } from './AuthContext'
 import { FirebaseDataContext, DEFAULT_TARGETS } from './dataContext'
 import { buildEvent, buildFamilyState, legacyViews } from '../lib/events'
@@ -416,10 +418,13 @@ export default function FirestoreDataProvider({ children }) {
     batch.commit().catch(warn('Access change'))
   }
 
-  // Deleting an account needs a server-side step on Firestore: the record is append-only by design, so the
-  // app can't erase it. Blocks the switch-over (docs/plans/2026-11-28-firestore-switch.md).
+  // The record is append-only by design, so the Worker deletes the account with admin rights
+  // (worker/src/accountDeletion.js). The sign-in is gone on the server, so sign out here to leave at once.
   async function deleteAccount() {
-    return { error: 'failed' }
+    if (!uid) return { error: 'Not signed in' }
+    const res = await requestAccountDeletion(auth.currentUser)
+    if (res.success) await signOut(auth).catch(() => {})
+    return res
   }
 
   const activeParentNotesByDate = activeViews.parentNotesByDate
