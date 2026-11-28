@@ -6,6 +6,7 @@ import { localIsoDate } from '../lib/constants'
 import { NEXT_MEALS, pickNextMeal, shortTime, timeUntil } from '../lib/nextMeal'
 import { sameAsYesterday } from '../lib/quickLog'
 import { OUTCOME_META } from '../lib/outcomes'
+import { CALM } from '../lib/supportCopy'
 import { OutcomeMark } from '../components/Icon'
 import HelpSheet from '../components/HelpSheet'
 
@@ -133,6 +134,13 @@ export default function NextMealView() {
               display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 52, borderRadius: 'var(--radius)',
               background: 'var(--ink)', color: 'var(--on-ink)', fontSize: 17, fontWeight: 600, textDecoration: 'none',
             }}>Log {next.label.toLowerCase()}</Link>
+            <Link to={`/parent/next/hard/${next.key}`} style={{
+              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 56, marginTop: 10,
+              borderRadius: 'var(--radius)', border: '1.5px solid var(--ink-mid)', background: 'white', color: 'var(--ink)', textDecoration: 'none',
+            }}>
+              <span style={{ fontSize: 17, fontWeight: 600 }}>{CALM.entry}</span>
+              <span style={{ fontSize: 13, color: 'var(--text-mid)' }}>{CALM.entryHint}</span>
+            </Link>
           </div>
         </>
       ) : (

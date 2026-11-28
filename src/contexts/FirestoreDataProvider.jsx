@@ -215,6 +215,17 @@ export default function FirestoreDataProvider({ children }) {
     addEvent(ownFid, { type: 'supplement.given', date, value: { name: nutrient, given: !given } })
   }
 
+  // Hard meal mode (roadmap C1): when the calm screen opened and closed, for the debrief and session summary
+  // later. `ref` ties one hard meal's start and end together.
+  function startHardMeal(meal) {
+    const ref = crypto.randomUUID()
+    addEvent(ownFid, { type: 'hardMeal.start', date: today(), meal, ref })
+    return ref
+  }
+  function endHardMeal(meal, ref) {
+    addEvent(ownFid, { type: 'hardMeal.end', date: today(), meal, ...(ref ? { ref } : {}) })
+  }
+
   // The parent's notes to the care team (one per day, as today)
   function saveParentNote({ date, body, existingNoteId }) {
     const noteId = existingNoteId || ownViews.parentNotesByDate[date]?.id || crypto.randomUUID()
@@ -449,6 +460,8 @@ export default function FirestoreDataProvider({ children }) {
       updateMealTime,
       supplementLog: ownViews.supplementLog,
       toggleSupplement,
+      startHardMeal,
+      endHardMeal,
       clinicianNotesRead: settings.clinicianNotesRead || {},
       markClinicianNoteRead,
       savedClinicianNotes: Object.values(savedMap),

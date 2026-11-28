@@ -33,6 +33,33 @@ export const REFUSAL = {
   worried: "Worried it's more than a hard meal? When to get help",
 }
 
+// Hard meal mode's calm screen (roadmap C1): the parent is at the table and the meal is going badly.
+// It shows only the clinician's own table lines, one at a time, large. The app adds no advice of its
+// own: with no lines it says so (same rule as REFUSAL). The time line counts up, never down, and sets
+// no target. DRAFT, in docs/clinical/2026-11-26-wording-review.md section 8.
+export const CALM = {
+  entry: 'This meal is hard',
+  entryHint: 'Your plan, one line at a time',
+  heading: mealLabel => `${mealLabel}, one line at a time`,
+  headingNoLines: mealLabel => `${mealLabel} is hard right now`,
+  source: 'From your clinician',
+  position: (i, n) => `${i + 1} of ${n}`,
+  next: 'Next line',
+  back: 'Back',
+  again: 'Start again',
+  noLines: "Your clinician hasn't written lines to read at the table yet. Ask about it at your next session.",
+  steady: "Hard meals happen in recovery. You don't have to work this out alone.",
+  end: 'The meal is over',
+  endHint: 'Then write down how it went.',
+}
+
+// A quiet count of time at the table: whole minutes, rounded down, no seconds ticking.
+export function timeAtTable(startMs, nowMs) {
+  const minutes = Math.floor(Math.max(0, nowMs - startMs) / 60000)
+  if (minutes < 1) return 'Just sat down'
+  return `At the table ${minutes} min`
+}
+
 // The one line at the top of the parent's week. It reflects what actually happened and never
 // praises a number: no counts, no percentages, no "doing great" after a week of hard meals.
 export function weekMessage({ logged = 0, hard = 0 } = {}) {
