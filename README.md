@@ -31,7 +31,7 @@ Access is code-based: a parent shares a family code, a clinician links to it, an
 ## Tech stack
 
 - **Frontend**: React 19 + Vite, React Router 7, Tailwind 4, DM Sans; forest-and-sage design tokens in `src/index.css`
-- **Backend**: Firebase Realtime Database (data + rules) and Firebase Auth
+- **Backend**: Firestore (data, `firestore.rules`) and Firebase Auth. The old Realtime Database is kept as a copy for rollback.
 - **AI and food data**: Cloudflare Worker (`worker/`) proxying Anthropic Claude (clinical digest, chat) and USDA FoodData Central (food lookup, cached). The browser never holds an API key; it calls the Worker with a Firebase ID token.
 - **Optional iMessage companion** (`agent/`): a standing agent (via [spectrum-ts](https://www.npmjs.com/package/spectrum-ts)) that sends dinner-window reminders, weekly summaries, and SOS follow-ups over iMessage, backed by Supabase
 - **Testing**: Vitest
@@ -83,7 +83,7 @@ Revoking a clinician writes two things in one update: `careTeam/{clinician}/acti
 
 ### Running the app against local emulators (fake data)
 
-To try the app without touching the real Firebase project, start the Auth and Database emulators and the dev server with these variables set (use made-up accounts and foods only):
+To try the app without touching the real Firebase project, start the Auth and Firestore emulators and the dev server with these variables set (use made-up accounts and foods only):
 
 ```bash
 VITE_USE_EMULATOR=true \
@@ -92,11 +92,11 @@ VITE_FIREBASE_DATABASE_URL=https://demo-plate-default-rtdb.firebaseio.com \
 VITE_FIREBASE_PROJECT_ID=demo-plate VITE_FIREBASE_APP_ID=demo-app npm run dev
 ```
 
-`firebase.json` sets the emulator ports (auth 9099, database 9000, firestore 8080), so `firebase emulators:start --only auth,database --project demo-plate` is enough. The switch lives in `src/firebase.js` and is ignored in production builds. The AI worker is not started, so food lookups return "No data" locally.
+`firebase.json` sets the emulator ports (auth 9099, database 9000, firestore 8080), so `firebase emulators:start --only auth,firestore --project demo-plate` is enough (add `database` to try the old layer with `VITE_DATA_BACKEND=rtdb`). The emulator switch lives in `src/firebase.js` and is ignored in production builds. The AI worker is not started, so food lookups return "No data" locally.
 
-### Moving to Firestore (roadmap B4 and B5)
+### The move to Firestore (done 2026-11-28)
 
-The app is moving from Realtime Database to Firestore (see `docs/plans/2026-11-27-fbt-framework.md`).
+The app moved from Realtime Database to Firestore on 2026-11-28 (see `docs/plans/2026-11-28-firestore-switch.md`).
 `scripts/migrate-to-firestore.mjs` copies every parent's data into the new family record and checks it. It prints
 counts and family ids only. Dry run first:
 
@@ -107,8 +107,8 @@ node scripts/migrate-to-firestore.mjs --project <id> --apply    # write, then ch
 
 Against the real project it needs Google application-default credentials of a project owner
 (`gcloud auth application-default login`). Against local emulators, set `FIREBASE_DATABASE_EMULATOR_HOST` and
-`FIRESTORE_EMULATOR_HOST`. It only reads Realtime Database, so the old data is untouched. Don't run it on the real
-project until the app's switch-over (B5) is ready.
+`FIRESTORE_EMULATOR_HOST`. It only reads Realtime Database, so the old data is untouched. Don't run `--apply` on the real
+project again: the app now writes Firestore, and a new copy would overwrite what families logged since.
 
 ## Deploying
 

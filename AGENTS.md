@@ -14,7 +14,8 @@ It stores **sensitive health data** about mostly-minor patients. Read "Hard rule
 ## Stack
 
 - Frontend: React 19 + Vite 8, React Router 7, Tailwind 4, framer-motion, dnd-kit, fuse.js
-- Data + auth: Firebase Realtime Database (rules in `database.rules.json`) + Firebase Auth
+- Data + auth: Firestore (rules in `firestore.rules`) + Firebase Auth. Since 2026-11-28; before that the app ran
+  on Realtime Database (`database.rules.json`), which is kept for now as an old copy and no longer written.
 - AI: Cloudflare Worker in `worker/` proxies Anthropic Claude (clinical digest, chat, food lookup via USDA).
   The browser never holds an Anthropic key; it calls `VITE_AI_PROXY_URL` with a Firebase ID token.
 - Optional iMessage companion: `agent/` (Node + spectrum-ts + Supabase). Not on the critical path.
@@ -25,7 +26,8 @@ It stores **sensitive health data** about mostly-minor patients. Read "Hard rule
 ```
 src/pages/         route-level views (Parent*, Clinician*, Daily/Weekly/Stats/Notes/Account)
 src/components/    UI pieces (nutrition/ subfolder for nutrition panels)
-src/contexts/      AuthContext, FirebaseDataContext, NutritionalTargetsContext
+src/contexts/      AuthContext, FirestoreDataProvider (live data layer), FirebaseDataContext (switch + old
+                   Realtime Database layer), NutritionalTargetsContext
 src/lib/           pure logic: trends, weekStats, weekFacts, mealTiming, insights, chatService, nutrition*
 src/data/          nutritionDb.json, commonFoods.js (static food data; considered outdated)
 worker/            Cloudflare Worker (AI proxy + USDA food lookup), deployed separately with Wrangler
@@ -51,26 +53,26 @@ npm run build      # production build into dist/
 Before calling any task done: `npm test`, `npm run lint`, and `npm run build` must all pass. Report real
 output. If something fails, say so; do not claim success.
 
-## Data model (Realtime Database)
+## Data model (Firestore)
 
-Top-level nodes: `familyCodes/{code} -> parentUid` and `users/{uid}`.
+The full design is section 7 of `docs/plans/2026-11-27-fbt-framework.md`; the switch-over record is
+`docs/plans/2026-11-28-firestore-switch.md`.
 
-Under `users/{uid}` (parent or clinician): `email`, `role` (write-once), `familyCode`, `consent`.
+- `families/fam_{parentUid}`: the family record (`createdBy`, `program`, `phase`, `profile`), with subcollections
+  `members/{uid}` (`role`, `active`), `revoked`, `events` (append-only: meals, notes, supplements, support
+  requests; `src/lib/events.js`), `plan` (versioned items with an owner role), `foods`, `usualMeals`,
+  `clinicianNotes`, and others reserved for later phases.
+- `users/{uid}`: `email`, `accountType` (`family` or `clinician`), `families` map of family id to role.
+  `users/{uid}/private/settings`: consent and family code, owner only.
+- `familyCodes/{code}`: `{ familyId, createdBy }`. A clinician joins a family by proving its code.
 
-Parent-owned data: `mealLogs`, `mealTimes`, `supplementLog`, `foodItems`, `insights`, `lastResetWeek`,
-`parentNotes/{date}`, `hiddenClinicianNoteIds`, `hiddenParentNoteIds`, `clinicianNotesRead`, `savedClinicianNotes`,
-`usualMeals/{id}` (`{ id, name, mealType, foods: [{ id, name, category }], createdAt }`, shape checked in the rules).
+Revoking a clinician sets their member `active=false` and adds a `revoked` marker; every rule checks both.
+Events can't be edited or deleted from the app; account deletion runs in the Worker with admin rights.
 
-Linking: a clinician holds `users/{clinicianUid}/patients/{parentUid}` (must prove the family `code`); the parent
-holds `users/{parentUid}/careTeam/{clinicianUid}` with an `active` flag. Revoking access sets `active=false`;
-every clinician read/write rule checks that flag.
-
-Shared-write nodes (parent or an active linked clinician): `nutritionalTargets`, `prescribedSupplements`, `sos`,
-`assignedChallenges`. Clinician-only write: `clinicianNotes`.
-
-**The data model is under review** (see "Direction"). Do not refactor storage without an approved plan.
-When you change shape, update `database.rules.json`, the readers in `src/contexts/FirebaseDataContext.jsx`,
-and the tests together.
+**Do not refactor storage without an approved plan.** When you change shape, update `firestore.rules` and
+`tests/firestore/`, the readers in `src/contexts/FirestoreDataProvider.jsx` and `src/lib/firestoreViews.js`, and
+the unit tests together. The old Realtime Database layer (`database.rules.json`, `RtdbDataProvider`) is only
+the rollback path now; don't build on it.
 
 ## Hard rules
 
@@ -119,7 +121,7 @@ Ask before assuming details.
 3. **Easy food entry and current nutrition data.** Replace stale `nutritionDb.json` data with a maintained
    source (USDA FoodData Central is already used in the Worker), and make adding food fast.
 4. **Re-think data storage** for growth and for HIPAA-style requirements (see `COMPLIANCE.md`).
-   Nothing is chosen yet. Realtime Database may or may not stay.
+   Decided and done: Firestore (switched 2026-11-28). Identity Platform and the Google BAA are still to do.
 5. **Clinician assistant.** An LLM that helps a clinician reason about a patient's patterns and "what is
    normal vs. a warning sign". It must be grounded in vetted clinical sources (retrieval, not just a prompt),
    advisory only, and evaluated before it ships. It must never see identifiable data without a signed BAA.
