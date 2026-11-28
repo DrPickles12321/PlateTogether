@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { buildSessionPrep } from '../lib/sessionPrep'
+import { hardMealEntries } from '../lib/sessionSummary'
 import { getWeekIsoDates } from '../lib/insights'
 import { localIsoDate } from '../lib/constants'
 import { SectionCard } from '../pages/ClinicianView'
@@ -20,13 +21,14 @@ function Row({ label, children }) {
 }
 
 // Facts the family logged this week, each with the entries behind it. Not a diagnosis and not advice.
-export default function SessionPrepCard({ mealStatuses, mealDistress, allMealItems }) {
+export default function SessionPrepCard({ mealStatuses, mealDistress, allMealItems, hardMeals = [] }) {
   const prep = useMemo(() => buildSessionPrep({
     mealStatuses, mealDistress, allMealItems,
     isoDates: getWeekIsoDates(0),
     previousIsoDates: getWeekIsoDates(-1),
     today: localIsoDate(),
   }), [mealStatuses, mealDistress, allMealItems])
+  const afterHard = useMemo(() => hardMealEntries(hardMeals, getWeekIsoDates(0)), [hardMeals])
 
   const { counts, distress } = prep
   const changeText = distress.change === null ? null
@@ -54,6 +56,18 @@ export default function SessionPrepCard({ mealStatuses, mealDistress, allMealIte
           <ul style={{ margin: '4px 0 0', paddingLeft: 18 }}>
             {prep.hardEntries.map(e => (
               <li key={`${e.date}-${e.meal}`}>{day(e.date)}, {e.mealLabel.toLowerCase()}: {STATUS_LABEL[e.status]}</li>
+            ))}
+          </ul>
+        </Row>
+      )}
+
+      {afterHard.length > 0 && (
+        <Row label="After hard meals">
+          <ul style={{ margin: 0, paddingLeft: 18 }}>
+            {afterHard.map(h => (
+              <li key={h.key}>
+                {day(h.date)}, {h.mealLabel.toLowerCase()}: <span style={{ color: h.worried ? 'var(--danger)' : undefined, fontWeight: h.worried ? 600 : 400 }}>{h.lines.join(' · ')}</span>
+              </li>
             ))}
           </ul>
         </Row>

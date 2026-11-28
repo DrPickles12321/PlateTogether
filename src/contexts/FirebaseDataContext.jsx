@@ -926,6 +926,8 @@ function RtdbDataProvider({ children }) {
       // Hard meal mode records events on Firestore only; this old layer is the rollback path.
       startHardMeal: () => null,
       endHardMeal: () => {},
+      saveDebrief: () => {},
+      hardMeals: [],
       clinicianNotesRead,
       markClinicianNoteRead,
       savedClinicianNotes,

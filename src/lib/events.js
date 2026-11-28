@@ -18,6 +18,14 @@ export const TEAM_EVENTS = ['note.read', 'sos.resolve', 'phase.change']
 const ALL_EVENTS = [...CAREGIVER_EVENTS, ...TEAM_EVENTS]
 const MEAL_EVENTS = ['meal.outcome', 'meal.foods', 'meal.distress', 'meal.time', 'hardMeal.start', 'hardMeal.tagIn', 'hardMeal.end', 'debrief']
 
+// The debrief after a hard meal (roadmap C2): up to three taps, each skippable. Keys are stored; the words
+// shown for them live in lib/supportCopy.js (DEBRIEF).
+export const DEBRIEF_OPTIONS = {
+  hard: ['wouldnt_start', 'stopped', 'upset', 'bargaining', 'left_table', 'worried'],
+  helped: ['plan_lines', 'staying_calm', 'distraction', 'other_adult', 'more_time', 'nothing'],
+  parent: ['okay', 'worn_out', 'need_support'],
+}
+
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/
 const CLOCK = /^([01]?\d|2[0-3]):[0-5]\d$/
 const NOTE_MAX = 2000
@@ -62,6 +70,11 @@ function valueProblem(type, value) {
     case 'supplement.given':
       return value && typeof value.name === 'string' && value.name.trim() && typeof value.given === 'boolean'
         ? null : 'A supplement needs a name and given: true or false.'
+    case 'debrief': {
+      const entries = value && typeof value === 'object' ? Object.entries(value) : []
+      const known = entries.every(([k, v]) => DEBRIEF_OPTIONS[k] && (v === null || DEBRIEF_OPTIONS[k].includes(v)))
+      return known && entries.some(([, v]) => v !== null) ? null : 'A debrief answers at least one of its three questions.'
+    }
     default:
       return null
   }
@@ -93,10 +106,18 @@ const atOrNull = e => (e.at == null ? null : toMillis(e.at))
 //   meals[date][meal] = { status, items, distress, time, loggedBy, firstLoggedAt, lastChangedAt, outcomeChanges }
 //   supplements[date] = [names given]
 //   notes[date] = { id, date, body, by, created_at, updated_at, readBy: [uid], read_at }
+//   hardMeals = [{ ref, date, meal, by, startedAt, endedAt, debrief }], oldest first: each use of hard meal
+//     mode and each debrief, joined by `ref`. A debrief with no calm screen before it (after a refusal) is its own entry.
 export function buildFamilyState(events) {
   const meals = {}
   const supplements = {}
   const notes = {}
+  const hardMeals = new Map()
+  const hardMeal = (e, at) => {
+    const key = e.ref || e.id || `${e.date}|${e.meal}|${at}`
+    if (!hardMeals.has(key)) hardMeals.set(key, { ref: key, date: e.date, meal: e.meal, by: e.by, startedAt: null, endedAt: null, debrief: null })
+    return hardMeals.get(key)
+  }
 
   const mealSlot = (date, meal) => {
     meals[date] ??= {}
@@ -159,11 +180,20 @@ export function buildFamilyState(events) {
         }
         break
       }
+      case 'hardMeal.start':
+        hardMeal(e, at).startedAt = at
+        break
+      case 'hardMeal.end':
+        hardMeal(e, at).endedAt = at
+        break
+      case 'debrief':
+        hardMeal(e, at).debrief = { ...e.value, at }
+        break
       default:
         break
     }
   }
-  return { meals, supplements, notes }
+  return { meals, supplements, notes, hardMeals: [...hardMeals.values()] }
 }
 
 // The shapes the screens use today (FirebaseDataContext), so switching storage leaves screens unchanged.

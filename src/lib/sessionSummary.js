@@ -4,6 +4,7 @@
 
 import { buildSessionPrep } from './sessionPrep'
 import { MEAL_KEYS } from './weekSummary'
+import { DEBRIEF } from './supportCopy'
 
 const DAY = 86400000
 const toUtc = iso => { const [y, m, d] = iso.split('-').map(Number); return Date.UTC(y, m - 1, d) }
@@ -26,6 +27,29 @@ export function datesBefore(isoDates) {
   return isoDates.map((_, i) => fromUtc(first - (isoDates.length - i) * DAY))
 }
 
+// Hard meals in the range, for the clinician: whether the calm screen was used, and the debrief answers in
+// the parent's own words (lib/events.js buildFamilyState gives the list). Oldest first.
+const MEAL_LABEL = { breakfast: 'Breakfast', lunch: 'Lunch', snack: 'Snack', dinner: 'Dinner' }
+export function hardMealEntries(hardMeals = [], isoDates = []) {
+  if (!isoDates.length) return []
+  const first = isoDates[0], last = isoDates[isoDates.length - 1]
+  const C = DEBRIEF.clinician
+  return hardMeals
+    .filter(h => h?.date >= first && h.date <= last)
+    .sort((a, b) => a.date.localeCompare(b.date) || MEAL_KEYS.indexOf(a.meal) - MEAL_KEYS.indexOf(b.meal) || (a.startedAt ?? 0) - (b.startedAt ?? 0))
+    .map(h => {
+      const d = h.debrief || {}
+      const lines = []
+      if (h.startedAt != null) lines.push(C.calm)
+      if (d.hard === 'worried') lines.push(C.worried)
+      else if (d.hard) lines.push(`${C.hard}: ${DEBRIEF.options.hard[d.hard]}`)
+      if (d.helped) lines.push(`${C.helped}: ${DEBRIEF.options.helped[d.helped]}`)
+      if (d.parent) lines.push(`${C.parent}: ${DEBRIEF.options.parent[d.parent]}`)
+      if (!h.debrief) lines.push(C.none)
+      return { key: h.ref, date: h.date, meal: h.meal, mealLabel: MEAL_LABEL[h.meal] || h.meal, lines, worried: d.hard === 'worried', needSupport: d.parent === 'need_support' }
+    })
+}
+
 export function sessionAgo(lastSessionIso, today) {
   if (!lastSessionIso) return null
   const days = Math.round((toUtc(today) - toUtc(lastSessionIso)) / DAY)
@@ -40,8 +64,9 @@ export function sessionAgo(lastSessionIso, today) {
  * @param {string[]} [args.previousIsoDates] the week before, for the distress comparison
  * @param {string} args.today YYYY-MM-DD
  * @param {Array<{date, body}>} [args.parentNotes]
+ * @param {Array} [args.hardMeals] from buildFamilyState: calm-screen uses and debriefs
  */
-export function buildSessionSummary({ mealStatuses = {}, mealDistress = {}, allMealItems = {}, parentNotes = [], isoDates, previousIsoDates = [], today }) {
+export function buildSessionSummary({ mealStatuses = {}, mealDistress = {}, allMealItems = {}, parentNotes = [], hardMeals = [], isoDates, previousIsoDates = [], today }) {
   const prep = buildSessionPrep({ mealStatuses, mealDistress, allMealItems, isoDates, previousIsoDates, today })
 
   const days = isoDates.map(date => ({
@@ -60,5 +85,5 @@ export function buildSessionSummary({ mealStatuses = {}, mealDistress = {}, allM
     .sort((a, b) => a.date.localeCompare(b.date))
     .map(n => ({ date: n.date, body: n.body }))
 
-  return { prep, days, notes }
+  return { prep, days, notes, hardMeals: hardMealEntries(hardMeals, isoDates) }
 }

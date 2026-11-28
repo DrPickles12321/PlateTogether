@@ -166,10 +166,33 @@ counts up in whole minutes and never sets a target.
 - **Q15.** Should "This meal is hard" also tell the other parent (planned with several caregivers), and should
   a clinician see how often it was used?
 
+## 9. The debrief after a hard meal
+
+Three questions, one tap each, any of them skippable, shown after "The meal is over" (section 8) and after
+"Done for now" on the refused-meal screen (section 2). The answers go to the clinician's session summary and
+week in review, in the parent's own words. "Something worried me" is never just a note: tapping it shows the
+when-to-call guidance (section 4) straight away.
+
+| # | Where | Text | Keep / Change / Cut |
+|---|---|---|---|
+| 9.1 | Heading and intro | "After dinner" / "Three quick taps for your clinician. Skip any you like." | |
+| 9.2 | Question 1 | "What made it hard?" | |
+| 9.3 | Answers | "Wouldn't start eating" · "Stopped partway" · "Very upset or angry" · "Bargaining or arguing about the food" · "Left the table" · "Something worried me" (under it: "For example being sick after eating, feeling faint, or talk of hurting themselves") | |
+| 9.4 | After "Something worried me" | "Some things need a call, not a note", then the when-to-call card | |
+| 9.5 | Question 2 | "What helped, if anything?" | |
+| 9.6 | Answers | "The lines from our plan" · "Staying calm and close" · "Talking about something else" · "Another adult stepping in" · "Giving it more time" · "Nothing helped this time" | |
+| 9.7 | Question 3 | "How are you doing now?" / "Okay" · "Worn out" · "I'd like some support" (shows "Message your care team") | |
+| 9.8 | Saved | "Saved. Your clinician will see it before your next session." / with nothing answered: "Nothing saved, and that's fine." | |
+| 9.9 | Clinician sees | "Calm screen used", "Made it hard: …", "Helped: …", "Parent afterwards: …", and in red "Something worried the parent; the app showed when to call for help." | |
+
+- **Q16.** Are these the right answer lists for FBT? What is missing (for example "Ate it in the end")?
+- **Q17.** Should one question allow more than one answer, at the cost of more than one tap?
+- **Q18.** Should a "Something worried me" debrief alert the clinician right away instead of waiting for the session?
+
 ---
 
 **Reviewer:** ______________________  **Role / license:** ______________________  **Date:** __________
 
-Where to change things after review: outcome words in `src/lib/outcomes.js`; refusal, hard-meal and calm-screen text in
+Where to change things after review: outcome words in `src/lib/outcomes.js`; refusal, hard-meal, calm-screen and debrief text in
 `src/lib/supportCopy.js`; warning signs in `src/components/WarningSignsCard.jsx`; week highlights in
 `src/lib/weekHighlights.js`; starter ideas in `src/lib/starterFoods.js`; chat replies in `src/lib/aiSafety.js`.

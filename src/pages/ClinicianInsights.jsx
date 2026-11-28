@@ -15,6 +15,7 @@ export default function ClinicianInsights() {
   const {
     parentNotesArray: parentNotes,
     allMealItems: parentMealItems,
+    hardMeals,
     mealStatuses: parentMealStatuses,
     mealDistress: parentMealDistress,
     activeMealTimesByDate: parentMealTimesByDate,
@@ -34,7 +35,7 @@ export default function ClinicianInsights() {
   return (
     <>
       <RevealSection eyebrow="This week">
-        <SessionPrepCard mealStatuses={parentMealStatuses} mealDistress={parentMealDistress} allMealItems={parentMealItems} />
+        <SessionPrepCard mealStatuses={parentMealStatuses} mealDistress={parentMealDistress} allMealItems={parentMealItems} hardMeals={hardMeals} />
       </RevealSection>
 
       <RevealSection eyebrow="Progress">
