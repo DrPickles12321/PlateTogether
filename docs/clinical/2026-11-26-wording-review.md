@@ -215,6 +215,21 @@ because a lock screen is public.
 
 - **Q19.** Should the asked caregiver be able to reply ("On my way") so the parent at the table knows?
 
+## 12. Weight shared with the parents
+
+Only when the lead therapist turns on "Parents can see weight". Parents see each visit's weight and date on
+Insights, with no change figures, arrows or comments. The teen never sees weight.
+
+| # | Where | Text | Keep / Change / Cut |
+|---|---|---|---|
+| 12.1 | Parent Insights heading | "Weight from clinic visits" | |
+| 12.2 | Each row | "Fri, Nov 27 · 45.1 kg" | |
+| 12.3 | Under the list | "Shared by your clinician. Talk to them about what it means." | |
+| 12.4 | Clinician switch | "Parents can see weight: they see each visit's weight and date, nothing else: no vitals, no change figures. The teen never sees it." | |
+
+- **Q20.** Should parents see weight as numbers at all, or only "weighed at the visit" with the clinician
+  explaining in session? Should the default be off (as now) for every family?
+
 ---
 
 **Reviewer:** ______________________  **Role / license:** ______________________  **Date:** __________

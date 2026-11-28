@@ -244,6 +244,18 @@ describe('clinic measurements', () => {
     await assertFails(setDoc(doc(as(P1), `families/${F}/measurements/m4`), { kind: 'weight', value: 40, unit: 'kg', by: P1, at: serverTimestamp() }))
   })
 
+  it('a reading must be well formed: known kind and unit, a visit date, blood pressure as two numbers', async () => {
+    const m = extra => setDoc(doc(as(THER), `families/${F}/measurements/x${Math.random().toString(36).slice(2)}`), { by: THER, at: serverTimestamp(), ...extra })
+    await assertSucceeds(m({ kind: 'bloodPressure', value: 104, value2: 62, unit: 'mmHg', date: '2026-11-28' }))
+    await assertSucceeds(m({ kind: 'heartRate', value: 48, unit: 'bpm', date: '2026-11-28' }))
+    await assertSucceeds(m({ kind: 'weight', value: 101.5, unit: 'lb', date: '2026-11-28' }))
+    await assertFails(m({ kind: 'bloodPressure', value: 104, unit: 'mmHg' }))
+    await assertFails(m({ kind: 'weight', value: 45, value2: 3, unit: 'kg' }))
+    await assertFails(m({ kind: 'weight', value: 45, unit: 'stone' }))
+    await assertFails(m({ kind: 'heartRate', value: 48, unit: 'bpm', date: 'yesterday' }))
+    await assertFails(m({ kind: 'mood', value: 3, unit: 'x' }))
+  })
+
   it('caregivers see weight only after the lead shares it, and never other vitals; the teen never', async () => {
     await assertFails(getDoc(doc(as(P1), `families/${F}/measurements/m1`)))
     await env.withSecurityRulesDisabled(async ctx => {
