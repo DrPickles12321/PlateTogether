@@ -10,9 +10,9 @@ import {
   doc, collection, query, where, onSnapshot, getDoc, setDoc, updateDoc, deleteDoc, addDoc, writeBatch,
   serverTimestamp, deleteField,
 } from 'firebase/firestore'
-import { signOut } from 'firebase/auth'
 import { fsdb, auth } from '../firebase'
 import { requestAccountDeletion } from '../lib/accountDeletion'
+import { signOutOfApp } from '../lib/signOut'
 import { useAuth } from './AuthContext'
 import { FirebaseDataContext, DEFAULT_TARGETS } from './dataContext'
 import { buildEvent, buildFamilyState, legacyViews } from '../lib/events'
@@ -35,7 +35,7 @@ const byId = list => Object.fromEntries(list.map(x => [x.id, x]))
 const compact = obj => Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined && v !== null && v !== ''))
 const warn = what => err => console.warn(`${what} not saved:`, err?.code || err?.message || 'error') // never the content
 
-const EMPTY_RECORD = { family: null, events: [], foods: [], usualMeals: {}, plan: {}, clinicianNotes: [], members: [], revoked: [], denied: false }
+const EMPTY_RECORD = { family: null, events: [], foods: [], usualMeals: {}, plan: {}, clinicianNotes: [], members: [], revoked: [], denied: false, pending: false }
 
 // Live copy of one family's record. Keyed by family (and a retry counter), so switching families never
 // shows the previous family's data.
@@ -50,7 +50,8 @@ function useFamilyRecord(fid, { nonce = 0, withRevoked = false } = {}) {
     const base = `families/${fid}`
     const unsubs = [
       onSnapshot(doc(fsdb, base), s => put({ family: s.exists() ? s.data(READ) : null }), denied),
-      onSnapshot(collection(fsdb, `${base}/events`), s => put({ events: listOf(s), denied: false }), denied),
+      // With metadata changes, so `pending` shows logs saved on this device but not yet sent (offline).
+      onSnapshot(collection(fsdb, `${base}/events`), { includeMetadataChanges: true }, s => put({ events: listOf(s), pending: s.metadata.hasPendingWrites, denied: false }), denied),
       onSnapshot(collection(fsdb, `${base}/foods`), s => put({ foods: listOf(s) }), denied),
       onSnapshot(collection(fsdb, `${base}/usualMeals`), s => put({ usualMeals: byId(listOf(s)) }), denied),
       onSnapshot(collection(fsdb, `${base}/plan`), s => put({ plan: byId(listOf(s)) }), denied),
@@ -440,7 +441,7 @@ export default function FirestoreDataProvider({ children }) {
   async function deleteAccount() {
     if (!uid) return { error: 'Not signed in' }
     const res = await requestAccountDeletion(auth.currentUser)
-    if (res.success) await signOut(auth).catch(() => {})
+    if (res.success) await signOutOfApp({ ask: false })
     return res
   }
 
@@ -469,6 +470,7 @@ export default function FirestoreDataProvider({ children }) {
       startHardMeal,
       endHardMeal,
       saveDebrief,
+      syncPending: own.pending,
       hardMeals: (viewingPatientUid ? viewState : ownState).hardMeals,
       clinicianNotesRead: settings.clinicianNotesRead || {},
       markClinicianNoteRead,

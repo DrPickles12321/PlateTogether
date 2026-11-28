@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { onAuthStateChanged, signOut } from 'firebase/auth'
 import { auth } from '../firebase'
 import { readRole } from '../lib/accounts'
+import { rememberRole, rememberedRole, browserStorage } from '../lib/offlineDevice'
 
 const AuthContext = createContext(null)
 
@@ -29,8 +30,16 @@ export function AuthProvider({ children }) {
           // A brand-new account's role write may not have propagated by the time
           // this listener fires, so fall back to the role the user just selected.
           setRole(storedRole || pendingRole)
+          rememberRole(browserStorage(), firebaseUser.uid, storedRole || pendingRole)
           setUser(firebaseUser)
-        } catch (err) {
+        } catch {
+          // Offline, the role may not be readable; the one remembered on this device keeps a parent signed in.
+          const remembered = !pendingRoleRef.current && rememberedRole(browserStorage(), firebaseUser.uid)
+          if (remembered) {
+            setRole(remembered)
+            setUser(firebaseUser)
+            return
+          }
           pendingRoleRef.current = null
           await signOut(auth)
           setLoginError('Something went wrong loading your account. Please sign in again.')

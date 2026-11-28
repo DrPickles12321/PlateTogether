@@ -15,7 +15,7 @@ const PARENT_TABS = [
 // The notebook's cover label: the name in handwriting. On phones the parent's tabs and
 // account actions live in the bottom tab bar and the Account page, so the top stays quiet.
 export default function Navbar() {
-  const { familyCode } = useFirebaseData()
+  const { familyCode, syncPending } = useFirebaseData()
   const { pathname } = useLocation()
   const isMobile = useIsMobile()
   const isParent = pathname.startsWith('/parent')
@@ -64,7 +64,7 @@ export default function Navbar() {
                 </span>
               )}
               <button
-                onClick={signOutOfApp}
+                onClick={() => signOutOfApp({ unsent: syncPending })}
                 style={{
                   minHeight: 44, padding: '6px 12px', fontSize: 14, fontWeight: 600, color: 'var(--text-mid)',
                   background: 'none', border: '1px solid var(--border-mid)', borderRadius: 'var(--radius)', cursor: 'pointer',
@@ -76,7 +76,7 @@ export default function Navbar() {
           )}
           {isMobile && !isParent && (
             <button
-              onClick={signOutOfApp}
+              onClick={() => signOutOfApp({ unsent: syncPending })}
               style={{
                 minHeight: 44, padding: '6px 12px', fontSize: 14, fontWeight: 600, color: 'var(--text-mid)',
                 background: 'none', border: 'none', cursor: 'pointer',

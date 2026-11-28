@@ -10,7 +10,7 @@ const section = { marginTop: 28, paddingTop: 20, borderTop: '1px solid var(--rul
 const h3 = { fontSize: 16, fontWeight: 700, color: 'var(--text-dark)', marginBottom: 6 }
 
 export default function AccountView() {
-  const { deleteAccount, careTeam, revokeCareTeamAccess, reEnableCareTeamAccess, familyCode, childProfile, saveChildProfile } = useFirebaseData()
+  const { syncPending, deleteAccount, careTeam, revokeCareTeamAccess, reEnableCareTeamAccess, familyCode, childProfile, saveChildProfile } = useFirebaseData()
   const isMobile = useIsMobile()
   const [showDelete, setShowDelete] = useState(false)
   const [confirmSignOut, setConfirmSignOut] = useState(false)
@@ -45,7 +45,7 @@ export default function AccountView() {
         {confirmSignOut ? (
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
             <span style={{ fontSize: 15, color: 'var(--text-mid)' }}>Sign out of Plate Together on this device?</span>
-            <button type="button" onClick={signOutOfApp} style={btn('var(--ink)', 'white')}>Sign out</button>
+            <button type="button" onClick={() => signOutOfApp({ unsent: syncPending })} style={btn('var(--ink)', 'white')}>Sign out</button>
             <button type="button" onClick={() => setConfirmSignOut(false)} style={btn('white', 'var(--text-dark)', 'var(--border-mid)')}>Cancel</button>
           </div>
         ) : (

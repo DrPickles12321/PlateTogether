@@ -2,7 +2,10 @@ import { initializeApp } from 'firebase/app'
 import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check'
 import { getAuth, connectAuthEmulator } from 'firebase/auth'
 import { getDatabase, connectDatabaseEmulator } from 'firebase/database'
-import { initializeFirestore, connectFirestoreEmulator } from 'firebase/firestore'
+import {
+  initializeFirestore, connectFirestoreEmulator, persistentLocalCache, persistentMultipleTabManager, memoryLocalCache,
+} from 'firebase/firestore'
+import { keepsRecordOnDevice, browserStorage } from './lib/offlineDevice'
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -38,7 +41,15 @@ if (recaptchaSiteKey) {
 export const auth = getAuth(app)
 export const db = getDatabase(app)
 // Firestore refuses undefined fields; Realtime Database quietly dropped them, and the app relies on that.
-export const fsdb = initializeFirestore(app, { ignoreUndefinedProperties: true })
+// On a device where a parent has signed in, the family's record is also kept on the device, so meals logged
+// offline survive a reload and send when the connection is back (roadmap C4; lib/offlineDevice.js says when).
+// Everywhere else, and for clinicians, it stays in memory only. Sign-out clears it (lib/signOut.js).
+export const fsdb = initializeFirestore(app, {
+  ignoreUndefinedProperties: true,
+  localCache: keepsRecordOnDevice(browserStorage())
+    ? persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+    : memoryLocalCache(),
+})
 
 // Local development against the Firebase emulators (fake data only). Set
 // VITE_USE_EMULATOR=true when running `npm run dev`; it is ignored in production builds.

@@ -53,6 +53,15 @@ export const CALM = {
   endHint: 'Then write down how it went.',
 }
 
+// Offline logging (roadmap C4). Logs made with no connection are kept on the phone and sent later; the
+// app says so plainly, and never claims the care team has seen something that hasn't left the phone.
+export const OFFLINE = {
+  offline: "You're offline. What you log is saved on this phone and sent when you're back online.",
+  sending: 'Sending what you logged…',
+  helpQueued: "Saved on this phone. It will reach your care team once you're back online. In an emergency, call 911.",
+  signOutUnsent: "Some of what you logged hasn't been sent yet. If you sign out now it will be lost. Sign out anyway?",
+}
+
 // The debrief after a hard meal (roadmap C2): three questions, one tap each, any of them skippable. The
 // clinician reads the answers before the next session. "Something worried me" never becomes a note: it
 // opens the when-to-call guidance at once (AGENTS.md: red flags route to a human, not advice). Keys match

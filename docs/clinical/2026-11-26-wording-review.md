@@ -189,6 +189,17 @@ when-to-call guidance (section 4) straight away.
 - **Q17.** Should one question allow more than one answer, at the cost of more than one tap?
 - **Q18.** Should a "Something worried me" debrief alert the clinician right away instead of waiting for the session?
 
+## 10. Offline
+
+Shown when the phone has no connection. Not clinical, listed because 10.3 changes the help message.
+
+| # | Where | Text | Keep / Change / Cut |
+|---|---|---|---|
+| 10.1 | Banner, offline | "You're offline. What you log is saved on this phone and sent when you're back online." | |
+| 10.2 | Banner, still sending | "Sending what you logged…" | |
+| 10.3 | Help message sent offline | "Saved on this phone. It will reach your care team once you're back online. In an emergency, call 911." | |
+| 10.4 | Signing out with unsent logs | "Some of what you logged hasn't been sent yet. If you sign out now it will be lost. Sign out anyway?" | |
+
 ---
 
 **Reviewer:** ______________________  **Role / license:** ______________________  **Date:** __________
